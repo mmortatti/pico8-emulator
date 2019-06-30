@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 //using MonoGame.Extended;
 using IndependentResolutionRendering;
 using pico8_interpreter.Pico8;
+using System.IO;
 
 namespace pico8_interpreter
 {
@@ -18,9 +19,6 @@ namespace pico8_interpreter
         RasterizerState rasterizerState;
 
         PicoInterpreter pico8;
-        Effect effect;
-        Texture2D picoPalette;
-        Texture2D BitwiseAndOp;
 
         public Game1()
         {
@@ -60,20 +58,6 @@ namespace pico8_interpreter
 
             pico8 = new PicoInterpreter(spriteBatch);
             pico8.LoadGameAndRun("test.lua");
-
-            effect = Content.Load<Effect>("picoShader");
-            picoPalette = Content.Load<Texture2D>("picoPalette");
-
-            BitwiseAndOp = new Texture2D(GraphicsDevice, 255, 255, false, SurfaceFormat.Alpha8);
-            byte[] opmap = new byte[255*255];
-            for (int i = 0; i < 255; i++)
-            {
-                for (int j = 0; j < 255; j++)
-                {
-                    opmap[i*255 + j] = (byte)(i & j);
-                }
-            }
-            BitwiseAndOp.SetData<byte>(opmap);
         }
 
         /// <summary>
@@ -109,15 +93,9 @@ namespace pico8_interpreter
             Resolution.BeginDraw();
 
             GraphicsDevice.Clear(Color.Black);
-            //effect.Parameters["picoPalette"].SetValue(picoPalette);
-            //effect.Parameters["bitwiseAnd"].SetValue(BitwiseAndOp);
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, rasterizerState, null, Resolution.getTransformationMatrix());
             pico8.Draw();
-            GraphicsDevice.Textures[1] = BitwiseAndOp;
-            GraphicsDevice.Textures[2] = picoPalette;
-            effect.CurrentTechnique.Passes[0].Apply();
-            spriteBatch.Draw(BitwiseAndOp, new Vector2(0,0), null, null, null, 0, new Vector2(2,1), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);

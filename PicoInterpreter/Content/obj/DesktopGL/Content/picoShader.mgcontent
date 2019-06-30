@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SourceFile>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoShader.fx</SourceFile>
-  <SourceTime>2019-06-30T00:07:38.8085354-03:00</SourceTime>
+  <SourceTime>2019-06-30T18:09:03.2454607-03:00</SourceTime>
   <DestFile>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/bin/DesktopGL/Content/picoShader.xnb</DestFile>
-  <DestTime>2019-06-30T00:07:40.1803608-03:00</DestTime>
+  <DestTime>2019-06-30T18:09:04.140433-03:00</DestTime>
   <Importer>EffectImporter</Importer>
   <ImporterTime>2018-12-08T14:35:54-02:00</ImporterTime>
   <Processor>EffectProcessor</Processor>

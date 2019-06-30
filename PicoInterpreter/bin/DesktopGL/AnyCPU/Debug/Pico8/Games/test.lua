@@ -3,6 +3,7 @@ x = 0
 y = 0
 r = 0
 function _draw()
+	cls()
     circ(64, 64, r)
 
     r = r + 0.1

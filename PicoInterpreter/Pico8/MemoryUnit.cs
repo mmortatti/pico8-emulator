@@ -65,6 +65,14 @@ namespace pico8_interpreter.Pico8
             }
         }
 
+        public void ClearFrameBuffer()
+        {
+            for (int i = 0; i < 0x2000; i++)
+            {
+                ram[ADDR_SCREEN + i] = 0;
+            }
+        }
+
         public void WritePixel(int x, int y, int color)
         {
             int index = (y * 128 + x) / 2;
@@ -74,8 +82,9 @@ namespace pico8_interpreter.Pico8
                 return;
             }
 
-            byte mask = (byte)(x % 2 == 1 ? 0b00001111 : 0b11110000);
-            ram[ADDR_SCREEN + index] = (byte)((ram[ADDR_SCREEN + index] & mask) | color);
+            byte mask = (byte)(x % 2 == 1 ? 0x0f : 0xf0);
+            color = x % 2 == 1 ? color << 4 : color;
+            ram[ADDR_SCREEN + index] = (byte)((byte)(ram[ADDR_SCREEN + index] & mask) | color);
         }
     }
 }

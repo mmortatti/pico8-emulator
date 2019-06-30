@@ -33,7 +33,7 @@ sampler bitwiseAndSampler = sampler_state
 };
 
 float AND(float x, float y) {
-	return tex2D(s1, float2(x, y)).a;
+	return tex2D(s1, float2(x, y)).r;
 }
 
 struct VertexShaderOutput
@@ -45,19 +45,19 @@ struct VertexShaderOutput
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    int colorValue = tex2D(s0,input.TextureCoordinates).a * 255;
+    int colorValue = tex2D(s0,input.TextureCoordinates).r * 255;
     int x = input.TextureCoordinates.x * 128;
 
-    if (x % 2 == 0) {
+    /*if (x % 2 == 0) {
         colorValue = AND(colorValue, (int)0x0f);
     }
     else {
-        colorValue = colorValue / 16;
-    }
+        colorValue = 0.0625 * colorValue;
+    }*/
 
-	return float4((float)colorValue / 255, (float)colorValue / 255, (float)colorValue / 255, 1);
+	colorValue = AND(input.TextureCoordinates.x, input.TextureCoordinates.y) * 255;
 
-	/*return tex2D(picoPaletteSampler, tex2D(SpriteTextureSampler,input.TextureCoordinates));*/
+	return tex2D(s1, input.TextureCoordinates).a;/*float4(colorValue, colorValue, colorValue, 1);*//*tex2D(s2, float2(0.0625 * colorValue, 0.5)) * 255*/;
 }
 
 technique SpriteDrawing

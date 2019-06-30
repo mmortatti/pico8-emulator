@@ -71,7 +71,7 @@ namespace pico8_interpreter.Pico8
         {
             this.spriteBatch = spriteBatch;
                 
-            screenTexture = new Texture2D(spriteBatch.GraphicsDevice, 64, 128, false, SurfaceFormat.Alpha8);
+            screenTexture = new Texture2D(spriteBatch.GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
             memory = new MemoryUnit();
             gameScript = new Script();
 
@@ -80,14 +80,29 @@ namespace pico8_interpreter.Pico8
             gameScript.Globals["circ"] = (Action<float, float, float, int>)Circ;
             gameScript.Globals["circfill"] = (Action<float, float, float, int>)CircFill;
             gameScript.Globals["pset"] = (Action<float, float, int>)Pset;
+            gameScript.Globals["cls"] = (Action)Cls;
 
             // Init default values
             this.col = 6;
         }
 
+        // TODO - Write to texture byte values and decode them in shader.
         public void Flip()
         {
-            screenTexture.SetData<byte>(memory.FrameBuffer);
+            byte[] frameBuffer = memory.FrameBuffer;
+            Color[] screenColorValues = new Color[128 * 128];
+            for (int i = 0; i < 64 * 128; i++)
+            {
+                byte val = frameBuffer[i];
+                byte left = (byte)(val & 0x0f);
+                byte right = (byte)(val >> 4);
+
+                screenColorValues[i * 2] = pico8Palette[left];
+                screenColorValues[i * 2 + 1] = pico8Palette[right];
+            }
+
+            screenTexture.SetData(screenColorValues);
+            spriteBatch.Draw(screenTexture, new Rectangle(0, 0, 128, 128), Color.White);
         }
 
         // Load a game from path and run it. 
@@ -131,6 +146,11 @@ namespace pico8_interpreter.Pico8
 
             //spriteBatch.DrawPoint(x, y, pico8Palette[this.col]);
             memory.WritePixel((int)x, (int)y, (byte)col);
+        }
+
+        private void Cls()
+        {
+            memory.ClearFrameBuffer();
         }
 
         private void Line(float x0, float y0, float x1, float y1, int col = -1)

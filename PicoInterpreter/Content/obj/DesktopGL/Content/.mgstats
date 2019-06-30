@@ -1,0 +1,5 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/pico8.png","C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/bin/DesktopGL/Content/pico8.xnb","TextureProcessor","Texture2DContent",138,185,0.1449904
+"C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoPalette.png","C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/bin/DesktopGL/Content/picoPalette.xnb","TextureProcessor","Texture2DContent",144,149,0.0069296
+"C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoScreenShader.fx","C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/bin/DesktopGL/Content/picoScreenShader.xnb","EffectProcessor","CompiledEffectContent",1085,1370,0.2957818
+"C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoShader.fx","C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/bin/DesktopGL/Content/picoShader.xnb","EffectProcessor","CompiledEffectContent",1345,2076,0.4449043

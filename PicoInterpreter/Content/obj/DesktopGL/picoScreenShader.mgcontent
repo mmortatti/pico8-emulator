@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SourceFile>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoScreenShader.fx</SourceFile>
+  <SourceTime>2019-06-30T00:03:36.2469977-03:00</SourceTime>
+  <DestFile>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/bin/DesktopGL/picoScreenShader.xnb</DestFile>
+  <DestTime>2019-06-30T00:04:57.306886-03:00</DestTime>
+  <Importer>EffectImporter</Importer>
+  <ImporterTime>2018-12-08T14:35:54-02:00</ImporterTime>
+  <Processor>EffectProcessor</Processor>
+  <ProcessorTime>2018-12-08T14:35:54-02:00</ProcessorTime>
+  <Parameters>
+    <Key>DebugMode</Key>
+    <Value>Auto</Value>
+  </Parameters>
+  <Dependencies />
+  <BuildAsset />
+  <BuildOutput />
+</PipelineBuildEvent>

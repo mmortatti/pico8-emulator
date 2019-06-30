@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Profile>Reach</Profile>
+  <Platform>DesktopGL</Platform>
+  <Config />
+  <SourceFiles>
+    <File>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/pico8.png</File>
+    <File>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoPalette.png</File>
+    <File>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoScreenShader.fx</File>
+  </SourceFiles>
+  <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+  </DestFiles>
+</SourceFileCollection>

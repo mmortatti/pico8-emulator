@@ -85,12 +85,41 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        public void ClearFrameBuffer()
+        public void Cls()
         {
             for (int i = 0; i < 0x2000; i++)
             {
                 ram[ADDR_SCREEN + i] = 0;
             }
+        }
+
+        public byte Peek(int addr)
+        {
+            if (addr < 0 || addr >= 0x8000) return 0;
+            return ram[addr];
+        }
+
+        public void Poke(int addr, byte val)
+        {
+            if (addr < 0 || addr >= 0x8000) return;
+
+            ram[addr] = val;
+        }
+
+#region Helper Functions
+
+        public byte GetPixel(int x, int y)
+        {
+            int index = (y * 128 + x) / 2;
+
+            if (index < 0 || index > 64 * 128 - 1)
+            {
+                return 0x10;
+            }
+
+            byte mask = (byte)(x % 2 == 1 ? 0x0f : 0xf0);
+            byte val = (byte)(ram[ADDR_SCREEN + index] & mask);
+            return (byte)(x % 2 == 0 ? val : val >> 4);
         }
 
         public void WritePixel(int x, int y, int color)
@@ -107,4 +136,5 @@ namespace pico8_interpreter.Pico8
             ram[ADDR_SCREEN + index] = (byte)((byte)(ram[ADDR_SCREEN + index] & mask) | color);
         }
     }
+#endregion
 }

@@ -83,7 +83,11 @@ namespace pico8_interpreter.Pico8
             gameScript.Globals["circ"] = (Action<float, float, float, int>)Circ;
             gameScript.Globals["circfill"] = (Action<float, float, float, int>)CircFill;
             gameScript.Globals["pset"] = (Action<float, float, int>)Pset;
-            gameScript.Globals["cls"] = (Action)Cls;
+            gameScript.Globals["pget"] = (Func<float, float, byte>)Pget;
+
+            gameScript.Globals["cls"] = (Action)memory.Cls;
+            gameScript.Globals["peek"] = (Func<int, byte>)memory.Peek;
+            gameScript.Globals["poke"] = (Action<int, byte>)memory.Poke;
 
             // Init default values
             this.col = 6;
@@ -151,9 +155,9 @@ namespace pico8_interpreter.Pico8
             memory.WritePixel((int)x, (int)y, memory.GetColor(this.col));
         }
 
-        private void Cls()
+        private byte Pget(float x, float y)
         {
-            memory.ClearFrameBuffer();
+            return memory.GetPixel((int)x, (int)y);
         }
 
         private void Swap<T>(ref T lhs, ref T rhs)

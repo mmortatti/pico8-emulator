@@ -4,7 +4,9 @@ y = 0
 r = 0
 function _draw()
 	cls()
-    circ(64, 64, r)
+
+    circfill(64, 64, r)
+	--line(96, r, 32, 96)
 
     r = r + 0.1
     --x = (x + 1) % 128

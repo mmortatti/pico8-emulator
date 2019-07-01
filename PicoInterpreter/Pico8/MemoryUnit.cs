@@ -39,6 +39,26 @@ namespace pico8_interpreter.Pico8
         {
             ram = new byte[0x8000];
             screen = new byte[0x2000];
+
+            InitRamState();
+        }
+
+        private void InitRamState()
+        {
+            ram[ADDR_PALETTE_0] = 0x10;
+            ram[ADDR_PALETTE_1] = 0x0;
+
+            for (int i = 1; i < 16; i++)
+            {
+                ram[ADDR_PALETTE_0 + i] = (byte)i;
+                ram[ADDR_PALETTE_1 + i] = (byte)i;
+            }
+        }
+
+        public int GetColor(int color)
+        {
+            if (color < 0 || color > 15) return 0;
+            return ram[ADDR_PALETTE_0 + color];
         }
         public int cameraX
         {
@@ -77,7 +97,7 @@ namespace pico8_interpreter.Pico8
         {
             int index = (y * 128 + x) / 2;
 
-            if (index < 0 || index > 64*128 - 1)
+            if (index < 0 || index > 64*128 - 1 || color > 15 || color < 0)
             {
                 return;
             }

@@ -50,7 +50,10 @@ namespace pico8_interpreter.Pico8
             // Pink
             new Color(255, 119, 168),
             // Peach
-            new Color(255, 204, 170)};
+            new Color(255, 204, 170),
+            // Transparent
+            new Color(0, 0, 0, 0)};
+        
         #endregion
 
         #region pico8_state
@@ -145,7 +148,7 @@ namespace pico8_interpreter.Pico8
             }
 
             //spriteBatch.DrawPoint(x, y, pico8Palette[this.col]);
-            memory.WritePixel((int)x, (int)y, (byte)col);
+            memory.WritePixel((int)x, (int)y, memory.GetColor(this.col));
         }
 
         private void Cls()
@@ -153,14 +156,54 @@ namespace pico8_interpreter.Pico8
             memory.ClearFrameBuffer();
         }
 
+        private void Swap<T>(ref T lhs, ref T rhs)
+        {
+            T temp;
+            temp = lhs;
+            lhs = rhs;
+            rhs = temp;
+        }
+
         private void Line(float x0, float y0, float x1, float y1, int col = -1)
         {
-            if (col != -1)
+            bool steep = false;
+            if (Math.Abs(x1 - x0) < Math.Abs(y1 - y0))
             {
-                this.col = col;
+                Swap(ref x0, ref y0);
+                Swap(ref x1, ref y1);
+                steep = true;
+            }
+            if (x0 > x1)
+            {
+                Swap(ref x0, ref x1);
+                Swap(ref y0, ref y1);
             }
 
-            //spriteBatch.DrawLine(x0, y0, x1, y1, pico8Palette[this.col]);
+            int dx = (int)(x1 - x0);
+            int dy = (int)(y1 - y0);
+            int d_err = 2 * Math.Abs(dy);
+            int err = 0;
+            int y = (int)y0;
+
+            for (int x = (int)x0; x <= x1; x++)
+            {
+                if (steep)
+                {
+                    Pset(y, x, col);
+                }
+                else
+                {
+                    Pset(x, y, col);
+                }
+
+                err += d_err;
+                
+                if(err > dx)
+                {
+                    y += y1 > y0 ? 1 : -1;
+                    err -= dx * 2;
+                }
+            }
         }
 
         private void Circ(float x, float y, float r, int col = -1)

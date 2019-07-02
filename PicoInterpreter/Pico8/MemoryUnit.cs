@@ -127,22 +127,22 @@ namespace pico8_interpreter.Pico8
             ram[addr + 1] = (byte)((val >> 8) & 0xff);
         }
 
-        public float Peek4(int addr)
+        public double Peek4(int addr)
         {
             // TODO throw BAD MEMORY ACCESS exception
             if (addr < 0 || addr >= 0x8000 - 3) return 0;
             int left = ram[addr] | (ram[addr + 1] << 8);
             int right = ((ram[addr + 2] << 16) | (ram[addr + 3] << 24));
 
-            return FixedToFloat(left + right);
+            return util.FixedToFloat(left + right);
         }
 
-        public void Poke4(int addr, float val)
+        public void Poke4(int addr, double val)
         {
             // TODO throw BAD MEMORY ACCESS exception
             if (addr < 0 || addr >= 0x8000 - 3) return;
 
-            Int32 f = FloatToFixed(val);
+            Int32 f = util.FloatToFixed(val);
 
             ram[addr] = (byte)(f & 0xff);
             ram[addr + 1] = (byte)((f >> 8) & 0xff);
@@ -151,16 +151,6 @@ namespace pico8_interpreter.Pico8
         }
 
         #region Helper Functions
-
-        public Int32 FloatToFixed(float x)
-        {
-            return (Int32)(x * SHIFT_16);
-        }
-
-        public float FixedToFloat(Int32 x)
-        {
-            return (float)x / SHIFT_16;
-        }
 
         public byte GetPixel(int x, int y)
         {

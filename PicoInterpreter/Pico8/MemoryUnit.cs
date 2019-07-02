@@ -22,8 +22,11 @@ namespace pico8_interpreter.Pico8
                          ADDR_CURSOR_Y = 0x5f27,
                          ADDR_CAMERA_X = 0x5f28,
                          ADDR_CAMERA_Y = 0x5f2a,
-                         ADDR_SCREEN = 0x6000;
-                         
+                         ADDR_SCREEN = 0x6000,
+                         ADDR_END = 0x8000;
+
+        public readonly int SHIFT_16 = 1 << 16;
+
         readonly byte[] ram;
         readonly byte[] screen;
         public byte[] FrameBuffer
@@ -37,7 +40,7 @@ namespace pico8_interpreter.Pico8
 
         public MemoryUnit()
         {
-            ram = new byte[0x8000];
+            ram = new byte[ADDR_END];
             screen = new byte[0x2000];
 
             InitRamState();
@@ -95,18 +98,69 @@ namespace pico8_interpreter.Pico8
 
         public byte Peek(int addr)
         {
+            // TODO throw BAD MEMORY ACCESS exception
             if (addr < 0 || addr >= 0x8000) return 0;
             return ram[addr];
         }
 
         public void Poke(int addr, byte val)
         {
+            // TODO throw BAD MEMORY ACCESS exception
             if (addr < 0 || addr >= 0x8000) return;
 
             ram[addr] = val;
         }
 
-#region Helper Functions
+        public int Peek2(int addr)
+        {
+            // TODO throw BAD MEMORY ACCESS exception
+            if (addr < 0 || addr >= 0x8000 - 1) return 0;
+            return ram[addr] | (ram[addr + 1] << 8);
+        }
+
+        public void Poke2(int addr, int val)
+        {
+            // TODO throw BAD MEMORY ACCESS exception
+            if (addr < 0 || addr >= 0x8000 - 1) return;
+
+            ram[addr] = (byte)(val & 0xff);
+            ram[addr + 1] = (byte)((val >> 8) & 0xff);
+        }
+
+        public float Peek4(int addr)
+        {
+            // TODO throw BAD MEMORY ACCESS exception
+            if (addr < 0 || addr >= 0x8000 - 3) return 0;
+            int left = ram[addr] | (ram[addr + 1] << 8);
+            int right = ((ram[addr + 2] << 16) | (ram[addr + 3] << 24));
+
+            return FixedToFloat(left + right);
+        }
+
+        public void Poke4(int addr, float val)
+        {
+            // TODO throw BAD MEMORY ACCESS exception
+            if (addr < 0 || addr >= 0x8000 - 3) return;
+
+            Int32 f = FloatToFixed(val);
+
+            ram[addr] = (byte)(f & 0xff);
+            ram[addr + 1] = (byte)((f >> 8) & 0xff);
+            ram[addr + 2] = (byte)((f >> 16) & 0xff);
+            ram[addr + 3] = (byte)((f >> 24) & 0xff);
+        }
+
+        #region Helper Functions
+
+        public Int32 FloatToFixed(float x)
+        {
+            return (Int32)(x * SHIFT_16);
+        }
+
+        public float FixedToFloat(Int32 x)
+        {
+            return (float)x / SHIFT_16;
+        }
 
         public byte GetPixel(int x, int y)
         {

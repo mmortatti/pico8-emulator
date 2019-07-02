@@ -88,6 +88,10 @@ namespace pico8_interpreter.Pico8
             gameScript.Globals["cls"] = (Action)memory.Cls;
             gameScript.Globals["peek"] = (Func<int, byte>)memory.Peek;
             gameScript.Globals["poke"] = (Action<int, byte>)memory.Poke;
+            gameScript.Globals["peek2"] = (Func<int, int>)memory.Peek2;
+            gameScript.Globals["poke2"] = (Action<int, int>)memory.Poke2;
+            gameScript.Globals["peek4"] = (Func<int, float>)memory.Peek4;
+            gameScript.Globals["poke4"] = (Action<int, float>)memory.Poke4;
 
             // Init default values
             this.col = 6;

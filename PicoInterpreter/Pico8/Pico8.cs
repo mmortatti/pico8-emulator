@@ -17,42 +17,6 @@ namespace pico8_interpreter.Pico8
         // Pico8 defines
         public const int WIDTH = 128;
         public const int HEIGHT = 128;
-
-        public Color[] pico8Palette = {
-            // Black
-            new Color(0, 0, 0),
-            // Dark-blue
-            new Color(29, 43, 83),
-            // Dark-purple
-            new Color(126, 37, 83),
-            // Dark-green
-            new Color(0, 135, 81),
-            // Brown
-            new Color(171, 82, 54),
-            // Dark-gray
-            new Color(95, 87, 79),
-            // Light-gray
-            new Color(194, 195, 199),
-            // White
-            new Color(255, 241, 232),
-            // Red
-            new Color(255, 0, 77),
-            // Orange
-            new Color(255, 163, 0),
-            // Yellow
-            new Color(255, 236, 39),
-            // Green
-            new Color(0, 228, 54),
-            // Blue
-            new Color(41, 173, 255),
-            // Indigo
-            new Color(131, 118, 156),
-            // Pink
-            new Color(255, 119, 168),
-            // Peach
-            new Color(255, 204, 170),
-            // Transparent
-            new Color(0, 0, 0, 0)};
         
         #endregion
 
@@ -80,12 +44,14 @@ namespace pico8_interpreter.Pico8
                 
             screenTexture = new Texture2D(spriteBatch.GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
             memory = new MemoryUnit();
-            graphics = new GraphicsUnit(ref memory);
+            graphics = new GraphicsUnit(ref memory, ref screenTexture, ref spriteBatch);
             gameScript = new Script();
             random = new Random();
 
             // Init global functions
             gameScript.Globals["line"] = (Action<float, float, float, float, int?>)graphics.Line;
+            gameScript.Globals["rect"] = (Action<float, float, float, float, int?>)graphics.Rect;
+            gameScript.Globals["rectfill"] = (Action<float, float, float, float, int?>)graphics.Rectfill;
             gameScript.Globals["circ"] = (Action<float, float, float, int?>)graphics.Circ;
             gameScript.Globals["circfill"] = (Action<float, float, float, int?>)graphics.CircFill;
             gameScript.Globals["pset"] = (Action<float, float, int?>)graphics.Pset;
@@ -127,25 +93,6 @@ namespace pico8_interpreter.Pico8
             this.col = 6;
         }
 
-        // TODO - Write to texture byte values and decode them in shader.
-        public void Flip()
-        {
-            byte[] frameBuffer = memory.FrameBuffer;
-            Color[] screenColorValues = new Color[128 * 128];
-            for (int i = 0; i < 64 * 128; i++)
-            {
-                byte val = frameBuffer[i];
-                byte left = (byte)(val & 0x0f);
-                byte right = (byte)(val >> 4);
-
-                screenColorValues[i * 2] = pico8Palette[left];
-                screenColorValues[i * 2 + 1] = pico8Palette[right];
-            }
-
-            screenTexture.SetData(screenColorValues);
-            spriteBatch.Draw(screenTexture, new Rectangle(0, 0, 128, 128), Color.White);
-        }
-
         // Load a game from path and run it. 
         // All paths are considered to be inside pico8/games folder
         public void LoadGameAndRun(string path)
@@ -170,7 +117,7 @@ namespace pico8_interpreter.Pico8
         {
             if (gameScript.Globals["_draw"] != null)
                 gameScript.Call(gameScript.Globals["_draw"]);
-            Flip();
+            graphics.Flip();
         }
 
         public void SetSpriteBatch(SpriteBatch spriteBatch)

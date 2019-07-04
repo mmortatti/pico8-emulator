@@ -10,6 +10,9 @@ function _draw()
 	else
 		circfill(64, 64, r, 9)
 	end
+
+	rectfill(64,64,0,0)
+
 	--line(96, r, 32, 96)
 	
 	--print(tostring(shl(-1, 15)))

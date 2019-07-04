@@ -71,11 +71,18 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        public int GetColor(int color)
+        public int GetDrawColor(int color)
         {
             if (color < 0 || color > 15) return 0;
             return ram[ADDR_PALETTE_0 + color];
         }
+
+        public int GetScreenColor(int color)
+        {
+            if (color < 0 || color > 15) return 0;
+            return ram[ADDR_PALETTE_1 + color];
+        }
+
         public int cameraX
         {
             get => ((sbyte)(ram[ADDR_CAMERA_X + 1] << 8)) | ram[ADDR_CAMERA_X];

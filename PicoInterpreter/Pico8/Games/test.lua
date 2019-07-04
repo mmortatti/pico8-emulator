@@ -5,10 +5,14 @@ r = 0
 function _draw()
 	cls()
 
-    --circfill(64, 64, r)
+	if flr(r) % 2 == 0 then
+		circfill(64, 64, r, 8)
+	else
+		circfill(64, 64, r, 9)
+	end
 	--line(96, r, 32, 96)
 	
-	print(tostring(shl(-1, 15)))
+	--print(tostring(shl(-1, 15)))
 
     r = r + 0.1
     --x = (x + 1) % 128

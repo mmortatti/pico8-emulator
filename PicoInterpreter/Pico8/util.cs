@@ -19,5 +19,13 @@ namespace pico8_interpreter.Pico8
         {
             return (double)x / SHIFT_16;
         }
+
+        public static void Swap<T>(ref T lhs, ref T rhs)
+        {
+            T temp;
+            temp = lhs;
+            lhs = rhs;
+            rhs = temp;
+        }
     }
 }

@@ -68,7 +68,9 @@ namespace pico8_interpreter.Pico8
         private SpriteBatch spriteBatch;
 
         private Script gameScript;
+
         private MemoryUnit memory;
+        private GraphicsUnit graphics;
 
         private Random random;
 
@@ -78,15 +80,16 @@ namespace pico8_interpreter.Pico8
                 
             screenTexture = new Texture2D(spriteBatch.GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
             memory = new MemoryUnit();
+            graphics = new GraphicsUnit(ref memory);
             gameScript = new Script();
             random = new Random();
 
             // Init global functions
-            gameScript.Globals["line"] = (Action<float, float, float, float, int>)Line;
-            gameScript.Globals["circ"] = (Action<float, float, float, int>)Circ;
-            gameScript.Globals["circfill"] = (Action<float, float, float, int>)CircFill;
-            gameScript.Globals["pset"] = (Action<float, float, int>)Pset;
-            gameScript.Globals["pget"] = (Func<float, float, byte>)Pget;
+            gameScript.Globals["line"] = (Action<float, float, float, float, int?>)graphics.Line;
+            gameScript.Globals["circ"] = (Action<float, float, float, int?>)graphics.Circ;
+            gameScript.Globals["circfill"] = (Action<float, float, float, int?>)graphics.CircFill;
+            gameScript.Globals["pset"] = (Action<float, float, int?>)graphics.Pset;
+            gameScript.Globals["pget"] = (Func<float, float, byte>)graphics.Pget;
 
             // Memory related
             gameScript.Globals["cls"] = (Action)memory.Cls;
@@ -173,139 +176,6 @@ namespace pico8_interpreter.Pico8
         public void SetSpriteBatch(SpriteBatch spriteBatch)
         {
             this.spriteBatch = spriteBatch;
-        }
-
-        private void Pset(float x, float y, int col = -1)
-        {
-            if (col != -1)
-            {
-                this.col = col;
-            }
-
-            //spriteBatch.DrawPoint(x, y, pico8Palette[this.col]);
-            memory.WritePixel((int)x, (int)y, memory.GetColor(this.col));
-        }
-
-        private byte Pget(float x, float y)
-        {
-            return memory.GetPixel((int)x, (int)y);
-        }
-
-        private void Swap<T>(ref T lhs, ref T rhs)
-        {
-            T temp;
-            temp = lhs;
-            lhs = rhs;
-            rhs = temp;
-        }
-
-        private void Line(float x0, float y0, float x1, float y1, int col = -1)
-        {
-            bool steep = false;
-            if (Math.Abs(x1 - x0) < Math.Abs(y1 - y0))
-            {
-                Swap(ref x0, ref y0);
-                Swap(ref x1, ref y1);
-                steep = true;
-            }
-            if (x0 > x1)
-            {
-                Swap(ref x0, ref x1);
-                Swap(ref y0, ref y1);
-            }
-
-            int dx = (int)(x1 - x0);
-            int dy = (int)(y1 - y0);
-            int d_err = 2 * Math.Abs(dy);
-            int err = 0;
-            int y = (int)y0;
-
-            for (int x = (int)x0; x <= x1; x++)
-            {
-                if (steep)
-                {
-                    Pset(y, x, col);
-                }
-                else
-                {
-                    Pset(x, y, col);
-                }
-
-                err += d_err;
-                
-                if(err > dx)
-                {
-                    y += y1 > y0 ? 1 : -1;
-                    err -= dx * 2;
-                }
-            }
-        }
-
-        private void Circ(float x, float y, float r, int col = -1)
-        {
-            if (col != -1)
-            {
-                this.col = col;
-            }
-
-            DrawCircle(x, y, (int)r, false);
-        }
-
-        private void CircFill(float x, float y, float r, int col = -1)
-        {
-            if (col != -1)
-            {
-                this.col = col;
-            }
-
-            DrawCircle(x, y, (int)r, true);
-        }
-
-        void plot8(float x, float y, float offX, float offY, bool fill = false)
-        {
-            if (fill)
-            {
-                Line(-x + offX, y + offY, x + offX, y + offY, this.col);
-                Line(-x + offX, -y + offY, x + offX, -y + offY, this.col);
-                Line(-y + offX, x + offY, y + offX, x + offY, this.col);
-                Line(-y + offX, -x + offY, y + offX, -x + offY, this.col);
-            }
-            else
-            {   
-                Pset(x + offX, y + offY, this.col);
-                Pset(-x + offX, y + offY, this.col);
-                Pset(x + offX, -y + offY, this.col);
-                Pset(-x + offX, -y + offY, this.col);
-                Pset(y + offX, x + offY, this.col);
-                Pset(-y + offX, x + offY, this.col);
-                Pset(y + offX, -x + offY, this.col);
-                Pset(-y + offX, -x + offY, this.col);
-            }
-        }
-
-        void DrawCircle(float posX, float posY, int radius, bool fill = false)
-        {
-            int rs2 = radius * radius * 4; /* this could be folded into ycs2 */
-            int xs2 = 0;
-            int ys2m1 = rs2 - 2 * radius + 1;
-            int x = 0;
-            int y = radius;
-            int ycs2;
-            plot8(x, y, posX, posY, fill);
-            while (x <= y)
-            {
-                /* advance to the right */
-                xs2 = xs2 + 8 * x + 4;
-                ++x;
-                /* calculate new Yc */
-                ycs2 = rs2 - xs2;
-                if (ycs2 < ys2m1)
-                {
-                    ys2m1 = ys2m1 - 8 * y + 4;
-                    --y;
-                }
-                plot8(x, y, posX, posY, fill);
-            }
         }
     }
 }

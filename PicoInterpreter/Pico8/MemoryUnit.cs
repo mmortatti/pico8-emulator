@@ -18,6 +18,7 @@ namespace pico8_interpreter.Pico8
                          ADDR_CART = 0x5e00,
                          ADDR_PALETTE_0 = 0x5f00,
                          ADDR_PALETTE_1 = 0x5f10,
+                         ADDR_DRAW_COL = 0x5f25,
                          ADDR_CURSOR_X = 0x5f26,
                          ADDR_CURSOR_Y = 0x5f27,
                          ADDR_CAMERA_X = 0x5f28,
@@ -35,6 +36,18 @@ namespace pico8_interpreter.Pico8
             {
                 Buffer.BlockCopy(ram, 0x6000, screen, 0, 0x2000);
                 return screen;
+            }
+        }
+
+        public int DrawColor
+        {
+            get
+            {
+                return ram[ADDR_DRAW_COL];
+            }
+            set
+            {
+                ram[ADDR_DRAW_COL] = (byte)(value & 0xf);
             }
         }
 
@@ -65,10 +78,7 @@ namespace pico8_interpreter.Pico8
         }
         public int cameraX
         {
-            get
-            {
-                return ((sbyte)(ram[ADDR_CAMERA_X + 1] << 8)) | ram[ADDR_CAMERA_X];
-            }
+            get => ((sbyte)(ram[ADDR_CAMERA_X + 1] << 8)) | ram[ADDR_CAMERA_X];
             set
             {
                 ram[ADDR_CAMERA_X] = (byte)(value & 0xff);
@@ -77,10 +87,7 @@ namespace pico8_interpreter.Pico8
         }
         public int cameraY
         {
-            get
-            {
-                return ((sbyte)(ram[ADDR_CAMERA_Y + 1] << 8)) | ram[ADDR_CAMERA_Y];
-            }
+            get => ((sbyte)(ram[ADDR_CAMERA_Y + 1] << 8)) | ram[ADDR_CAMERA_Y];
             set
             {
                 ram[ADDR_CAMERA_Y] = (byte)(value & 0xff);

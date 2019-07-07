@@ -45,6 +45,8 @@
   <ItemGroup>
     <Compile Include="Game1.cs" />
     <Compile Include="Pico8\GraphicsUnit.cs" />
+    <Compile Include="Pico8\Lua Interpreter\ILuaInterpreter.cs" />
+    <Compile Include="Pico8\Lua Interpreter\MoonSharpInterpreter.cs" />
     <Compile Include="Pico8\MemoryUnit.cs" />
     <Compile Include="Pico8\Pico8.cs" />
     <Compile Include="Pico8\util.cs" />

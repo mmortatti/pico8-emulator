@@ -7,7 +7,6 @@ using System.IO;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-//using MonoGame.Extended;
 
 namespace pico8_interpreter.Pico8
 {
@@ -20,77 +19,68 @@ namespace pico8_interpreter.Pico8
         
         #endregion
 
-        #region pico8_state
-
-        private int col = 6;
-
-        #endregion
-
         public Texture2D screenTexture;
 
         private string gameCode = "";
         private SpriteBatch spriteBatch;
 
-        private Script gameScript;
+        private ILuaInterpreter interpreter;
 
         private MemoryUnit memory;
         private GraphicsUnit graphics;
 
         private Random random;
 
-        public PicoInterpreter(SpriteBatch spriteBatch)
+        public PicoInterpreter(SpriteBatch spriteBatch, ILuaInterpreter interpreter)
         {
             this.spriteBatch = spriteBatch;
                 
             screenTexture = new Texture2D(spriteBatch.GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
             memory = new MemoryUnit();
             graphics = new GraphicsUnit(ref memory, ref screenTexture, ref spriteBatch);
-            gameScript = new Script();
+            this.interpreter = interpreter;
             random = new Random();
 
             // Init global functions
-            gameScript.Globals["line"] = (Action<float, float, float, float, int?>)graphics.Line;
-            gameScript.Globals["rect"] = (Action<float, float, float, float, int?>)graphics.Rect;
-            gameScript.Globals["rectfill"] = (Action<float, float, float, float, int?>)graphics.Rectfill;
-            gameScript.Globals["circ"] = (Action<float, float, float, int?>)graphics.Circ;
-            gameScript.Globals["circfill"] = (Action<float, float, float, int?>)graphics.CircFill;
-            gameScript.Globals["pset"] = (Action<float, float, int?>)graphics.Pset;
-            gameScript.Globals["pget"] = (Func<float, float, byte>)graphics.Pget;
+            interpreter.AddFunction("line", (Action<float, float, float, float, int?>)graphics.Line);
+            interpreter.AddFunction("rect" , (Action<float, float, float, float, int?>)graphics.Rect);
+            interpreter.AddFunction("rectfill", (Action<float, float, float, float, int?>)graphics.Rectfill);
+            interpreter.AddFunction("circ", (Action<float, float, float, int?>)graphics.Circ);
+            interpreter.AddFunction("circfill", (Action<float, float, float, int?>)graphics.CircFill);
+            interpreter.AddFunction("pset", (Action<float, float, int?>)graphics.Pset);
+            interpreter.AddFunction("pget", (Func<float, float, byte>)graphics.Pget);
 
             // Memory related
-            gameScript.Globals["cls"] = (Action)memory.Cls;
-            gameScript.Globals["peek"] = (Func<int, byte>)memory.Peek;
-            gameScript.Globals["poke"] = (Action<int, byte>)memory.Poke;
-            gameScript.Globals["peek2"] = (Func<int, int>)memory.Peek2;
-            gameScript.Globals["poke2"] = (Action<int, int>)memory.Poke2;
-            gameScript.Globals["peek4"] = (Func<int, double>)memory.Peek4;
-            gameScript.Globals["poke4"] = (Action<int, double>)memory.Poke4;
+            interpreter.AddFunction("cls", (Action)memory.Cls);
+            interpreter.AddFunction("peek", (Func<int, byte>)memory.Peek);
+            interpreter.AddFunction("poke", (Action<int, byte>)memory.Poke);
+            interpreter.AddFunction("peek2", (Func<int, int>)memory.Peek2);
+            interpreter.AddFunction("poke2", (Action<int, int>)memory.Poke2);
+            interpreter.AddFunction("peek4", (Func<int, double>)memory.Peek4);
+            interpreter.AddFunction("poke4", (Action<int, double>)memory.Poke4);
 
             // Math
-            gameScript.Globals["max"] = (Func<double, double, double>)Math.Max;
-            gameScript.Globals["min"] = (Func<double, double, double>)Math.Min;
-            gameScript.Globals["min"] = (Func<double, double, double, double>)((x, y, z) => Math.Max(Math.Min(Math.Max(x, y), z), Math.Min(x, y)));
-            gameScript.Globals["flr"] = (Func<double, double>)Math.Floor;
-            gameScript.Globals["ceil"] = (Func<double, double>)Math.Ceiling;
-            gameScript.Globals["cos"] = (Func<double, double>)(x => Math.Cos(2 * x * Math.PI));
-            gameScript.Globals["sin"] = (Func<double, double>)(x => -Math.Sin(2 * x * Math.PI));
-            gameScript.Globals["atan2"] = (Func<double, double, double>)((dx, dy) => 1 - Math.Atan2(dy, dx) / (2 * Math.PI));
-            gameScript.Globals["sqrt"] = (Func<double, double>)Math.Sqrt;
-            gameScript.Globals["abs"] = (Func<double, double>)Math.Abs;
-            gameScript.Globals["rnd"] = (Func<double, double>) (x => random.NextDouble() * x);
-            gameScript.Globals["srand"] = (Action<int>)(x => random = new Random(x));
-            gameScript.Globals["band"] = (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) & util.FloatToFixed(y)));
-            gameScript.Globals["bor"] = (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) | util.FloatToFixed(y)));
-            gameScript.Globals["bxor"] = (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) ^ util.FloatToFixed(y)));
-            gameScript.Globals["bnot"] = (Func<double, double>)(x => util.FixedToFloat(~util.FloatToFixed(x)));
-            gameScript.Globals["shl"] = (Func<double, int, double>)((x, n) => util.FixedToFloat(util.FloatToFixed(x) << n));
-            gameScript.Globals["shr"] = (Func<double, int, double>)((x, n) => util.FixedToFloat(util.FloatToFixed(x) >> n));
-            gameScript.Globals["lshr"] = (Func<double, int, double>)((x, n) => util.FixedToFloat((int)((uint)util.FloatToFixed(x)) >> n)); // Does Not Work I think
+            interpreter.AddFunction("max", (Func<double, double, double>)Math.Max);
+            interpreter.AddFunction("min", (Func<double, double, double>)Math.Min);
+            interpreter.AddFunction("min", (Func<double, double, double, double>)((x, y, z) => Math.Max(Math.Min(Math.Max(x, y), z), Math.Min(x, y))));
+            interpreter.AddFunction("flr", (Func<double, double>)Math.Floor);
+            interpreter.AddFunction("ceil", (Func<double, double>)Math.Ceiling);
+            interpreter.AddFunction("cos", (Func<double, double>)(x => Math.Cos(2 * x * Math.PI)));
+            interpreter.AddFunction("sin", (Func<double, double>)(x => -Math.Sin(2 * x * Math.PI)));
+            interpreter.AddFunction("atan2", (Func<double, double, double>)((dx, dy) => 1 - Math.Atan2(dy, dx) / (2 * Math.PI)));
+            interpreter.AddFunction("sqrt", (Func<double, double>)Math.Sqrt);
+            interpreter.AddFunction("abs", (Func<double, double>)Math.Abs);
+            interpreter.AddFunction("rnd", (Func<double, double>) (x => random.NextDouble() * x));
+            interpreter.AddFunction("srand", (Action<int>)(x => random = new Random(x)));
+            interpreter.AddFunction("band", (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) & util.FloatToFixed(y))));
+            interpreter.AddFunction("bor", (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) | util.FloatToFixed(y))));
+            interpreter.AddFunction("bxor", (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) ^ util.FloatToFixed(y))));
+            interpreter.AddFunction("bnot", (Func<double, double>)(x => util.FixedToFloat(~util.FloatToFixed(x))));
+            interpreter.AddFunction("shl", (Func<double, int, double>)((x, n) => util.FixedToFloat(util.FloatToFixed(x) << n)));
+            interpreter.AddFunction("shr", (Func<double, int, double>)((x, n) => util.FixedToFloat(util.FloatToFixed(x) >> n)));
+            interpreter.AddFunction("lshr", (Func<double, int, double>)((x, n) => util.FixedToFloat((int)((uint)util.FloatToFixed(x)) >> n))); // Does Not Work I think
 
-            gameScript.Globals["print"] = (Action<string>)Console.WriteLine;
-
-            // Init default values
-            this.col = 6;
+            interpreter.AddFunction("print", (Action<string>)Console.WriteLine);
         }
 
         // Load a game from path and run it. 
@@ -102,21 +92,19 @@ namespace pico8_interpreter.Pico8
 
             // Read stream to string and run script
             gameCode = streamReader.ReadToEnd();
-            gameScript.DoString(gameCode);
+            interpreter.RunScript(gameCode);
         }
 
         // Call scripts update method
         public void Update()
         {
-            if (gameScript.Globals["_update"] != null)
-                gameScript.Call(gameScript.Globals["_update"]);
+            interpreter.CallIfDefined("_update");
         }
 
         // Call scripts draw method
         public void Draw()
         {
-            if (gameScript.Globals["_draw"] != null)
-                gameScript.Call(gameScript.Globals["_draw"]);
+            interpreter.CallIfDefined("_draw");
             graphics.Flip();
         }
 

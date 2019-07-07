@@ -56,7 +56,7 @@ namespace pico8_interpreter
             pico8Logo = Content.Load<Texture2D>("pico8");
             rasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
 
-            pico8 = new PicoInterpreter(spriteBatch);
+            pico8 = new PicoInterpreter(spriteBatch, new MoonSharpInterpreter());
             pico8.LoadGameAndRun("test.lua");
         }
 

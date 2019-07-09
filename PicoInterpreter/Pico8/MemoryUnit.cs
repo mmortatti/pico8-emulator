@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace pico8_interpreter.Pico8
 {
@@ -18,18 +17,24 @@ namespace pico8_interpreter.Pico8
                          ADDR_CART = 0x5e00,
                          ADDR_PALETTE_0 = 0x5f00,
                          ADDR_PALETTE_1 = 0x5f10,
+                         ADDR_CLIP_X0 = 0x5f20,
+                         ADDR_CLIP_Y0 = 0x5f21,
+                         ADDR_CLIP_X1 = 0x5f22,
+                         ADDR_CLIP_Y1 = 0x5f23,
                          ADDR_DRAW_COL = 0x5f25,
                          ADDR_CURSOR_X = 0x5f26,
                          ADDR_CURSOR_Y = 0x5f27,
                          ADDR_CAMERA_X = 0x5f28,
                          ADDR_CAMERA_Y = 0x5f2a,
+                         ADDR_LINE_X = 0x5f3c,
+                         ADDR_LINE_Y = 0x5f3e,
                          ADDR_SCREEN = 0x6000,
                          ADDR_END = 0x8000;
 
         public readonly int SHIFT_16 = 1 << 16;
 
-        readonly byte[] ram;
-        readonly byte[] screen;
+        private byte[] ram;
+        private byte[] screen;
         public byte[] FrameBuffer
         {
             get
@@ -51,12 +56,61 @@ namespace pico8_interpreter.Pico8
             }
         }
 
+        public int cameraX
+        {
+            get => ((sbyte)(ram[ADDR_CAMERA_X + 1]) << 8) | ram[ADDR_CAMERA_X];
+            set
+            {
+                ram[ADDR_CAMERA_X] = (byte)(value & 0xff);
+                ram[ADDR_CAMERA_X + 1] = (byte)(value >> 8);
+            }
+        }
+        public int cameraY
+        {
+            get => ((sbyte)(ram[ADDR_CAMERA_Y + 1]) << 8) | ram[ADDR_CAMERA_Y];
+            set
+            {
+                ram[ADDR_CAMERA_Y] = (byte)(value & 0xff);
+                ram[ADDR_CAMERA_Y + 1] = (byte)(value >> 8);
+            }
+        }
+
+        public int lineX
+        {
+            get => ((sbyte)(ram[ADDR_LINE_X + 1]) << 8) | ram[ADDR_LINE_X];
+            set
+            {
+                ram[ADDR_LINE_X] = (byte)(value & 0xff);
+                ram[ADDR_LINE_X + 1] = (byte)(value >> 8);
+            }
+        }
+
+        public int lineY
+        {
+            get => ((sbyte)(ram[ADDR_LINE_Y + 1]) << 8) | ram[ADDR_LINE_Y];
+            set
+            {
+                ram[ADDR_LINE_Y] = (byte)(value & 0xff);
+                ram[ADDR_LINE_Y + 1] = (byte)(value >> 8);
+            }
+        }
+
+        public byte clipX0 { get { return (byte)(ram[ADDR_CLIP_X0] & 0x7f); } set { ram[ADDR_CLIP_X0] = value; } }
+        public byte clipY0 { get { return (byte)(ram[ADDR_CLIP_Y0] & 0x7f); } set { ram[ADDR_CLIP_Y0] = value; } }
+        public byte clipX1 { get { return (byte)(ram[ADDR_CLIP_X1] & 0x7f); } set { ram[ADDR_CLIP_X1] = value; } }
+        public byte clipY1 { get { return (byte)(ram[ADDR_CLIP_Y1] & 0x7f); } set { ram[ADDR_CLIP_Y1] = value; } }
+
         public MemoryUnit()
         {
             ram = new byte[ADDR_END];
             screen = new byte[0x2000];
 
             InitRamState();
+        }
+
+        public void LoadCartridgeData(byte[] cartridgeRom)
+        {
+            Buffer.BlockCopy(cartridgeRom, 0x0, ram, 0, 0x4300);
         }
 
         private void InitRamState()
@@ -69,6 +123,11 @@ namespace pico8_interpreter.Pico8
                 ram[ADDR_PALETTE_0 + i] = (byte)i;
                 ram[ADDR_PALETTE_1 + i] = (byte)i;
             }
+
+            ram[ADDR_CLIP_X0] = 0;
+            ram[ADDR_CLIP_Y0] = 0;
+            ram[ADDR_CLIP_X1] = 127;
+            ram[ADDR_CLIP_Y1] = 127;
         }
 
         public int GetDrawColor(int color)
@@ -83,22 +142,47 @@ namespace pico8_interpreter.Pico8
             return ram[ADDR_PALETTE_1 + color];
         }
 
-        public int cameraX
+        public void SetTransparent(int col)
         {
-            get => ((sbyte)(ram[ADDR_CAMERA_X + 1] << 8)) | ram[ADDR_CAMERA_X];
-            set
-            {
-                ram[ADDR_CAMERA_X] = (byte)(value & 0xff);
-                ram[ADDR_CAMERA_X + 1] = (byte)(value >> 8);
-            }
+            if (col >= 0 && col <= 15)
+                ram[ADDR_PALETTE_0 + col] = 0x10;
         }
-        public int cameraY
+
+        public void ResetTransparent(int col)
         {
-            get => ((sbyte)(ram[ADDR_CAMERA_Y + 1] << 8)) | ram[ADDR_CAMERA_Y];
-            set
+            if (col >= 0 && col <= 15)
+                ram[ADDR_PALETTE_0 + col] = (byte)col;
+        }
+
+        public void SetDrawPalette(int c0, int c1)
+        {
+            if (c0 >= 0 && c0 <= 15 && c1 >=0 && c1 <= 15)
+                ram[ADDR_PALETTE_0 + c0] = (byte)c1;
+        }
+
+        public void SetScreenPalette(int c0, int c1)
+        {
+            if (c0 >= 0 && c0 <= 15 && c1 >= 0 && c1 <= 15)
+                ram[ADDR_PALETTE_1 + c0] = (byte)c1;
+        }
+
+        public void Camera(int? x, int? y)
+        {
+            if (!x.HasValue && !y.HasValue)
             {
-                ram[ADDR_CAMERA_Y] = (byte)(value & 0xff);
-                ram[ADDR_CAMERA_Y + 1] = (byte)(value >> 8);
+                cameraX = 0;
+                cameraY = 0;
+                return;
+            }
+
+            if (x.HasValue)
+            {
+                cameraX = x.Value;
+            }
+
+            if (y.HasValue)
+            {
+                cameraY = y.Value;
             }
         }
 
@@ -166,7 +250,7 @@ namespace pico8_interpreter.Pico8
 
         #region Helper Functions
 
-        public byte GetPixel(int x, int y)
+        public byte GetPixel(int x, int y, int offset = ADDR_SCREEN)
         {
             int index = (y * 128 + x) / 2;
 
@@ -175,23 +259,23 @@ namespace pico8_interpreter.Pico8
                 return 0x10;
             }
 
-            byte mask = (byte)(x % 2 == 1 ? 0x0f : 0xf0);
-            byte val = (byte)(ram[ADDR_SCREEN + index] & mask);
+            byte mask = (byte)(x % 2 == 0 ? 0x0f : 0xf0);
+            byte val = (byte)(ram[offset + index] & mask);
             return (byte)(x % 2 == 0 ? val : val >> 4);
         }
 
-        public void WritePixel(int x, int y, int color)
+        public void WritePixel(int x, int y, int color, int offset = ADDR_SCREEN)
         {
             int index = (y * 128 + x) / 2;
 
-            if (index < 0 || index > 64*128 - 1 || color > 15 || color < 0)
+            if (x < clipX0 || y < clipY0 || x > clipX1 || y > clipY1 || color > 15 || color < 0)
             {
                 return;
             }
 
             byte mask = (byte)(x % 2 == 1 ? 0x0f : 0xf0);
             color = x % 2 == 1 ? color << 4 : color;
-            ram[ADDR_SCREEN + index] = (byte)((byte)(ram[ADDR_SCREEN + index] & mask) | color);
+            ram[offset + index] = (byte)((byte)(ram[offset + index] & mask) | color);
         }
     }
 #endregion

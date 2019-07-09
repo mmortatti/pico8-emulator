@@ -7,6 +7,7 @@ using System.IO;
 using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace pico8_interpreter.Pico8
 {
@@ -28,6 +29,7 @@ namespace pico8_interpreter.Pico8
 
         private MemoryUnit memory;
         private GraphicsUnit graphics;
+        private Cartridge cartridge;
 
         private Random random;
 
@@ -41,14 +43,20 @@ namespace pico8_interpreter.Pico8
             this.interpreter = interpreter;
             random = new Random();
 
-            // Init global functions
-            interpreter.AddFunction("line", (Action<float, float, float, float, int?>)graphics.Line);
-            interpreter.AddFunction("rect" , (Action<float, float, float, float, int?>)graphics.Rect);
-            interpreter.AddFunction("rectfill", (Action<float, float, float, float, int?>)graphics.Rectfill);
-            interpreter.AddFunction("circ", (Action<float, float, float, int?>)graphics.Circ);
-            interpreter.AddFunction("circfill", (Action<float, float, float, int?>)graphics.CircFill);
-            interpreter.AddFunction("pset", (Action<float, float, int?>)graphics.Pset);
-            interpreter.AddFunction("pget", (Func<float, float, byte>)graphics.Pget);
+            // Graphics
+            interpreter.AddFunction("line", (Action<int, int, int?, int?, int?>)graphics.Line);
+            interpreter.AddFunction("rect" , (Action<int, int, int, int, int?>)graphics.Rect);
+            interpreter.AddFunction("rectfill", (Action<int, int, int, int, int?>)graphics.Rectfill);
+            interpreter.AddFunction("circ", (Action<int, int, int, int?>)graphics.Circ);
+            interpreter.AddFunction("circfill", (Action<int, int, int, int?>)graphics.CircFill);
+            interpreter.AddFunction("pset", (Action<int, int, int?>)graphics.Pset);
+            interpreter.AddFunction("pget", (Func<int, int, byte>)graphics.Pget);
+            interpreter.AddFunction("sset", (Action<int, int, int?>)graphics.Sset);
+            interpreter.AddFunction("sget", (Func<int, int, byte>)graphics.Sget);
+            interpreter.AddFunction("palt", (Action<int, bool>)graphics.Palt);
+            interpreter.AddFunction("pal", (Action<int, int, int>)graphics.Pal);
+            interpreter.AddFunction("clip", (Action<int?, int?, int?, int?>)graphics.Clip);
+            interpreter.AddFunction("spr", (Action<int, int, int, int?, int?, bool?, bool?>)graphics.Spr);
 
             // Memory related
             interpreter.AddFunction("cls", (Action)memory.Cls);
@@ -58,6 +66,7 @@ namespace pico8_interpreter.Pico8
             interpreter.AddFunction("poke2", (Action<int, int>)memory.Poke2);
             interpreter.AddFunction("peek4", (Func<int, double>)memory.Peek4);
             interpreter.AddFunction("poke4", (Action<int, double>)memory.Poke4);
+            interpreter.AddFunction("camera", (Action<int? , int?>)memory.Camera);
 
             // Math
             interpreter.AddFunction("max", (Func<double, double, double>)Math.Max);
@@ -80,19 +89,41 @@ namespace pico8_interpreter.Pico8
             interpreter.AddFunction("shr", (Func<double, int, double>)((x, n) => util.FixedToFloat(util.FloatToFixed(x) >> n)));
             interpreter.AddFunction("lshr", (Func<double, int, double>)((x, n) => util.FixedToFloat((int)((uint)util.FloatToFixed(x)) >> n))); // Does Not Work I think
 
+            // Controls
+            interpreter.AddFunction("btn", (Func<int, bool>)this.Btn);
+
             interpreter.AddFunction("print", (Action<string>)Console.WriteLine);
+
+            interpreter.RunScript(@"
+                function all(collection)
+
+                   local index = 0
+                   local count = #collection
+	
+                   -- The closure function is returned
+	
+                   return function ()
+                      index = index + 1
+		
+                      if index <= count
+                      then
+                         -- return the current element of the iterator
+                         return collection[index]
+                      end
+		
+                   end
+	
+                end
+                ");
         }
 
         // Load a game from path and run it. 
         // All paths are considered to be inside pico8/games folder
         public void LoadGameAndRun(string path)
         {
-            string completePath = "Pico8/Games/" + path;
-            var streamReader = new StreamReader(TitleContainer.OpenStream(completePath));
-
-            // Read stream to string and run script
-            gameCode = streamReader.ReadToEnd();
-            interpreter.RunScript(gameCode);
+            cartridge = new Cartridge(path);
+            memory.LoadCartridgeData(cartridge.rom);
+            interpreter.RunScript(cartridge.gameCode);
         }
 
         // Call scripts update method
@@ -111,6 +142,23 @@ namespace pico8_interpreter.Pico8
         public void SetSpriteBatch(SpriteBatch spriteBatch)
         {
             this.spriteBatch = spriteBatch;
+        }
+
+        public bool Btn(int b)
+        {
+            switch(b)
+            {
+                case 0:
+                    return Keyboard.GetState().IsKeyDown(Keys.Left);
+                case 1:
+                    return Keyboard.GetState().IsKeyDown(Keys.Right);
+                case 2:
+                    return Keyboard.GetState().IsKeyDown(Keys.Up);
+                case 3:
+                    return Keyboard.GetState().IsKeyDown(Keys.Down);
+            }
+
+            return false;
         }
     }
 }

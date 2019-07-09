@@ -3,16 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using MoonSharp.Interpreter;
+using MoonSharp.RemoteDebugger;
 
 namespace pico8_interpreter.Pico8
 {
     class MoonSharpInterpreter : ILuaInterpreter
     {
         private Script scriptInterpreter;
+        RemoteDebuggerService remoteDebugger;
+        
         public MoonSharpInterpreter()
         {
             scriptInterpreter = new Script();
+            //ActivateRemoteDebugger(scriptInterpreter);
         }
 
         public void AddFunction(string name, object func)
@@ -29,7 +34,8 @@ namespace pico8_interpreter.Pico8
         {
             if (IsDefined(name))
             {
-                scriptInterpreter.Call(scriptInterpreter.Globals[name]);
+                var func = scriptInterpreter.Globals[name];
+                scriptInterpreter.Call(func);
             }
         }
 
@@ -40,7 +46,24 @@ namespace pico8_interpreter.Pico8
 
         public void RunScript(string script)
         {
+            
             scriptInterpreter.DoString(script);
+        }
+
+        private void ActivateRemoteDebugger(Script script)
+        {
+            if (remoteDebugger == null)
+            {
+                remoteDebugger = new RemoteDebuggerService();
+
+                // the last boolean is to specify if the script is free to run 
+                // after attachment, defaults to false
+                remoteDebugger.Attach(script, "Description of the script", false);
+            }
+
+            // start the web-browser at the correct url. Replace this or just
+            // pass the url to the user in some way.
+            Process.Start(remoteDebugger.HttpUrlStringLocalHost);
         }
     }
 }

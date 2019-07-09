@@ -79,7 +79,66 @@ namespace pico8_interpreter.Pico8
             spriteBatch.Draw(screenTexture, new Rectangle(0, 0, 128, 128), Color.White);
         }
 
-        public void Pset(float x, float y, int? col)
+        public void Spr(int n, int x, int y, int? w, int? h, bool? flip_x, bool? flip_y)
+        {
+            if (n < 0 || n > 255)
+            {
+                return;
+            }
+
+            int sprX = (n % 16) * 8, sprY = (n / 16) * 8;
+
+            int width = 1, height = 1;
+            if (w.HasValue)
+            {
+                width = w.Value;
+            }
+            if (h.HasValue)
+            {
+                height = h.Value;
+            }
+
+            bool flipX = false, flipY = false;
+            if (flip_x.HasValue)
+            {
+                flipX = flip_x.Value;
+            }
+            if (flip_y.HasValue)
+            {
+                flipY = flip_y.Value;
+            }
+
+            x -= memory.cameraX;
+            y -= memory.cameraY;
+
+            for (int i = 0; i < 8 * width; i++)
+            {
+                for (int j = 0; j < 8 * height; j++)
+                {
+                    byte sprColor = Sget(i + sprX, j + sprY);
+                    int offX = flipX ? 8 * width : 0;
+                    int offY = flipY ? 8 * height : 0;
+                    Pset(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), sprColor);
+                }
+            }
+        }
+
+        public byte Sget(int x, int y)
+        {
+            return memory.GetPixel(x, y, MemoryUnit.ADDR_GFX);
+        }
+
+        public void Sset(int x, int y, int? col)
+        {
+            if (col.HasValue)
+            {
+                memory.DrawColor = col.Value;
+            }
+
+            memory.WritePixel(x, y, memory.DrawColor,MemoryUnit.ADDR_GFX);
+        }
+
+        public void Pset(int x, int y, int? col)
         {
             if (col.HasValue)
             {
@@ -90,58 +149,120 @@ namespace pico8_interpreter.Pico8
             memory.WritePixel((int)x, (int)y, memory.GetDrawColor(memory.DrawColor));
         }
 
-        public byte Pget(float x, float y)
+        public byte Pget(int x, int y)
         {
             return memory.GetPixel((int)x, (int)y);
         }
 
-        public void Rect(float x0, float y0, float x1, float y1, int? col)
+        public void Palt(int col, bool t)
         {
+            if (t)
+            {
+                memory.SetTransparent(col);
+            }
+            else
+            {
+                memory.ResetTransparent(col);
+            }
+        }
+
+        public void Pal(int c0, int c1, int p = 0)
+        {
+            if (p == 0)
+            {
+                memory.SetDrawPalette(c0, c1);
+            }
+            else if (p == 1)
+            {
+                memory.SetScreenPalette(c0, c1);
+            }
+        }
+
+        public void Clip(int? x, int? y, int? w, int? h)
+        {
+            if (!x.HasValue || !y.HasValue || !w.HasValue || !h.HasValue)
+            {
+                return;
+            }
+
+            memory.clipX0 = (byte)x.Value;
+            memory.clipY0 = (byte)y.Value;
+            memory.clipX1 = (byte)(x.Value + w.Value);
+            memory.clipY1 = (byte)(y.Value + h.Value);
+        }
+
+        public void Rect(int x0, int y0, int x1, int y1, int? col)
+        {
+            x0 -= memory.cameraX;
+            y0 -= memory.cameraY;
+            x1 -= memory.cameraX;
+            y1 -= memory.cameraY;
+
             Line(x0, y0, x1, y0, col);
             Line(x0, y0, x0, y1, col);
             Line(x1, y1, x1, y0, col);
             Line(x1, y1, x0, y1, col);
         }
-        public void Rectfill(float x0, float y0, float x1, float y1, int? col)
+        public void Rectfill(int x0, int y0, int x1, int y1, int? col)
         {
+            x0 -= memory.cameraX;
+            y0 -= memory.cameraY;
+            x1 -= memory.cameraX;
+            y1 -= memory.cameraY;
+
             if (y0 > y1)
             {
                 util.Swap(ref y0, ref y1);
             }
 
-            for (float y = y0; y < y1; y++)
+            for (int y = y0; y < y1; y++)
             {
                 Line(x0, y, x1, y, col);
             }
         }
 
-        public void Line(float x0, float y0, float x1, float y1, int? col)
+        public void Line(int x0, int y0, int? x1, int? y1, int? col)
         {
+            if (x1.HasValue)
+            {
+                memory.lineX = x1.Value;
+            }
+
+            if (y1.HasValue)
+            {
+                memory.lineY = y1.Value;
+            }
+
+            int x0_screen = x0 - memory.cameraX;
+            int y0_screen = y0 - memory.cameraY;
+            int x1_screen = memory.lineX - memory.cameraX;
+            int y1_screen = memory.lineY - memory.cameraY;
+
             if (col.HasValue)
             {
                 memory.DrawColor = col.Value;
             }
             
             bool steep = false;
-            if (Math.Abs(x1 - x0) < Math.Abs(y1 - y0))
+            if (Math.Abs(x1_screen - x0_screen) < Math.Abs(y1_screen - y0_screen))
             {
-                util.Swap(ref x0, ref y0);
-                util.Swap(ref x1, ref y1);
+                util.Swap(ref x0_screen, ref y0_screen);
+                util.Swap(ref x1_screen, ref y1_screen);
                 steep = true;
             }
-            if (x0 > x1)
+            if (x0_screen > x1_screen)
             {
-                util.Swap(ref x0, ref x1);
-                util.Swap(ref y0, ref y1);
+                util.Swap(ref x0_screen, ref x1_screen);
+                util.Swap(ref y0_screen, ref y1_screen);
             }
 
-            int dx = (int)(x1 - x0);
-            int dy = (int)(y1 - y0);
+            int dx = (int)(x1_screen - x0_screen);
+            int dy = (int)(y1_screen - y0_screen);
             int d_err = 2 * Math.Abs(dy);
             int err = 0;
-            int y = (int)y0;
+            int y = (int)y0_screen;
 
-            for (int x = (int)x0; x <= x1; x++)
+            for (int x = (int)x0_screen; x <= x1_screen; x++)
             {
                 if (steep)
                 {
@@ -156,14 +277,17 @@ namespace pico8_interpreter.Pico8
 
                 if (err > dx)
                 {
-                    y += y1 > y0 ? 1 : -1;
+                    y += y1_screen > y0_screen ? 1 : -1;
                     err -= dx * 2;
                 }
             }
         }
 
-        public void Circ(float x, float y, float r, int? col)
+        public void Circ(int x, int y, int r, int? col)
         {
+            x -= memory.cameraX;
+            y -= memory.cameraY;
+
             if (col.HasValue)
             {
                 memory.DrawColor = col.Value;
@@ -172,8 +296,11 @@ namespace pico8_interpreter.Pico8
             DrawCircle(x, y, (int)r, false);
         }
 
-        public void CircFill(float x, float y, float r, int? col)
+        public void CircFill(int x, int y, int r, int? col)
         {
+            x -= memory.cameraX;
+            y -= memory.cameraY;
+
             if (col.HasValue)
             {
                 memory.DrawColor = col.Value;
@@ -182,7 +309,7 @@ namespace pico8_interpreter.Pico8
             DrawCircle(x, y, (int)r, true);
         }
 
-        private void plot8(float x, float y, float offX, float offY, bool fill = false)
+        private void plot8(int x, int y, int offX, int offY, bool fill = false)
         {
             if (fill)
             {
@@ -204,7 +331,7 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        private void DrawCircle(float posX, float posY, int radius, bool fill = false)
+        private void DrawCircle(int posX, int posY, int radius, bool fill = false)
         {
             int rs2 = radius * radius * 4; /* this could be folded into ycs2 */
             int xs2 = 0;

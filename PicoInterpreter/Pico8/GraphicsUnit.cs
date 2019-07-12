@@ -60,6 +60,37 @@ namespace pico8_interpreter.Pico8
             memory.DrawColor = 6;
         }
 
+        #region TODO
+
+
+        #endregion
+
+        public void Map(int cel_x, int cel_y, int sx, int sy, int cel_w, int cel_h, byte? layer)
+        {
+            for (int h = 0; h < cel_h; h++) 
+            {
+                for (int w = 0; w < cel_w; w++)
+                {
+
+                    int addr = (cel_y + h) < 32 ? MemoryUnit.ADDR_MAP : MemoryUnit.ADDR_GFX_MAP;
+                    byte spr_index = memory.Peek(addr + (cel_y + h) % 32 * 128 + cel_x + w);
+                    byte flags = (byte)memory.Fget(spr_index, null);
+
+                    // Spr index 0 is reserved for empty tiles
+                    if (spr_index == 0)
+                    {
+                        continue;
+                    }
+
+                    // IF layer has not been specified, draw regardless
+                    if (!layer.HasValue || (flags & layer.Value) != 0)
+                    {
+                        Spr(spr_index, sx + 8 * w, sy + 8 * h, 1, 1, false, false);
+                    }
+                }
+            }
+        }
+
         // TODO - Write to texture byte values and decode them in shader.
         public void Flip()
         {
@@ -108,18 +139,58 @@ namespace pico8_interpreter.Pico8
                 flipY = flip_y.Value;
             }
 
-            x -= memory.cameraX;
-            y -= memory.cameraY;
-
             for (int i = 0; i < 8 * width; i++)
             {
                 for (int j = 0; j < 8 * height; j++)
                 {
                     byte sprColor = Sget(i + sprX, j + sprY);
-                    int offX = flipX ? 8 * width : 0;
-                    int offY = flipY ? 8 * height : 0;
                     Pset(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), sprColor);
                 }
+            }
+        }
+
+        public void Sspr(int sx, int sy, int sw, int sh, int dx, int dy, int? dw, int? dh, bool? flip_x, bool? flip_y)
+        {
+            if (!dw.HasValue)
+            {
+                dw = sw;
+            }
+            if (!dh.HasValue)
+            {
+                dh = sh;
+            }
+            if (!flip_x.HasValue)
+            {
+                flip_x = false;
+            }
+            if (!flip_y.HasValue)
+            {
+                flip_y = false;
+            }
+
+            float ratioX = (float)sw / (float)dw.Value;
+            float ratioY = (float)sh / (float)dh.Value;
+            float x = sx;
+            float y = sy;
+            float screenX = dx;
+            float screenY = dy;
+
+            while(x < sx + sw && screenX < dx + dw)
+            {
+                y = sy;
+                screenY = dy;
+                while (y < sy + sh && screenY < dy + dh)
+                {
+                    byte sprColor = Sget((int)x, (int)y);
+                    Pset((flip_x.Value ? dx + dw.Value - ((int)screenX - dx) : (int)screenX), 
+                         (flip_y.Value ? dy + dh.Value - ((int)screenY - dy) : (int)screenY), 
+                         sprColor);
+
+                    y += ratioY;
+                    screenY += 1;
+                }
+                x += ratioX;
+                screenX += 1;
             }
         }
 
@@ -128,7 +199,7 @@ namespace pico8_interpreter.Pico8
             return memory.GetPixel(x, y, MemoryUnit.ADDR_GFX);
         }
 
-        public void Sset(int x, int y, int? col)
+        public void Sset(int x, int y, byte? col)
         {
             if (col.HasValue)
             {
@@ -138,14 +209,15 @@ namespace pico8_interpreter.Pico8
             memory.WritePixel(x, y, memory.DrawColor,MemoryUnit.ADDR_GFX);
         }
 
-        public void Pset(int x, int y, int? col)
+        public void Pset(int x, int y, byte? col)
         {
+            x -= memory.cameraX;
+            y -= memory.cameraY;
             if (col.HasValue)
             {
                 memory.DrawColor = col.Value;
             }
 
-            //spriteBatch.DrawPoint(x, y, pico8Palette[this.col]);
             memory.WritePixel((int)x, (int)y, memory.GetDrawColor(memory.DrawColor));
         }
 
@@ -154,27 +226,49 @@ namespace pico8_interpreter.Pico8
             return memory.GetPixel((int)x, (int)y);
         }
 
-        public void Palt(int col, bool t)
+        public void Palt(int? col, bool? t)
         {
-            if (t)
+            if (!col.HasValue || !t.HasValue)
             {
-                memory.SetTransparent(col);
+                memory.SetTransparent(0);
+                for (byte i = 1; i < 16; i++)
+                {
+                    memory.ResetTransparent(i);
+                }
+                return;
+            }
+
+            if (t.Value)
+            {
+                memory.SetTransparent(col.Value);
             }
             else
             {
-                memory.ResetTransparent(col);
+                memory.ResetTransparent(col.Value);
             }
         }
 
-        public void Pal(int c0, int c1, int p = 0)
+        public void Pal(int? c0, int? c1, int p = 0)
         {
+            if (!c0.HasValue || !c1.HasValue)
+            {
+                Palt(null, null);
+                for (byte i = 0; i < 16; i++)
+                {
+                    memory.SetDrawPalette(i, i);
+                    memory.SetScreenPalette(i, i);
+                }
+
+                return;
+            }
+
             if (p == 0)
             {
-                memory.SetDrawPalette(c0, c1);
+                memory.SetDrawPalette(c0.Value, c1.Value);
             }
             else if (p == 1)
             {
-                memory.SetScreenPalette(c0, c1);
+                memory.SetScreenPalette(c0.Value, c1.Value);
             }
         }
 
@@ -191,25 +285,15 @@ namespace pico8_interpreter.Pico8
             memory.clipY1 = (byte)(y.Value + h.Value);
         }
 
-        public void Rect(int x0, int y0, int x1, int y1, int? col)
+        public void Rect(int x0, int y0, int x1, int y1, byte? col)
         {
-            x0 -= memory.cameraX;
-            y0 -= memory.cameraY;
-            x1 -= memory.cameraX;
-            y1 -= memory.cameraY;
-
             Line(x0, y0, x1, y0, col);
             Line(x0, y0, x0, y1, col);
             Line(x1, y1, x1, y0, col);
             Line(x1, y1, x0, y1, col);
         }
-        public void Rectfill(int x0, int y0, int x1, int y1, int? col)
+        public void Rectfill(int x0, int y0, int x1, int y1, byte? col)
         {
-            x0 -= memory.cameraX;
-            y0 -= memory.cameraY;
-            x1 -= memory.cameraX;
-            y1 -= memory.cameraY;
-
             if (y0 > y1)
             {
                 util.Swap(ref y0, ref y1);
@@ -221,7 +305,7 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        public void Line(int x0, int y0, int? x1, int? y1, int? col)
+        public void Line(int x0, int y0, int? x1, int? y1, byte? col)
         {
             if (x1.HasValue)
             {
@@ -233,10 +317,10 @@ namespace pico8_interpreter.Pico8
                 memory.lineY = y1.Value;
             }
 
-            int x0_screen = x0 - memory.cameraX;
-            int y0_screen = y0 - memory.cameraY;
-            int x1_screen = memory.lineX - memory.cameraX;
-            int y1_screen = memory.lineY - memory.cameraY;
+            int x0_screen = x0;
+            int y0_screen = y0;
+            int x1_screen = memory.lineX;
+            int y1_screen = memory.lineY;
 
             if (col.HasValue)
             {
@@ -283,11 +367,8 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        public void Circ(int x, int y, int r, int? col)
+        public void Circ(int x, int y, int r, byte? col)
         {
-            x -= memory.cameraX;
-            y -= memory.cameraY;
-
             if (col.HasValue)
             {
                 memory.DrawColor = col.Value;
@@ -296,11 +377,8 @@ namespace pico8_interpreter.Pico8
             DrawCircle(x, y, (int)r, false);
         }
 
-        public void CircFill(int x, int y, int r, int? col)
+        public void CircFill(int x, int y, int r, byte? col)
         {
-            x -= memory.cameraX;
-            y -= memory.cameraY;
-
             if (col.HasValue)
             {
                 memory.DrawColor = col.Value;

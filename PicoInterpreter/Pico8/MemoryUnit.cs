@@ -44,7 +44,7 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        public int DrawColor
+        public byte DrawColor
         {
             get
             {
@@ -130,7 +130,36 @@ namespace pico8_interpreter.Pico8
             ram[ADDR_CLIP_Y1] = 127;
         }
 
-        public int GetDrawColor(int color)
+        #region TODO
+
+        public void Reload(int dest_addr, int source_addr, int len, string filename = "") { }
+        public void Cstore(int dest_addr, int source_addr, int len, string filename = "") { }
+        public void Cartdata(object id) { }
+        public double Dget(int index) { return 0; }
+        public void Dset(int index, double value) { }
+        public void Fillp(int? p) { }
+
+        #endregion
+
+        public void Memset(int dest_addr, byte val, int len)
+        {
+            for (int i = 0; i < len; i++)
+            {
+                ram[dest_addr + i] = val;
+            }
+        }
+
+        public void Memcpy(int dest_addr, int source_addr, int len)
+        {
+            Buffer.BlockCopy(ram, source_addr, ram, dest_addr, len);
+        }
+
+        public void Color(byte col)
+        {
+            this.DrawColor = col;
+        }
+
+        public byte GetDrawColor(int color)
         {
             if (color < 0 || color > 15) return 0;
             return ram[ADDR_PALETTE_0 + color];
@@ -248,6 +277,68 @@ namespace pico8_interpreter.Pico8
             ram[addr + 3] = (byte)((f >> 24) & 0xff);
         }
 
+        public object Fget(int n, byte? f)
+        {
+            if (f.HasValue)
+            {
+                return (Peek(ADDR_GFX_PROPS + n) & (1 << f)) != 0;
+            }
+
+            return Peek(ADDR_GFX_PROPS + n);
+        }
+
+        public void Fset(int n, byte? f, bool? v)
+        {
+            if (!f.HasValue)
+            {
+                return;
+            }
+
+            if (v.HasValue)
+            {
+                if (v.Value)
+                {
+                    Poke(ADDR_GFX_PROPS + n, (byte)(Peek(ADDR_GFX_PROPS + n) | (1<<f)));
+                }
+                else
+                {
+                    Poke(ADDR_GFX_PROPS + n, (byte)(Peek(ADDR_GFX_PROPS + n) & ~(1<<f)));
+                }
+            }
+            else
+            {
+                Poke(ADDR_GFX_PROPS + n, (byte)(Peek(ADDR_GFX_PROPS + n) | f));
+            }
+        }
+
+        public byte Mget(int x, int y)
+        {
+            int addr = (y < 32 ? ADDR_MAP : ADDR_GFX_MAP);
+            y = y % 32;
+            int index = (y * 128 + x);
+
+            if (index < 0 || index > 32 * 128 - 1)
+            {
+                return 0x0;
+            }
+
+            return ram[index + addr];
+        }
+
+        public void Mset(int x, int y, byte v)
+        {
+            int addr = (y < 32 ? ADDR_MAP : ADDR_GFX_MAP);
+            y = y % 32;
+            int index = (y * 128 + x);
+
+            if (index < 0 || index > 32 * 128 - 1)
+            {
+                return;
+            }
+
+            ram[index + addr] = v;
+        }
+
         #region Helper Functions
 
         public byte GetPixel(int x, int y, int offset = ADDR_SCREEN)
@@ -259,12 +350,10 @@ namespace pico8_interpreter.Pico8
                 return 0x10;
             }
 
-            byte mask = (byte)(x % 2 == 0 ? 0x0f : 0xf0);
-            byte val = (byte)(ram[offset + index] & mask);
-            return (byte)(x % 2 == 0 ? val : val >> 4);
+            return util.GetHalf(ram, index + offset, x % 2 == 0);
         }
 
-        public void WritePixel(int x, int y, int color, int offset = ADDR_SCREEN)
+        public void WritePixel(int x, int y, byte color, int offset = ADDR_SCREEN)
         {
             int index = (y * 128 + x) / 2;
 
@@ -273,9 +362,7 @@ namespace pico8_interpreter.Pico8
                 return;
             }
 
-            byte mask = (byte)(x % 2 == 1 ? 0x0f : 0xf0);
-            color = x % 2 == 1 ? color << 4 : color;
-            ram[offset + index] = (byte)((byte)(ram[offset + index] & mask) | color);
+            util.SetHalf(ram, index + offset, color, x % 2 == 0);
         }
     }
 #endregion

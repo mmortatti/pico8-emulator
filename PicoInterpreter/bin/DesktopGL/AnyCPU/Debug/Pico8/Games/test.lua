@@ -1,4 +1,5 @@
-﻿
+﻿pico-8 cartridge // http://www.pico-8.com
+version 16
 __lua__
 local worldmap = {
 	{7, 109, 13, 109, 13, 109, 13, 7},
@@ -154,9 +155,6 @@ function render()
       if worldmap[mapy][mapx]>0 then 
         hit=1
         hittype=1
-      elseif get_obj_in_pos(mapx,mapy)~=nil then
-        hit=1
-        hittype=2
       end
     end
     
@@ -174,8 +172,6 @@ function render()
     local texnum
     if hittype==1 then
       texnum=worldmap[mapy][mapx]-1
-    else
-      texnum=64
     end
 
     local wallx=0
@@ -194,8 +190,7 @@ function render()
 
     local nty=flr(texnum/16)
     local ntx=texnum-nty*16
-	line(x,drawstart,x,drawend, 7)
-    --sspr(texx+ntx*8,texy_start+nty*8,1,texy_end-texy_start,x,drawstart,1,drawend-drawstart)
+    sspr(texx+ntx*8,texy_start+nty*8,1,texy_end-texy_start,x,drawstart,1,drawend-drawstart)
 
     line(x,drawend,x,128,13)
   end
@@ -210,11 +205,23 @@ function get_obj_in_pos(x,y)
   return nil
 end
 
+function _init()
+end
+
+
 function _draw()
   cls()
-  rectfill(0,112,128,128,1)
+	
   render()
+
+  if shoot then
+    sspr(16,64,16,16,48+rnd(4)-2,80-rnd(4),32+rnd(4)-2,32+rnd(4)-2)
+  end
+
+  sspr(0,64,16,16,48,80,32,32)
 end
+
+shoot=false
 function _update()
 	local mvspd=0.5
 	local rotspd=0.01
@@ -251,8 +258,13 @@ function _update()
 		planex=planex*cos(rotspd)-planey*sin(rotspd)
 		planey=opx*sin(rotspd)+planey*cos(rotspd)
 	end
-end
 
+
+  shoot=false
+  if btn(5) then
+    shoot=true
+  end
+end
 __gfx__
 77777000007777777777700000777777777777000007777777777777777777777000000000000007000000000000000000000000000000000000000000000000
 77770bffbb07777777770bbffb077777777700bfbbb077777777700000077777709999999999990700000000000000000aaaaaaaaaaaaaa00aaaaaaaaaaaaaa0

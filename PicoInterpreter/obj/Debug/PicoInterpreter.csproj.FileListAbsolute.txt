@@ -27,3 +27,7 @@ C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCP
 C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Content\picoScreenShader.xnb
 C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\MoonSharp.RemoteDebugger.dll
 C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\MoonSharp.RemoteDebugger.pdb
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Pico8\Games\test2.lua
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Pico8\Games\test3.lua
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Pico8\Games\test4.lua
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Pico8\Games\test5.lua

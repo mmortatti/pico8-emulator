@@ -49,6 +49,7 @@ namespace pico8_interpreter.Pico8
                 {"__map__", 3},
                 {"__sfx__", 4},
                 {"__music__", 5},
+                {"__label__", 6}
             };
 
             string line;
@@ -75,40 +76,58 @@ namespace pico8_interpreter.Pico8
                     foreach (char c in line)
                     {
                         byte val = byte.Parse(c.ToString(), System.Globalization.NumberStyles.HexNumber);
-                        WriteHalf(index, val, ADDR_GFX);
+                        util.SetHalf(rom, index / 2 + ADDR_GFX, val, index % 2 == 0);
                         index += 1;
                     }
                 }
                 else if (state == stateMap["__gff__"])
                 {
-
+                    for (int i = 0; i < line.Length; i += 2)
+                    {
+                        rom[ADDR_GFX_PROPS + index] = byte.Parse(line.Substring(i, 2), System.Globalization.NumberStyles.HexNumber);
+                        index += 1;
+                    }
                 }
                 else if (state == stateMap["__map__"])
                 {
-
+                    for (int i = 0; i < line.Length; i += 2)
+                    {
+                        rom[ADDR_MAP + index] = byte.Parse(line.Substring(i, 2), System.Globalization.NumberStyles.HexNumber);
+                        index += 1;
+                    }
                 }
                 else if (state == stateMap["__sfx__"])
                 {
-
+                    foreach (char c in line)
+                    {
+                        byte val = byte.Parse(c.ToString(), System.Globalization.NumberStyles.HexNumber);
+                        util.SetHalf(rom, index / 2 + ADDR_SFX, val, index % 2 == 0);
+                        index += 1;
+                    }
                 }
                 else if (state == stateMap["__music__"])
                 {
 
                 }
             }
-        }
 
-        public void WriteHalf(int index, int value, int offset = ADDR_GFX)
-        {
-
-            if (index < 0 || index > 64 * 128 - 1)
-            {
-                return;
-            }
-
-            byte mask = (byte)(index % 2 == 1 ? 0x0f : 0xf0);
-            value = index % 2 == 1 ? value << 4 : value;
-            rom[offset + index / 2] = (byte)((byte)(rom[offset + index / 2] & mask) | value);
+            //for (int y = 0; y < 32; y++) 
+            //{
+            //    for (int x = 0; x < 256; x++)
+            //    {
+            //        Console.Write("{0:x}", GetHalf(x, y, 256, 32, ADDR_MAP));
+            //    }
+            //    Console.Write("\n");
+            //}
+            //Console.Write("\n");
+            //for (int y = 32; y < 64; y++)
+            //{
+            //    for (int x = 0; x < 256; x++)
+            //    {
+            //        Console.Write("{0:x}", GetHalf(x, y % 32, 256, 32, ADDR_GFX_MAP));
+            //    }
+            //    Console.Write("\n");
+            //}
         }
     }
 }

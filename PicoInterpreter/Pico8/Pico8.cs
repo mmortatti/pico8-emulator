@@ -33,6 +33,8 @@ namespace pico8_interpreter.Pico8
 
         private Random random;
 
+        private DateTime timeStart;
+
         public PicoInterpreter(SpriteBatch spriteBatch, ILuaInterpreter interpreter)
         {
             this.spriteBatch = spriteBatch;
@@ -44,19 +46,26 @@ namespace pico8_interpreter.Pico8
             random = new Random();
 
             // Graphics
-            interpreter.AddFunction("line", (Action<int, int, int?, int?, int?>)graphics.Line);
-            interpreter.AddFunction("rect" , (Action<int, int, int, int, int?>)graphics.Rect);
-            interpreter.AddFunction("rectfill", (Action<int, int, int, int, int?>)graphics.Rectfill);
-            interpreter.AddFunction("circ", (Action<int, int, int, int?>)graphics.Circ);
-            interpreter.AddFunction("circfill", (Action<int, int, int, int?>)graphics.CircFill);
-            interpreter.AddFunction("pset", (Action<int, int, int?>)graphics.Pset);
+            interpreter.AddFunction("line", (Action<int, int, int?, int?, byte?>)graphics.Line);
+            interpreter.AddFunction("rect" , (Action<int, int, int, int, byte?>)graphics.Rect);
+            interpreter.AddFunction("rectfill", (Action<int, int, int, int, byte?>)graphics.Rectfill);
+            interpreter.AddFunction("circ", (Action<int, int, int, byte?>)graphics.Circ);
+            interpreter.AddFunction("circfill", (Action<int, int, int, byte?>)graphics.CircFill);
+            interpreter.AddFunction("pset", (Action<int, int, byte?>)graphics.Pset);
             interpreter.AddFunction("pget", (Func<int, int, byte>)graphics.Pget);
-            interpreter.AddFunction("sset", (Action<int, int, int?>)graphics.Sset);
+            interpreter.AddFunction("sset", (Action<int, int, byte?>)graphics.Sset);
             interpreter.AddFunction("sget", (Func<int, int, byte>)graphics.Sget);
-            interpreter.AddFunction("palt", (Action<int, bool>)graphics.Palt);
-            interpreter.AddFunction("pal", (Action<int, int, int>)graphics.Pal);
+            interpreter.AddFunction("palt", (Action<int?, bool?>)graphics.Palt);
+            interpreter.AddFunction("pal", (Action<int?, int?, int>)graphics.Pal);
             interpreter.AddFunction("clip", (Action<int?, int?, int?, int?>)graphics.Clip);
             interpreter.AddFunction("spr", (Action<int, int, int, int?, int?, bool?, bool?>)graphics.Spr);
+            interpreter.AddFunction("sspr", (Action<int, int, int, int, int, int, int?, int?, bool?, bool?>)graphics.Sspr);
+            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
+            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
+            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
+            interpreter.AddFunction("mget", (Func<int, int, byte>)memory.Mget);
+            interpreter.AddFunction("mset", (Action<int, int, byte>)memory.Mset);
+            interpreter.AddFunction("fillp", (Action<int?>)memory.Fillp);
 
             // Memory related
             interpreter.AddFunction("cls", (Action)memory.Cls);
@@ -66,12 +75,22 @@ namespace pico8_interpreter.Pico8
             interpreter.AddFunction("poke2", (Action<int, int>)memory.Poke2);
             interpreter.AddFunction("peek4", (Func<int, double>)memory.Peek4);
             interpreter.AddFunction("poke4", (Action<int, double>)memory.Poke4);
+            interpreter.AddFunction("fget", (Func<int, byte?, object>)memory.Fget);
+            interpreter.AddFunction("fset", (Action<int, byte?, bool?>)memory.Fset);
             interpreter.AddFunction("camera", (Action<int? , int?>)memory.Camera);
+            interpreter.AddFunction("memcpy", (Action<int, int, int>)memory.Memcpy);
+            interpreter.AddFunction("memset", (Action<int, byte, int>)memory.Memset);
+            interpreter.AddFunction("reload", (Action<int, int, int, string>)memory.Reload);
+            interpreter.AddFunction("cstore", (Action<int, int, int, string>)memory.Cstore);
+            interpreter.AddFunction("cartdata", (Action<object>)memory.Cartdata);
+            interpreter.AddFunction("dget", (Func<int, double>)memory.Dget);
+            interpreter.AddFunction("dset", (Action<int, double>)memory.Dset);
+            interpreter.AddFunction("color", (Action<byte>)memory.Color);
 
             // Math
             interpreter.AddFunction("max", (Func<double, double, double>)Math.Max);
             interpreter.AddFunction("min", (Func<double, double, double>)Math.Min);
-            interpreter.AddFunction("min", (Func<double, double, double, double>)((x, y, z) => Math.Max(Math.Min(Math.Max(x, y), z), Math.Min(x, y))));
+            interpreter.AddFunction("mid", (Func<double, double, double, double>)((x, y, z) => Math.Max(Math.Min(Math.Max(x, y), z), Math.Min(x, y))));
             interpreter.AddFunction("flr", (Func<double, double>)Math.Floor);
             interpreter.AddFunction("ceil", (Func<double, double>)Math.Ceiling);
             interpreter.AddFunction("cos", (Func<double, double>)(x => Math.Cos(2 * x * Math.PI)));
@@ -91,29 +110,62 @@ namespace pico8_interpreter.Pico8
 
             // Controls
             interpreter.AddFunction("btn", (Func<int, bool>)this.Btn);
+            interpreter.AddFunction("btnp", (Func<int, bool>)this.Btnp);
 
-            interpreter.AddFunction("print", (Action<string>)Console.WriteLine);
+            // Misc
+            interpreter.AddFunction("time", (Func<int>)(() => (DateTime.Now - timeStart).Seconds));
+
+            interpreter.AddFunction("print", (Action<string>)((s) => s.Substring(0) ));//Console.WriteLine);
 
             interpreter.RunScript(@"
                 function all(collection)
-
+                   if (collection == nil) then return function() end end
                    local index = 0
                    local count = #collection
-	
-                   -- The closure function is returned
-	
                    return function ()
                       index = index + 1
-		
                       if index <= count
                       then
-                         -- return the current element of the iterator
                          return collection[index]
                       end
-		
                    end
-	
                 end
+
+                function tostr(x)
+                    if type(x) == ""number"" then return tostring(math.floor(x*10000)/10000) end
+                    return tostring(x)
+                end
+
+                function tonum(x)
+                    return tonumber(x)
+                end
+
+                function add(t,v)
+                    if t == nil then return end
+                    table.insert(t,v)
+                end
+
+                function del(t,v)
+                    if t == nil then return end
+                    for i = 0,#t do
+                        if t[i] == v then
+                            table.remove(t,i)
+                            return
+                        end
+                    end
+                end
+
+                function foreach(t,f)
+                    for e in all(t) do
+                        f(e)
+                    end
+                end
+
+                cocreate = coroutine.create
+                coresume = coroutine.resume
+                costatus = coroutine.status
+                yield = coroutine.yield
+                sub = string.sub
                 ");
         }
 
@@ -124,6 +176,10 @@ namespace pico8_interpreter.Pico8
             cartridge = new Cartridge(path);
             memory.LoadCartridgeData(cartridge.rom);
             interpreter.RunScript(cartridge.gameCode);
+
+            timeStart = DateTime.Now;
+
+            interpreter.CallIfDefined("_init");
         }
 
         // Call scripts update method
@@ -156,6 +212,31 @@ namespace pico8_interpreter.Pico8
                     return Keyboard.GetState().IsKeyDown(Keys.Up);
                 case 3:
                     return Keyboard.GetState().IsKeyDown(Keys.Down);
+                case 4:
+                    return Keyboard.GetState().IsKeyDown(Keys.Z);
+                case 5:
+                    return Keyboard.GetState().IsKeyDown(Keys.X);
+            }
+
+            return false;
+        }
+
+        public bool Btnp(int b)
+        {
+            switch (b)
+            {
+                case 0:
+                    return Keyboard.GetState().IsKeyDown(Keys.Left);
+                case 1:
+                    return Keyboard.GetState().IsKeyDown(Keys.Right);
+                case 2:
+                    return Keyboard.GetState().IsKeyDown(Keys.Up);
+                case 3:
+                    return Keyboard.GetState().IsKeyDown(Keys.Down);
+                case 4:
+                    return Keyboard.GetState().IsKeyDown(Keys.Z);
+                case 5:
+                    return Keyboard.GetState().IsKeyDown(Keys.X);
             }
 
             return false;

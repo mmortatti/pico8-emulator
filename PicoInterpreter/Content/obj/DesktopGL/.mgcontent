@@ -7,8 +7,10 @@
     <File>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/pico8.png</File>
     <File>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoPalette.png</File>
     <File>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoScreenShader.fx</File>
+    <File>C:/Users/mathe/Documents/git/PicoInterpreter/PicoInterpreter/Content/picoShader.fx</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

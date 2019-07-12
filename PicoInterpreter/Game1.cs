@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using IndependentResolutionRendering;
 using pico8_interpreter.Pico8;
 using System.IO;
+using System;
 
 namespace pico8_interpreter
 {
@@ -31,6 +32,9 @@ namespace pico8_interpreter
             Resolution.Init(ref graphics);
             Resolution.SetVirtualResolution(128, 128);
             Resolution.SetResolution(600, 600, false);
+
+            this.IsFixedTimeStep = true;//false;
+            this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 30d); //60);
         }
 
         /// <summary>
@@ -57,7 +61,7 @@ namespace pico8_interpreter
             rasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
 
             pico8 = new PicoInterpreter(spriteBatch, new MoonSharpInterpreter());
-            pico8.LoadGameAndRun("test.lua");
+            pico8.LoadGameAndRun("test4.lua");
         }
 
         /// <summary>

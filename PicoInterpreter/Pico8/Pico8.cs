@@ -8,6 +8,7 @@ using MoonSharp.Interpreter;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
 
 namespace pico8_interpreter.Pico8
 {
@@ -35,6 +36,13 @@ namespace pico8_interpreter.Pico8
 
         private DateTime timeStart;
 
+        // Function callback to retrieve if button was pressed
+        private List<Func<int, bool>> BtnPressedCallbacks;
+        // First Players keys
+        private int[] BtnLeft, BtnRight, BtnUp, BtnDown, BtnA, BtnB;
+        private bool[] BtnLeftLast, BtnRightLast, BtnUpLast, BtnDownLast, BtnALast, BtnBLast;
+        private bool[] BtnLeftCurrent, BtnRightCurrent, BtnUpCurrent, BtnDownCurrent, BtnACurrent, BtnBCurrent;
+
         public PicoInterpreter(SpriteBatch spriteBatch, ILuaInterpreter interpreter)
         {
             this.spriteBatch = spriteBatch;
@@ -44,6 +52,39 @@ namespace pico8_interpreter.Pico8
             graphics = new GraphicsUnit(ref memory, ref screenTexture, ref spriteBatch);
             this.interpreter = interpreter;
             random = new Random();
+
+            // Initialie controller variables
+            BtnPressedCallbacks = new List<Func<int, bool>>();
+            BtnLeft = new int[8];
+            BtnRight = new int[8];
+            BtnUp = new int[8];
+            BtnDown = new int[8];
+            BtnA = new int[8];
+            BtnB = new int[8];
+
+            BtnLeftLast = new bool[8];
+            BtnRightLast = new bool[8];
+            BtnUpLast = new bool[8];
+            BtnDownLast = new bool[8];
+            BtnALast = new bool[8];
+            BtnBLast = new bool[8];
+
+            BtnLeftCurrent = new bool[8];
+            BtnRightCurrent = new bool[8];
+            BtnUpCurrent = new bool[8];
+            BtnDownCurrent = new bool[8];
+            BtnACurrent = new bool[8];
+            BtnBCurrent = new bool[8];
+
+            for (int i = 0; i < 8; i++)
+            {
+                BtnLeft[i] = -1;
+                BtnRight[i] = -1;
+                BtnUp[i] = -1;
+                BtnDown[i] = -1;
+                BtnA[i] = -1;
+                BtnB[i] = -1;
+            }
 
             // Graphics
             interpreter.AddFunction("line", (Action<int, int, int?, int?, byte?>)graphics.Line);
@@ -109,8 +150,8 @@ namespace pico8_interpreter.Pico8
             interpreter.AddFunction("lshr", (Func<double, int, double>)((x, n) => util.FixedToFloat((int)((uint)util.FloatToFixed(x)) >> n))); // Does Not Work I think
 
             // Controls
-            interpreter.AddFunction("btn", (Func<int, bool>)this.Btn);
-            interpreter.AddFunction("btnp", (Func<int, bool>)this.Btnp);
+            interpreter.AddFunction("btn", (Func<int?, int?, object>)Btn);
+            interpreter.AddFunction("btnp", (Func<int, int?, bool>)Btnp);
 
             // Misc
             interpreter.AddFunction("time", (Func<int>)(() => (DateTime.Now - timeStart).Seconds));
@@ -185,6 +226,7 @@ namespace pico8_interpreter.Pico8
         // Call scripts update method
         public void Update()
         {
+            UpdateControllerState();
             interpreter.CallIfDefined("_update");
         }
 
@@ -200,46 +242,98 @@ namespace pico8_interpreter.Pico8
             this.spriteBatch = spriteBatch;
         }
 
-        public bool Btn(int b)
+        public object Btn(int? i, int? p)
         {
-            switch(b)
+            if (!p.HasValue)
+            {
+                p = 0;
+            }
+
+            switch(i.Value)
             {
                 case 0:
-                    return Keyboard.GetState().IsKeyDown(Keys.Left);
+                    return BtnLeftCurrent[p.Value];
                 case 1:
-                    return Keyboard.GetState().IsKeyDown(Keys.Right);
+                    return BtnRightCurrent[p.Value];
                 case 2:
-                    return Keyboard.GetState().IsKeyDown(Keys.Up);
+                    return BtnUpCurrent[p.Value];
                 case 3:
-                    return Keyboard.GetState().IsKeyDown(Keys.Down);
+                    return BtnDownCurrent[p.Value];
                 case 4:
-                    return Keyboard.GetState().IsKeyDown(Keys.Z);
+                    return BtnACurrent[p.Value];
                 case 5:
-                    return Keyboard.GetState().IsKeyDown(Keys.X);
+                    return BtnBCurrent[p.Value];
             }
 
             return false;
         }
 
-        public bool Btnp(int b)
+        public bool Btnp(int i, int? p)
         {
-            switch (b)
+            if (!p.HasValue)
+            {
+                p = 0;
+            }
+
+            int pi = p.Value;
+            switch (i)
             {
                 case 0:
-                    return Keyboard.GetState().IsKeyDown(Keys.Left);
+                    return BtnLeftCurrent[pi] && !BtnLeftLast[pi];
                 case 1:
-                    return Keyboard.GetState().IsKeyDown(Keys.Right);
+                    return BtnRightCurrent[pi] && !BtnRightLast[pi];
                 case 2:
-                    return Keyboard.GetState().IsKeyDown(Keys.Up);
+                    return BtnUpCurrent[pi] && !BtnUpLast[pi];
                 case 3:
-                    return Keyboard.GetState().IsKeyDown(Keys.Down);
+                    return BtnDownCurrent[pi] && !BtnDownLast[pi];
                 case 4:
-                    return Keyboard.GetState().IsKeyDown(Keys.Z);
+                    return BtnACurrent[pi] && !BtnALast[pi];
                 case 5:
-                    return Keyboard.GetState().IsKeyDown(Keys.X);
+                    return BtnBCurrent[pi] && !BtnBLast[pi];
             }
 
             return false;
+        }
+
+        private void UpdateControllerState()
+        {
+            foreach (var f in BtnPressedCallbacks)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    BtnLeftLast[i] = BtnLeftCurrent[i];
+                    BtnRightLast[i] = BtnRightCurrent[i];
+                    BtnUpLast[i] = BtnUpCurrent[i];
+                    BtnDownLast[i] = BtnDownCurrent[i];
+                    BtnALast[i] = BtnACurrent[i];
+                    BtnBLast[i] = BtnBCurrent[i];
+
+
+                    BtnLeftCurrent[i] = f(BtnLeft[i]);
+                    BtnRightCurrent[i] = f(BtnRight[i]);
+                    BtnUpCurrent[i] = f(BtnUp[i]);
+                    BtnDownCurrent[i] = f(BtnDown[i]);
+                    BtnACurrent[i] = f(BtnA[i]);
+                    BtnBCurrent[i] = f(BtnB[i]);
+                }
+            }
+        }
+
+        public void SetBtnPressedCallback(Func<int, bool> callback)
+        {
+            BtnPressedCallbacks.Add(callback);
+        }
+
+        public void SetControllerKeys(int index, int Left, int Right, int Up, int Down, int A, int B)
+        {
+            Trace.Assert(index >= 0 && index <= 7);
+
+            BtnLeft[index] = Left;
+            BtnRight[index] = Right;
+            BtnUp[index] = Up;
+            BtnDown[index] = Down;
+            BtnA[index] = A;
+            BtnB[index] = B;
         }
     }
 }

@@ -62,6 +62,8 @@ namespace pico8_interpreter
 
             pico8 = new PicoInterpreter(spriteBatch, new MoonSharpInterpreter());
             pico8.LoadGameAndRun("test4.lua");
+            pico8.SetBtnPressedCallback(((x) => Keyboard.GetState().IsKeyDown((Keys)x)));
+            pico8.SetControllerKeys(0, (int)Keys.Left, (int)Keys.Right, (int)Keys.Up, (int)Keys.Down, (int)Keys.Z, (int)Keys.X);
         }
 
         /// <summary>

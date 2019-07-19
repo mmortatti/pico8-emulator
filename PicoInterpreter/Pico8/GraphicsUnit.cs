@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace pico8_interpreter.Pico8
 {
-    class GraphicsUnit
+    public class GraphicsUnit
     {
 
         public Color[] pico8Palette = {
@@ -367,24 +367,24 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        public void Circ(int x, int y, int r, byte? col)
+        public void Circ(int x, int y, double r, byte? col)
         {
             if (col.HasValue)
             {
                 memory.DrawColor = col.Value;
             }
 
-            DrawCircle(x, y, (int)r, false);
+            DrawCircle(x, y, (int)Math.Ceiling(r), false);
         }
 
-        public void CircFill(int x, int y, int r, byte? col)
+        public void CircFill(int x, int y, double r, byte? col)
         {
             if (col.HasValue)
             {
                 memory.DrawColor = col.Value;
             }
 
-            DrawCircle(x, y, (int)r, true);
+            DrawCircle(x, y, (int)Math.Ceiling(r), true);
         }
 
         private void plot8(int x, int y, int offX, int offY, bool fill = false)

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace pico8_interpreter.Pico8
 {
-    class MemoryUnit
+    public class MemoryUnit
     {
         public const int ADDR_GFX = 0x0,
                          ADDR_GFX_MAP = 0x1000,

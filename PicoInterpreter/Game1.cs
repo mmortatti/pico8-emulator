@@ -60,8 +60,8 @@ namespace pico8_interpreter
             pico8Logo = Content.Load<Texture2D>("pico8");
             rasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
 
-            pico8 = new PicoInterpreter(spriteBatch, new MoonSharpInterpreter());
-            pico8.LoadGameAndRun("test4.lua");
+            pico8 = new PicoInterpreter(spriteBatch);
+            pico8.LoadGame("test4.lua", new MoonSharpInterpreter());
             pico8.SetBtnPressedCallback(((x) => Keyboard.GetState().IsKeyDown((Keys)x)));
             pico8.SetControllerKeys(0, (int)Keys.Left, (int)Keys.Right, (int)Keys.Up, (int)Keys.Down, (int)Keys.Z, (int)Keys.X);
         }

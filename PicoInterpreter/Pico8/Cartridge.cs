@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace pico8_interpreter.Pico8
 {
-    class Cartridge
+    public class Cartridge
     {
         public const int ADDR_GFX = 0x0,
                          ADDR_GFX_MAP = 0x1000,

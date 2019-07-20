@@ -2100,6 +2100,7 @@ end
 function _draw()
   cls()
 
+  slowmo=1
   if slowmo>0 then
     pal(0,7)
     pal(7,0)

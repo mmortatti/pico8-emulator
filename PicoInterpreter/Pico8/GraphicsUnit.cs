@@ -132,7 +132,7 @@ namespace pico8_interpreter.Pico8
                 for (int j = 0; j < 8 * height; j++)
                 {
                     byte sprColor = Sget(i + sprX, j + sprY);
-                    Pset(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), sprColor);
+                    Psett(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), sprColor);
                 }
             }
         }
@@ -170,9 +170,9 @@ namespace pico8_interpreter.Pico8
                 while (y < sy + sh && screenY < dy + dh)
                 {
                     byte sprColor = Sget((int)x, (int)y);
-                    Pset((flip_x.Value ? dx + dw.Value - ((int)screenX - dx) : (int)screenX), 
-                         (flip_y.Value ? dy + dh.Value - ((int)screenY - dy) : (int)screenY), 
-                         sprColor);
+                    Psett((flip_x.Value ? dx + dw.Value - ((int)screenX - dx) : (int)screenX), 
+                          (flip_y.Value ? dy + dh.Value - ((int)screenY - dy) : (int)screenY), 
+                          sprColor);
 
                     y += ratioY;
                     screenY += 1;
@@ -206,7 +206,21 @@ namespace pico8_interpreter.Pico8
                 memory.DrawColor = col.Value;
             }
 
-            memory.WritePixel((int)x, (int)y, memory.GetDrawColor(memory.DrawColor));
+            // Do not consider transparency bit for this operation.
+            memory.WritePixel(x, y, (byte)(memory.GetDrawColor(memory.DrawColor) & 0x0f));
+        }
+
+        // Set pixel considering transparency value. Used for spr, sspr and map.
+        public void Psett(int x, int y, byte? col)
+        {
+            x -= memory.cameraX;
+            y -= memory.cameraY;
+            if (col.HasValue)
+            {
+                memory.DrawColor = col.Value;
+            }
+
+            memory.WritePixel(x, y, memory.GetDrawColor(memory.DrawColor));
         }
 
         public byte Pget(int x, int y)
@@ -240,12 +254,12 @@ namespace pico8_interpreter.Pico8
         {
             if (!c0.HasValue || !c1.HasValue)
             {
-                Palt(null, null);
                 for (byte i = 0; i < 16; i++)
                 {
                     memory.SetDrawPalette(i, i);
                     memory.SetScreenPalette(i, i);
                 }
+                Palt(null, null);
 
                 return;
             }

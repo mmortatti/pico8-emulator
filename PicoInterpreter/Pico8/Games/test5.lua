@@ -1,4 +1,6 @@
 ﻿__lua__
 
 cls()
-circfill(64, 64, 1)
+pal(5, 7)
+palt(5, true)
+rectfill(0, 0, 64, 64, 5)

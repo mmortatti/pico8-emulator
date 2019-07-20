@@ -203,13 +203,16 @@ namespace pico8_interpreter.Pico8
         public void SetTransparent(int col)
         {
             if (col >= 0 && col <= 15)
-                ram[ADDR_PALETTE_0 + col] = 0x10;
+            {
+                ram[ADDR_PALETTE_0 + col] &= 0x0f;
+                ram[ADDR_PALETTE_0 + col] |= 0x10;
+            }
         }
 
         public void ResetTransparent(int col)
         {
             if (col >= 0 && col <= 15)
-                ram[ADDR_PALETTE_0 + col] = (byte)col;
+                ram[ADDR_PALETTE_0 + col] &= 0x0f;
         }
 
         public void SetDrawPalette(int c0, int c1)

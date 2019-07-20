@@ -17,11 +17,12 @@ namespace pico8_interpreter.Pico8
         private bool[] BtnLeftLast, BtnRightLast, BtnUpLast, BtnDownLast, BtnALast, BtnBLast;
         private bool[] BtnLeftCurrent, BtnRightCurrent, BtnUpCurrent, BtnDownCurrent, BtnACurrent, BtnBCurrent;
 
+        public MemoryUnit memory;
+        public GraphicsUnit graphics;
+
         // Struct to hold all information about a running pico8 game.
         public struct Game
         {
-            public MemoryUnit memory;
-            public GraphicsUnit graphics;
             public Cartridge cartridge;
             public ILuaInterpreter interpreter;
         }
@@ -31,6 +32,8 @@ namespace pico8_interpreter.Pico8
         public PicoInterpreter()
         {       
             random = new Random();
+            memory = new MemoryUnit();
+            graphics = new GraphicsUnit(ref memory);
 
             // Initialie controller variables
             BtnPressedCallbacks = new List<Func<int, bool>>();
@@ -69,46 +72,46 @@ namespace pico8_interpreter.Pico8
         private void InitAPI(ref ILuaInterpreter interpreter)
         {
             // Graphics
-            interpreter.AddFunction("line", (Action<int, int, int?, int?, byte?>)loadedGame.graphics.Line);
-            interpreter.AddFunction("rect", (Action<int, int, int, int, byte?>)loadedGame.graphics.Rect);
-            interpreter.AddFunction("rectfill", (Action<int, int, int, int, byte?>)loadedGame.graphics.Rectfill);
-            interpreter.AddFunction("circ", (Action<int, int, double, byte?>)loadedGame.graphics.Circ);
-            interpreter.AddFunction("circfill", (Action<int, int, double, byte?>)loadedGame.graphics.CircFill);
-            interpreter.AddFunction("pset", (Action<int, int, byte?>)loadedGame.graphics.Pset);
-            interpreter.AddFunction("pget", (Func<int, int, byte>)loadedGame.graphics.Pget);
-            interpreter.AddFunction("sset", (Action<int, int, byte?>)loadedGame.graphics.Sset);
-            interpreter.AddFunction("sget", (Func<int, int, byte>)loadedGame.graphics.Sget);
-            interpreter.AddFunction("palt", (Action<int?, bool?>)loadedGame.graphics.Palt);
-            interpreter.AddFunction("pal", (Action<int?, int?, int>)loadedGame.graphics.Pal);
-            interpreter.AddFunction("clip", (Action<int?, int?, int?, int?>)loadedGame.graphics.Clip);
-            interpreter.AddFunction("spr", (Action<int, int, int, int?, int?, bool?, bool?>)loadedGame.graphics.Spr);
-            interpreter.AddFunction("sspr", (Action<int, int, int, int, int, int, int?, int?, bool?, bool?>)loadedGame.graphics.Sspr);
-            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)loadedGame.graphics.Map);
-            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)loadedGame.graphics.Map);
-            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)loadedGame.graphics.Map);
-            interpreter.AddFunction("mget", (Func<int, int, byte>)loadedGame.memory.Mget);
-            interpreter.AddFunction("mset", (Action<int, int, byte>)loadedGame.memory.Mset);
-            interpreter.AddFunction("fillp", (Action<int?>)loadedGame.memory.Fillp);
+            interpreter.AddFunction("line", (Action<int, int, int?, int?, byte?>)graphics.Line);
+            interpreter.AddFunction("rect", (Action<int, int, int, int, byte?>)graphics.Rect);
+            interpreter.AddFunction("rectfill", (Action<int, int, int, int, byte?>)graphics.Rectfill);
+            interpreter.AddFunction("circ", (Action<int, int, double, byte?>)graphics.Circ);
+            interpreter.AddFunction("circfill", (Action<int, int, double, byte?>)graphics.CircFill);
+            interpreter.AddFunction("pset", (Action<int, int, byte?>)graphics.Pset);
+            interpreter.AddFunction("pget", (Func<int, int, byte>)graphics.Pget);
+            interpreter.AddFunction("sset", (Action<int, int, byte?>)graphics.Sset);
+            interpreter.AddFunction("sget", (Func<int, int, byte>)graphics.Sget);
+            interpreter.AddFunction("palt", (Action<int?, bool?>)graphics.Palt);
+            interpreter.AddFunction("pal", (Action<int?, int?, int>)graphics.Pal);
+            interpreter.AddFunction("clip", (Action<int?, int?, int?, int?>)graphics.Clip);
+            interpreter.AddFunction("spr", (Action<int, int, int, int?, int?, bool?, bool?>)graphics.Spr);
+            interpreter.AddFunction("sspr", (Action<int, int, int, int, int, int, int?, int?, bool?, bool?>)graphics.Sspr);
+            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
+            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
+            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
+            interpreter.AddFunction("mget", (Func<int, int, byte>)memory.Mget);
+            interpreter.AddFunction("mset", (Action<int, int, byte>)memory.Mset);
+            interpreter.AddFunction("fillp", (Action<int?>)memory.Fillp);
 
             // Memory related
-            interpreter.AddFunction("cls", (Action)loadedGame.memory.Cls);
-            interpreter.AddFunction("peek", (Func<int, byte>)loadedGame.memory.Peek);
-            interpreter.AddFunction("poke", (Action<int, byte>)loadedGame.memory.Poke);
-            interpreter.AddFunction("peek2", (Func<int, int>)loadedGame.memory.Peek2);
-            interpreter.AddFunction("poke2", (Action<int, int>)loadedGame.memory.Poke2);
-            interpreter.AddFunction("peek4", (Func<int, double>)loadedGame.memory.Peek4);
-            interpreter.AddFunction("poke4", (Action<int, double>)loadedGame.memory.Poke4);
-            interpreter.AddFunction("fget", (Func<int, byte?, object>)loadedGame.memory.Fget);
-            interpreter.AddFunction("fset", (Action<int, byte?, bool?>)loadedGame.memory.Fset);
-            interpreter.AddFunction("camera", (Action<int?, int?>)loadedGame.memory.Camera);
-            interpreter.AddFunction("memcpy", (Action<int, int, int>)loadedGame.memory.Memcpy);
-            interpreter.AddFunction("memset", (Action<int, byte, int>)loadedGame.memory.Memset);
-            interpreter.AddFunction("reload", (Action<int, int, int, string>)loadedGame.memory.Reload);
-            interpreter.AddFunction("cstore", (Action<int, int, int, string>)loadedGame.memory.Cstore);
-            interpreter.AddFunction("cartdata", (Action<object>)loadedGame.memory.Cartdata);
-            interpreter.AddFunction("dget", (Func<int, double>)loadedGame.memory.Dget);
-            interpreter.AddFunction("dset", (Action<int, double>)loadedGame.memory.Dset);
-            interpreter.AddFunction("color", (Action<byte>)loadedGame.memory.Color);
+            interpreter.AddFunction("cls", (Action)memory.Cls);
+            interpreter.AddFunction("peek", (Func<int, byte>)memory.Peek);
+            interpreter.AddFunction("poke", (Action<int, byte>)memory.Poke);
+            interpreter.AddFunction("peek2", (Func<int, int>)memory.Peek2);
+            interpreter.AddFunction("poke2", (Action<int, int>)memory.Poke2);
+            interpreter.AddFunction("peek4", (Func<int, double>)memory.Peek4);
+            interpreter.AddFunction("poke4", (Action<int, double>)memory.Poke4);
+            interpreter.AddFunction("fget", (Func<int, byte?, object>)memory.Fget);
+            interpreter.AddFunction("fset", (Action<int, byte?, bool?>)memory.Fset);
+            interpreter.AddFunction("camera", (Action<int?, int?>)memory.Camera);
+            interpreter.AddFunction("memcpy", (Action<int, int, int>)memory.Memcpy);
+            interpreter.AddFunction("memset", (Action<int, byte, int>)memory.Memset);
+            interpreter.AddFunction("reload", (Action<int, int, int, string>)memory.Reload);
+            interpreter.AddFunction("cstore", (Action<int, int, int, string>)memory.Cstore);
+            interpreter.AddFunction("cartdata", (Action<object>)memory.Cartdata);
+            interpreter.AddFunction("dget", (Func<int, double>)memory.Dget);
+            interpreter.AddFunction("dset", (Action<int, double>)memory.Dset);
+            interpreter.AddFunction("color", (Action<byte>)memory.Color);
 
             // Math
             interpreter.AddFunction("max", (Func<double, double, double>)Math.Max);
@@ -197,14 +200,13 @@ namespace pico8_interpreter.Pico8
         public void LoadGame(string path, ILuaInterpreter interpreter)
         {
             loadedGame = new Game();
-            loadedGame.memory = new MemoryUnit();
+            
             loadedGame.cartridge = new Cartridge(path);
-            loadedGame.graphics = new GraphicsUnit(ref loadedGame.memory);
             loadedGame.interpreter = interpreter;
 
             InitAPI(ref loadedGame.interpreter);
 
-            loadedGame.memory.LoadCartridgeData(loadedGame.cartridge.rom);
+            memory.LoadCartridgeData(loadedGame.cartridge.rom);
             loadedGame.interpreter.RunScript(loadedGame.cartridge.gameCode);
 
             timeStart = DateTime.Now;

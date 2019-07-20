@@ -372,53 +372,58 @@ namespace pico8_interpreter.Pico8
                 memory.DrawColor = col.Value;
             }
 
-            DrawCircle(x, y, (int)Math.Ceiling(r), true);
+            DrawCircle(x, y, (int)r, true);
         }
 
-        private void plot8(int x, int y, int offX, int offY, bool fill = false)
+        private void plot4(int x, int y, int offX, int offY, bool fill)
         {
             if (fill)
             {
-                Line(-x + offX, y + offY, x + offX, y + offY, memory.DrawColor);
-                Line(-x + offX, -y + offY, x + offX, -y + offY, memory.DrawColor);
-                Line(-y + offX, x + offY, y + offX, x + offY, memory.DrawColor);
-                Line(-y + offX, -x + offY, y + offX, -x + offY, memory.DrawColor);
+                Line((x - offX), (y + offY), (x + offX), (y + offY), null);
+                if (offY != 0)
+                {
+                    Line((x - offX), (y - offY), (x + offX), (y - offY), null);
+                }
             }
             else
             {
-                Pset(x + offX, y + offY, memory.DrawColor);
-                Pset(-x + offX, y + offY, memory.DrawColor);
-                Pset(x + offX, -y + offY, memory.DrawColor);
-                Pset(-x + offX, -y + offY, memory.DrawColor);
-                Pset(y + offX, x + offY, memory.DrawColor);
-                Pset(-y + offX, x + offY, memory.DrawColor);
-                Pset(y + offX, -x + offY, memory.DrawColor);
-                Pset(-y + offX, -x + offY, memory.DrawColor);
+                Pset((x - offX), (y + offY), null);
+                Pset((x + offX), (y + offY), null);
+                if (offY != 0)
+                {
+                    Pset((x - offX), (y - offY), null);
+                    Pset((x + offX), (y - offY), null);
+                }
             }
         }
 
-        private void DrawCircle(int posX, int posY, int radius, bool fill = false)
+        private void DrawCircle(int posX, int posY, int r, bool fill)
         {
-            int rs2 = radius * radius * 4; /* this could be folded into ycs2 */
-            int xs2 = 0;
-            int ys2m1 = rs2 - 2 * radius + 1;
-            int x = 0;
-            int y = radius;
-            int ycs2;
-            plot8(x, y, posX, posY, fill);
-            while (x <= y)
+            int cx = posX, cy = posY;
+            int x = r;
+            int y = 0;
+            double err = 1 - r;
+
+            while (y <= x)
             {
-                /* advance to the right */
-                xs2 = xs2 + 8 * x + 4;
-                ++x;
-                /* calculate new Yc */
-                ycs2 = rs2 - xs2;
-                if (ycs2 < ys2m1)
+
+                plot4(posX, posY, x, y, fill);
+
+                if (err < 0)
                 {
-                    ys2m1 = ys2m1 - 8 * y + 4;
-                    --y;
+                    err = err + 2 * y + 3;
                 }
-                plot8(x, y, posX, posY, fill);
+                else
+                {
+                    if (x != y)
+                    {
+                        plot4(posX, posY, y, x, fill);
+                    }
+                    x = x - 1;
+                    err = err + 2 * (y - x) + 3;
+                }
+
+                y = y + 1;
             }
         }
     }

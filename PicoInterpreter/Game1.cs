@@ -108,7 +108,7 @@ namespace pico8_interpreter
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, rasterizerState, null, Resolution.getTransformationMatrix());
             pico8.Draw();
-            pico8.loadedGame.graphics.Flip(ref screenColorData, ((r, g, b) => new Color(r, g, b)));
+            pico8.graphics.Flip(ref screenColorData, ((r, g, b) => new Color(r, g, b)));
             screenTexture.SetData(screenColorData);
             spriteBatch.Draw(screenTexture, new Rectangle(0, 0, 128, 128), Color.White);
             spriteBatch.End();

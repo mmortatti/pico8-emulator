@@ -1,4 +1,4 @@
 ﻿__lua__
 
-camera(32, 32)
-rectfill(128, 128, 256, 256)
+cls()
+circfill(64, 64, 1)

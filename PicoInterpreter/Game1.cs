@@ -21,6 +21,9 @@ namespace pico8_interpreter
 
         PicoInterpreter pico8;
 
+        Color[] screenColorData;
+        Texture2D screenTexture;
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -57,10 +60,13 @@ namespace pico8_interpreter
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            screenColorData = new Color[128 * 128];
+            screenTexture = new Texture2D(GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
+
             pico8Logo = Content.Load<Texture2D>("pico8");
             rasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
 
-            pico8 = new PicoInterpreter(spriteBatch);
+            pico8 = new PicoInterpreter();
             pico8.LoadGame("test4.lua", new MoonSharpInterpreter());
             pico8.SetBtnPressedCallback(((x) => Keyboard.GetState().IsKeyDown((Keys)x)));
             pico8.SetControllerKeys(0, (int)Keys.Left, (int)Keys.Right, (int)Keys.Up, (int)Keys.Down, (int)Keys.Z, (int)Keys.X);
@@ -102,6 +108,9 @@ namespace pico8_interpreter
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, rasterizerState, null, Resolution.getTransformationMatrix());
             pico8.Draw();
+            pico8.loadedGame.graphics.Flip(ref screenColorData, ((r, g, b) => new Color(r, g, b)));
+            screenTexture.SetData(screenColorData);
+            spriteBatch.Draw(screenTexture, new Rectangle(0, 0, 128, 128), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);

@@ -1,29 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using MoonSharp.Interpreter;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using System.Diagnostics;
 
 namespace pico8_interpreter.Pico8
 {
     public class PicoInterpreter
     {
-        #region pico8_constants
-        // Pico8 defines
-        public const int WIDTH = 128;
-        public const int HEIGHT = 128;
-        
-        #endregion
-
-        public Texture2D screenTexture;
-        private SpriteBatch spriteBatch;
-
         private Random random;
 
         private DateTime timeStart;
@@ -46,11 +28,8 @@ namespace pico8_interpreter.Pico8
 
         public Game loadedGame;
 
-        public PicoInterpreter(SpriteBatch spriteBatch)
-        {
-            this.spriteBatch = spriteBatch;
-                
-            screenTexture = new Texture2D(spriteBatch.GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
+        public PicoInterpreter()
+        {       
             random = new Random();
 
             // Initialie controller variables
@@ -220,7 +199,7 @@ namespace pico8_interpreter.Pico8
             loadedGame = new Game();
             loadedGame.memory = new MemoryUnit();
             loadedGame.cartridge = new Cartridge(path);
-            loadedGame.graphics = new GraphicsUnit(ref loadedGame.memory, ref screenTexture, ref spriteBatch);
+            loadedGame.graphics = new GraphicsUnit(ref loadedGame.memory);
             loadedGame.interpreter = interpreter;
 
             InitAPI(ref loadedGame.interpreter);
@@ -244,12 +223,6 @@ namespace pico8_interpreter.Pico8
         public void Draw()
         {
             loadedGame.interpreter.CallIfDefined("_draw");
-            loadedGame.graphics.Flip();
-        }
-
-        public void SetSpriteBatch(SpriteBatch spriteBatch)
-        {
-            this.spriteBatch = spriteBatch;
         }
 
         public object Btn(int? i, int? p)

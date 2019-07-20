@@ -1,62 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace pico8_interpreter.Pico8
 {
     public class GraphicsUnit
     {
 
-        public Color[] pico8Palette = {
+        public int[,] pico8Palette = {
             // Black
-            new Color(0, 0, 0),
+            { 0, 0, 0 },
             // Dark-blue
-            new Color(29, 43, 83),
+            { 29, 43, 83 },
             // Dark-purple
-            new Color(126, 37, 83),
+            { 126, 37, 83 },
             // Dark-green
-            new Color(0, 135, 81),
+            { 0, 135, 81 },
             // Brown
-            new Color(171, 82, 54),
+            { 171, 82, 54 },
             // Dark-gray
-            new Color(95, 87, 79),
+            { 95, 87, 79 },
             // Light-gray
-            new Color(194, 195, 199),
+            { 194, 195, 199 },
             // White
-            new Color(255, 241, 232),
+            { 255, 241, 232 },
             // Red
-            new Color(255, 0, 77),
+            { 255, 0, 77 },
             // Orange
-            new Color(255, 163, 0),
+            { 255, 163, 0 },
             // Yellow
-            new Color(255, 236, 39),
+            { 255, 236, 39 },
             // Green
-            new Color(0, 228, 54),
+            { 0, 228, 54 },
             // Blue
-            new Color(41, 173, 255),
+            { 41, 173, 255 },
             // Indigo
-            new Color(131, 118, 156),
+            { 131, 118, 156 },
             // Pink
-            new Color(255, 119, 168),
+            { 255, 119, 168 },
             // Peach
-            new Color(255, 204, 170),
-            // Transparent
-            new Color(0, 0, 0, 0)};
+            { 255, 204, 170 } };
 
         MemoryUnit memory;
-        Texture2D screenTexture;
-        SpriteBatch spriteBatch;
 
-        public GraphicsUnit(ref MemoryUnit memory, ref Texture2D screenTexture, ref SpriteBatch spriteBatch)
+        public GraphicsUnit(ref MemoryUnit memory)
         {
             this.memory = memory;
-            this.screenTexture = screenTexture;
-            this.spriteBatch = spriteBatch;
-
             memory.DrawColor = 6;
         }
 
@@ -91,23 +78,24 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        // TODO - Write to texture byte values and decode them in shader.
-        public void Flip()
+        public void Flip<T>(ref T[] screenColorData, Func<int, int, int, T> rgbToColor)
         {
             byte[] frameBuffer = memory.FrameBuffer;
-            Color[] screenColorValues = new Color[128 * 128];
             for (int i = 0; i < 64 * 128; i++)
             {
                 byte val = frameBuffer[i];
                 byte left = (byte)(val & 0x0f);
                 byte right = (byte)(val >> 4);
 
-                screenColorValues[i * 2] = pico8Palette[memory.GetScreenColor(left)];
-                screenColorValues[i * 2 + 1] = pico8Palette[memory.GetScreenColor(right)];
+                int rl = pico8Palette[memory.GetScreenColor(left), 0],
+                    gl = pico8Palette[memory.GetScreenColor(left), 1],
+                    bl = pico8Palette[memory.GetScreenColor(left), 2];
+                int rr = pico8Palette[memory.GetScreenColor(right), 0],
+                    gr = pico8Palette[memory.GetScreenColor(right), 1],
+                    br = pico8Palette[memory.GetScreenColor(right), 2];
+                screenColorData[i * 2] = rgbToColor(rl, gl, bl);
+                screenColorData[i * 2 + 1] = rgbToColor(rr, gr, br);
             }
-
-            screenTexture.SetData(screenColorValues);
-            spriteBatch.Draw(screenTexture, new Rectangle(0, 0, 128, 128), Color.White);
         }
 
         public void Spr(int n, int x, int y, int? w, int? h, bool? flip_x, bool? flip_y)

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace pico8_interpreter.Pico8
 {
@@ -99,6 +96,38 @@ namespace pico8_interpreter.Pico8
         public byte clipY0 { get { return (byte)(ram[ADDR_CLIP_Y0] & 0x7f); } set { ram[ADDR_CLIP_Y0] = value; } }
         public byte clipX1 { get { return (byte)(ram[ADDR_CLIP_X1] & 0x7f); } set { ram[ADDR_CLIP_X1] = value; } }
         public byte clipY1 { get { return (byte)(ram[ADDR_CLIP_Y1] & 0x7f); } set { ram[ADDR_CLIP_Y1] = value; } }
+
+        public int screenX
+        {
+            get
+            {
+                byte i = Peek(0x5F2C);
+                switch(i)
+                {
+                    case 0:
+                    case 4:
+                        return 128;
+                }
+
+                return 128;
+            }
+        }
+
+        public int screenY
+        {
+            get
+            {
+                byte i = Peek(0x5F2C);
+                switch (i)
+                {
+                    case 0:
+                    case 4:
+                        return 128;
+                }
+
+                return 128;
+            }
+        }
 
         public MemoryUnit()
         {

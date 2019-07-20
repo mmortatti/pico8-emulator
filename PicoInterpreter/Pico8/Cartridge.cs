@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework;
 
 namespace pico8_interpreter.Pico8
 {
@@ -39,7 +34,7 @@ namespace pico8_interpreter.Pico8
         private void LoadP8(string path)
         {
             string completePath = "Pico8/Games/" + path;
-            var streamReader = new StreamReader(TitleContainer.OpenStream(completePath));
+            var streamReader = new StreamReader(completePath);
 
             Dictionary<string, int> stateMap = new Dictionary<string, int>
             {

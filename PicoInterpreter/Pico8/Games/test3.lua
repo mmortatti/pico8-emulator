@@ -336,9 +336,9 @@ function _draw()
   local cx,cy=64,56+cam.pos[2]/4 -- add camera position to create a little paralax
   rectfill(0,0,128,128,c_pink)
   rectfill(0,cy+9,128,128,c_dark_purple)
-  --fillp(0b0101101001011010.1)
+  fillp(b'0101101001011010.1')
   rectfill(0,cy+5,128,cy+10,c_dark_purple)
-  --fillp()
+  fillp()
   circfill(cx,cy,20,c_yellow)
 
   spr(1,32,15,9,4)

@@ -1255,8 +1255,8 @@ function light:update()
 end
 
 function light:render()
-  local p= 0 --self.llevel == 2 and 0b1111111111111111.1 or
-           --(self.llevel == 1 and 0b1010010110100101.1 or 0b0000000000000000.1)
+  local p= self.llevel == 2 and b'1111111111111111.1' or
+           (self.llevel == 1 and b'1010010110100101.1' or b'0000000000000000.1')
 
   fillp(p)
   rectfill(self.pos.x,self.pos.y,self.pos.x+7,self.pos.y+7,0)
@@ -2011,9 +2011,9 @@ function remove_old(tags)
 end
 
 function draw_dithered(t,flip,box,c)
-  local low,mid,hi=0, --0b0000000000000000.1,
-                   0, --0b1010010110100101.1,
-                   0 --0b1111111111111111.1                
+  local low,mid,hi=b'0000000000000000.1',
+                   b'1010010110100101.1',
+                   b'1111111111111111.1'
   if flip then low,hi=hi,low end
 
   if t <= 0.3 then
@@ -2100,7 +2100,6 @@ end
 function _draw()
   cls()
 
-  slowmo=1
   if slowmo>0 then
     pal(0,7)
     pal(7,0)

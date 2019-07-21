@@ -91,7 +91,7 @@ namespace pico8_interpreter.Pico8
             interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
             interpreter.AddFunction("mget", (Func<int, int, byte>)memory.Mget);
             interpreter.AddFunction("mset", (Action<int, int, byte>)memory.Mset);
-            interpreter.AddFunction("fillp", (Action<int?>)memory.Fillp);
+            interpreter.AddFunction("fillp", (Action<double?>)memory.Fillp);
 
             // Memory related
             interpreter.AddFunction("cls", (Action)memory.Cls);
@@ -185,6 +185,30 @@ namespace pico8_interpreter.Pico8
                     for e in all(t) do
                         f(e)
                     end
+                end
+
+                function string:split(sep)
+                   local sep, fields = sep or "":"", {}
+                   local pattern = string.format(""([^%s]+)"", sep)
+                   self: gsub(pattern, function(c) fields[#fields+1] = c end)
+                   return fields
+                end
+
+                function b(s)
+                    local o = 0
+                    local n = s:split('.')
+                    for d in n[1]:gmatch('[01]') do
+                        o = o*2 + tonumber(d)
+                    end
+                    if n[2] then
+                        div = 2
+                        for d in n[2]:gmatch('[01]') do
+                            o = o + tonumber(d) / div
+                            div = div * 2
+                        end
+                    end
+
+                    return o
                 end
 
                 cocreate = coroutine.create

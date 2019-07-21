@@ -23,6 +23,7 @@ namespace pico8_interpreter.Pico8
                          ADDR_CURSOR_Y = 0x5f27,
                          ADDR_CAMERA_X = 0x5f28,
                          ADDR_CAMERA_Y = 0x5f2a,
+                         ADDR_FILLP = 0x5f31,
                          ADDR_LINE_X = 0x5f3c,
                          ADDR_LINE_Y = 0x5f3e,
                          ADDR_SCREEN = 0x6000,
@@ -49,7 +50,7 @@ namespace pico8_interpreter.Pico8
             }
             set
             {
-                ram[ADDR_DRAW_COL] = (byte)(value & 0xf);
+                ram[ADDR_DRAW_COL] = (byte)(value & 0xff);
             }
         }
 
@@ -129,6 +130,25 @@ namespace pico8_interpreter.Pico8
             }
         }
 
+        public int fillPattern
+        {
+            get => (ram[ADDR_FILLP + 1] << 8) | ram [ADDR_FILLP];
+            set
+            {
+                ram[ADDR_FILLP] = (byte)(value & 0xff);
+                ram[ADDR_FILLP + 1] = (byte)(value >> 8 & 0xff);
+            }
+        }
+
+        public bool fillpTransparent
+        {
+            get => ram[ADDR_FILLP + 2] != 0;
+            set
+            {
+                ram[ADDR_FILLP + 2] = (byte)(value ? 1 : 0);
+            }
+        }
+
         public MemoryUnit()
         {
             ram = new byte[ADDR_END];
@@ -166,9 +186,28 @@ namespace pico8_interpreter.Pico8
         public void Cartdata(object id) { }
         public double Dget(int index) { return 0; }
         public void Dset(int index, double value) { }
-        public void Fillp(int? p) { }
 
         #endregion
+
+        public void Fillp(double? p)
+        {
+            if (!p.HasValue)
+            {
+                p = 0;
+            }
+
+            fillPattern = (int)p.Value;
+            fillpTransparent = Math.Floor(p.Value) < p.Value;
+        }
+
+        public int getFillPBit(int x, int y)
+        {
+            x %= 4;
+            y %= 4;
+            int i = y * 4 + x;
+            int mask = (1 << 15) >> i;
+            return (fillPattern & mask) >> (15 - i);
+        }
 
         public void Memset(int dest_addr, byte val, int len)
         {

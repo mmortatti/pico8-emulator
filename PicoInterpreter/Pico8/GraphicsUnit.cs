@@ -206,8 +206,17 @@ namespace pico8_interpreter.Pico8
                 memory.DrawColor = col.Value;
             }
 
-            // Do not consider transparency bit for this operation.
-            memory.WritePixel(x, y, (byte)(memory.GetDrawColor(memory.DrawColor) & 0x0f));
+            int f = memory.getFillPBit(x, y);
+            if (f == 0)
+            {
+                // Do not consider transparency bit for this operation.
+                memory.WritePixel(x, y, (byte)(memory.GetDrawColor(memory.DrawColor & 0x0f) & 0x0f));
+            }
+            else if (!memory.fillpTransparent)
+            {
+                // Do not consider transparency bit for this operation.
+                memory.WritePixel(x, y, (byte)(memory.GetDrawColor(memory.DrawColor >> 4) & 0x0f));
+            }
         }
 
         // Set pixel considering transparency value. Used for spr, sspr and map.
@@ -220,7 +229,15 @@ namespace pico8_interpreter.Pico8
                 memory.DrawColor = col.Value;
             }
 
-            memory.WritePixel(x, y, memory.GetDrawColor(memory.DrawColor));
+            int f = memory.getFillPBit(x, y);
+            if (f == 0)
+            {
+                memory.WritePixel(x, y, memory.GetDrawColor(memory.DrawColor & 0x0f));
+            }
+            else if (!memory.fillpTransparent)
+            {
+                memory.WritePixel(x, y, (memory.GetDrawColor(memory.DrawColor >> 4)));
+            }
         }
 
         public byte Pget(int x, int y)

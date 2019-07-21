@@ -1,6 +1,5 @@
 ﻿__lua__
 
 cls()
-pal(5, 7)
-palt(5, true)
-rectfill(0, 0, 64, 64, 5)
+fillp(b'0101101001011010')
+rectfill(0, 0, 128, 128, 0x76)

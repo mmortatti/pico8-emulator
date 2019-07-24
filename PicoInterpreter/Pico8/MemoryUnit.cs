@@ -181,15 +181,15 @@ namespace pico8_interpreter.Pico8
 
         #region TODO
 
-        public void Reload(int dest_addr, int source_addr, int len, string filename = "") { }
-        public void Cstore(int dest_addr, int source_addr, int len, string filename = "") { }
-        public void Cartdata(object id) { }
+        public object Reload(int dest_addr, int source_addr, int len, string filename = "") { return null; }
+        public object Cstore(int dest_addr, int source_addr, int len, string filename = "") { return null; }
+        public object Cartdata(object id) { return null;  }
         public double Dget(int index) { return 0; }
-        public void Dset(int index, double value) { }
+        public object Dset(int index, double value) { return null; }
 
         #endregion
 
-        public void Fillp(double? p)
+        public object Fillp(double? p = null)
         {
             if (!p.HasValue)
             {
@@ -198,6 +198,8 @@ namespace pico8_interpreter.Pico8
 
             fillPattern = (int)p.Value;
             fillpTransparent = Math.Floor(p.Value) < p.Value;
+
+            return null;
         }
 
         public int getFillPBit(int x, int y)
@@ -209,22 +211,28 @@ namespace pico8_interpreter.Pico8
             return (fillPattern & mask) >> (15 - i);
         }
 
-        public void Memset(int dest_addr, byte val, int len)
+        public object Memset(int dest_addr, byte val, int len)
         {
             for (int i = 0; i < len; i++)
             {
                 ram[dest_addr + i] = val;
             }
+
+            return null;
         }
 
-        public void Memcpy(int dest_addr, int source_addr, int len)
+        public object Memcpy(int dest_addr, int source_addr, int len)
         {
             Buffer.BlockCopy(ram, source_addr, ram, dest_addr, len);
+
+            return null;
         }
 
-        public void Color(byte col)
+        public object Color(byte col)
         {
             this.DrawColor = col;
+
+            return null;
         }
 
         public byte GetDrawColor(int color)
@@ -266,13 +274,13 @@ namespace pico8_interpreter.Pico8
                 ram[ADDR_PALETTE_1 + c0] = (byte)c1;
         }
 
-        public void Camera(int? x, int? y)
+        public object Camera(int? x = null, int? y = null)
         {
             if (!x.HasValue && !y.HasValue)
             {
                 cameraX = 0;
                 cameraY = 0;
-                return;
+                return null;
             }
 
             if (x.HasValue)
@@ -280,18 +288,24 @@ namespace pico8_interpreter.Pico8
                 cameraX = x.Value;
             }
 
-            if (y.HasValue)
+            if (!y.HasValue)
             {
-                cameraY = y.Value;
+                y = 0;
             }
+
+            cameraY = y.Value;
+
+            return null;
         }
 
-        public void Cls()
+        public object Cls()
         {
             for (int i = 0; i < 0x2000; i++)
             {
                 ram[ADDR_SCREEN + i] = 0;
             }
+
+            return null;
         }
 
         public byte Peek(int addr)
@@ -301,12 +315,14 @@ namespace pico8_interpreter.Pico8
             return ram[addr];
         }
 
-        public void Poke(int addr, byte val)
+        public object Poke(int addr, byte val)
         {
             // TODO throw BAD MEMORY ACCESS exception
-            if (addr < 0 || addr >= 0x8000) return;
+            if (addr < 0 || addr >= 0x8000) return null;
 
             ram[addr] = val;
+
+            return null;
         }
 
         public int Peek2(int addr)
@@ -316,13 +332,15 @@ namespace pico8_interpreter.Pico8
             return ram[addr] | (ram[addr + 1] << 8);
         }
 
-        public void Poke2(int addr, int val)
+        public object Poke2(int addr, int val)
         {
             // TODO throw BAD MEMORY ACCESS exception
-            if (addr < 0 || addr >= 0x8000 - 1) return;
+            if (addr < 0 || addr >= 0x8000 - 1) return null;
 
             ram[addr] = (byte)(val & 0xff);
             ram[addr + 1] = (byte)((val >> 8) & 0xff);
+
+            return null;
         }
 
         public double Peek4(int addr)
@@ -335,10 +353,10 @@ namespace pico8_interpreter.Pico8
             return util.FixedToFloat(left + right);
         }
 
-        public void Poke4(int addr, double val)
+        public object Poke4(int addr, double val)
         {
             // TODO throw BAD MEMORY ACCESS exception
-            if (addr < 0 || addr >= 0x8000 - 3) return;
+            if (addr < 0 || addr >= 0x8000 - 3) return null;
 
             Int32 f = util.FloatToFixed(val);
 
@@ -346,9 +364,11 @@ namespace pico8_interpreter.Pico8
             ram[addr + 1] = (byte)((f >> 8) & 0xff);
             ram[addr + 2] = (byte)((f >> 16) & 0xff);
             ram[addr + 3] = (byte)((f >> 24) & 0xff);
+
+            return null;
         }
 
-        public object Fget(int n, byte? f)
+        public object Fget(int n, byte? f = null)
         {
             if (f.HasValue)
             {
@@ -358,11 +378,11 @@ namespace pico8_interpreter.Pico8
             return Peek(ADDR_GFX_PROPS + n);
         }
 
-        public void Fset(int n, byte? f, bool? v)
+        public object Fset(int n, byte? f = null, bool? v = null)
         {
             if (!f.HasValue)
             {
-                return;
+                return null;
             }
 
             if (v.HasValue)
@@ -380,6 +400,8 @@ namespace pico8_interpreter.Pico8
             {
                 Poke(ADDR_GFX_PROPS + n, (byte)(Peek(ADDR_GFX_PROPS + n) | f));
             }
+
+            return null;
         }
 
         public byte Mget(int x, int y)
@@ -396,7 +418,7 @@ namespace pico8_interpreter.Pico8
             return ram[index + addr];
         }
 
-        public void Mset(int x, int y, byte v)
+        public object Mset(int x, int y, byte v)
         {
             int addr = (y < 32 ? ADDR_MAP : ADDR_GFX_MAP);
             y = y % 32;
@@ -404,10 +426,12 @@ namespace pico8_interpreter.Pico8
 
             if (index < 0 || index > 32 * 128 - 1)
             {
-                return;
+                return null;
             }
 
             ram[index + addr] = v;
+
+            return null;
         }
 
         #region Helper Functions

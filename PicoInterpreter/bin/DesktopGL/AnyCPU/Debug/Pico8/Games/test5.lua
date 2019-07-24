@@ -1,5 +1,9 @@
 ﻿__lua__
 
-cls()
-fillp(b'0101101001011010')
-rectfill(0, 0, 128, 128, 0x76)
+function f()
+return 3
+end
+
+local i = f()
+
+print(type(i))

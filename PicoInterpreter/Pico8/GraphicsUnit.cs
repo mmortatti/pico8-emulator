@@ -52,7 +52,7 @@ namespace pico8_interpreter.Pico8
 
         #endregion
 
-        public void Map(int cel_x, int cel_y, int sx, int sy, int cel_w, int cel_h, byte? layer)
+        public object Map(int cel_x, int cel_y, int sx, int sy, int cel_w, int cel_h, byte? layer = null)
         {
             for (int h = 0; h < cel_h; h++) 
             {
@@ -76,6 +76,8 @@ namespace pico8_interpreter.Pico8
                     }
                 }
             }
+
+            return null;
         }
 
         public void Flip<T>(ref T[] screenColorData, Func<int, int, int, T> rgbToColor)
@@ -98,11 +100,11 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        public void Spr(int n, int x, int y, int? w, int? h, bool? flip_x, bool? flip_y)
+        public object Spr(int n, int x, int y, int? w = null, int? h = null, bool? flip_x = null, bool? flip_y = null)
         {
             if (n < 0 || n > 255)
             {
-                return;
+                return null;
             }
 
             int sprX = (n % 16) * 8, sprY = (n / 16) * 8;
@@ -135,9 +137,11 @@ namespace pico8_interpreter.Pico8
                     Psett(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), sprColor);
                 }
             }
+
+            return null;
         }
 
-        public void Sspr(int sx, int sy, int sw, int sh, int dx, int dy, int? dw, int? dh, bool? flip_x, bool? flip_y)
+        public object Sspr(int sx, int sy, int sw, int sh, int dx, int dy, int? dw = null, int? dh = null, bool? flip_x = null, bool? flip_y = null)
         {
             if (!dw.HasValue)
             {
@@ -180,6 +184,8 @@ namespace pico8_interpreter.Pico8
                 x += ratioX;
                 screenX += 1;
             }
+
+            return null;
         }
 
         public byte Sget(int x, int y)
@@ -187,7 +193,7 @@ namespace pico8_interpreter.Pico8
             return memory.GetPixel(x, y, MemoryUnit.ADDR_GFX);
         }
 
-        public void Sset(int x, int y, byte? col)
+        public object Sset(int x, int y, byte? col = null)
         {
             if (col.HasValue)
             {
@@ -195,9 +201,11 @@ namespace pico8_interpreter.Pico8
             }
 
             memory.WritePixel(x, y, memory.DrawColor,MemoryUnit.ADDR_GFX);
+
+            return null;
         }
 
-        public void Pset(int x, int y, byte? col)
+        public object Pset(int x, int y, byte? col = null)
         {
             x -= memory.cameraX;
             y -= memory.cameraY;
@@ -217,10 +225,12 @@ namespace pico8_interpreter.Pico8
                 // Do not consider transparency bit for this operation.
                 memory.WritePixel(x, y, (byte)(memory.GetDrawColor(memory.DrawColor >> 4) & 0x0f));
             }
+
+            return null;
         }
 
         // Set pixel considering transparency value. Used for spr, sspr and map.
-        public void Psett(int x, int y, byte? col)
+        public object Psett(int x, int y, byte? col = null)
         {
             x -= memory.cameraX;
             y -= memory.cameraY;
@@ -238,6 +248,8 @@ namespace pico8_interpreter.Pico8
             {
                 memory.WritePixel(x, y, (memory.GetDrawColor(memory.DrawColor >> 4)));
             }
+
+            return null;
         }
 
         public byte Pget(int x, int y)
@@ -245,7 +257,7 @@ namespace pico8_interpreter.Pico8
             return memory.GetPixel((int)x, (int)y);
         }
 
-        public void Palt(int? col, bool? t)
+        public object Palt(int? col = null, bool? t = null)
         {
             if (!col.HasValue || !t.HasValue)
             {
@@ -254,7 +266,7 @@ namespace pico8_interpreter.Pico8
                 {
                     memory.ResetTransparent(i);
                 }
-                return;
+                return null;
             }
 
             if (t.Value)
@@ -265,9 +277,11 @@ namespace pico8_interpreter.Pico8
             {
                 memory.ResetTransparent(col.Value);
             }
+
+            return null;
         }
 
-        public void Pal(int? c0, int? c1, int p = 0)
+        public object Pal(int? c0 = null, int? c1 = null, int p = 0)
         {
             if (!c0.HasValue || !c1.HasValue)
             {
@@ -278,7 +292,7 @@ namespace pico8_interpreter.Pico8
                 }
                 Palt(null, null);
 
-                return;
+                return null;
             }
 
             if (p == 0)
@@ -289,29 +303,35 @@ namespace pico8_interpreter.Pico8
             {
                 memory.SetScreenPalette(c0.Value, c1.Value);
             }
+
+            return null;
         }
 
-        public void Clip(int? x, int? y, int? w, int? h)
+        public object Clip(int? x = null, int? y = null, int? w = null, int? h = null)
         {
             if (!x.HasValue || !y.HasValue || !w.HasValue || !h.HasValue)
             {
-                return;
+                return null;
             }
 
             memory.clipX0 = (byte)x.Value;
             memory.clipY0 = (byte)y.Value;
             memory.clipX1 = (byte)(x.Value + w.Value);
             memory.clipY1 = (byte)(y.Value + h.Value);
+
+            return null;
         }
 
-        public void Rect(int x0, int y0, int x1, int y1, byte? col)
+        public object Rect(int x0, int y0, int x1, int y1, byte? col = null)
         {
             Line(x0, y0, x1, y0, col);
             Line(x0, y0, x0, y1, col);
             Line(x1, y1, x1, y0, col);
             Line(x1, y1, x0, y1, col);
+
+            return null;
         }
-        public void Rectfill(int x0, int y0, int x1, int y1, byte? col)
+        public object Rectfill(int x0, int y0, int x1, int y1, byte? col = null)
         {
             if (y0 > y1)
             {
@@ -322,9 +342,11 @@ namespace pico8_interpreter.Pico8
             {
                 Line(x0, y, x1, y, col);
             }
+
+            return null;
         }
 
-        public void Line(int x0, int y0, int? x1, int? y1, byte? col)
+        public object Line(int x0, int y0, int? x1 = null, int? y1 = null, byte? col = null)
         {
             if (x1.HasValue)
             {
@@ -384,9 +406,11 @@ namespace pico8_interpreter.Pico8
                     err -= dx * 2;
                 }
             }
+
+            return null;
         }
 
-        public void Circ(int x, int y, double r, byte? col)
+        public object Circ(int x, int y, double r, byte? col = null)
         {
             if (col.HasValue)
             {
@@ -394,9 +418,11 @@ namespace pico8_interpreter.Pico8
             }
 
             DrawCircle(x, y, (int)Math.Ceiling(r), false);
+
+            return null;
         }
 
-        public void CircFill(int x, int y, double r, byte? col)
+        public object CircFill(int x, int y, double r, byte? col = null)
         {
             if (col.HasValue)
             {
@@ -404,6 +430,8 @@ namespace pico8_interpreter.Pico8
             }
 
             DrawCircle(x, y, (int)r, true);
+
+            return null;
         }
 
         private void plot4(int x, int y, int offX, int offY, bool fill)

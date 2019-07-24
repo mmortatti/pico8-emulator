@@ -31,3 +31,16 @@ C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCP
 C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Pico8\Games\test3.lua
 C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Pico8\Games\test4.lua
 C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Pico8\Games\test5.lua
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Pico8\Games\justoneboss.lua
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\lua53.dll
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\liblua53.dylib
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\liblua53.so
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\x86\lua53.dll
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\x64\lua53.dll
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\x64\liblua53.so
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\KeraLua.dll
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\NLua.dll
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\KeraLua.xml
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Antlr4.Runtime.dll
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Antlr4.Runtime.xml
+C:\Users\mathe\Documents\git\PicoInterpreter\PicoInterpreter\bin\DesktopGL\AnyCPU\Debug\Pico8\Games\justoneboss_lua.lua

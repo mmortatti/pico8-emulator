@@ -106,6 +106,8 @@ namespace pico8_interpreter.Pico8
                 }
             }
 
+            //_gameCode = Depicofier.Depicofy.Clean(_gameCode, false);
+
             //for (int y = 0; y < 32; y++) 
             //{
             //    for (int x = 0; x < 256; x++)

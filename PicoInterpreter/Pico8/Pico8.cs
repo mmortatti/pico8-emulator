@@ -72,46 +72,46 @@ namespace pico8_interpreter.Pico8
         private void InitAPI(ref ILuaInterpreter interpreter)
         {
             // Graphics
-            interpreter.AddFunction("line", (Action<int, int, int?, int?, byte?>)graphics.Line);
-            interpreter.AddFunction("rect", (Action<int, int, int, int, byte?>)graphics.Rect);
-            interpreter.AddFunction("rectfill", (Action<int, int, int, int, byte?>)graphics.Rectfill);
-            interpreter.AddFunction("circ", (Action<int, int, double, byte?>)graphics.Circ);
-            interpreter.AddFunction("circfill", (Action<int, int, double, byte?>)graphics.CircFill);
-            interpreter.AddFunction("pset", (Action<int, int, byte?>)graphics.Pset);
+            interpreter.AddFunction("line", (Func<int, int, int?, int?, byte?, object>)graphics.Line);
+            interpreter.AddFunction("rect", (Func<int, int, int, int, byte?, object>)graphics.Rect);
+            interpreter.AddFunction("rectfill", (Func<int, int, int, int, byte?, object>)graphics.Rectfill);
+            interpreter.AddFunction("circ", (Func<int, int, double, byte?, object>)graphics.Circ);
+            interpreter.AddFunction("circfill", (Func<int, int, double, byte?, object>)graphics.CircFill);
+            interpreter.AddFunction("pset", (Func<int, int, byte?, object>)graphics.Pset);
             interpreter.AddFunction("pget", (Func<int, int, byte>)graphics.Pget);
-            interpreter.AddFunction("sset", (Action<int, int, byte?>)graphics.Sset);
+            interpreter.AddFunction("sset", (Func<int, int, byte?, object>)graphics.Sset);
             interpreter.AddFunction("sget", (Func<int, int, byte>)graphics.Sget);
-            interpreter.AddFunction("palt", (Action<int?, bool?>)graphics.Palt);
-            interpreter.AddFunction("pal", (Action<int?, int?, int>)graphics.Pal);
-            interpreter.AddFunction("clip", (Action<int?, int?, int?, int?>)graphics.Clip);
-            interpreter.AddFunction("spr", (Action<int, int, int, int?, int?, bool?, bool?>)graphics.Spr);
-            interpreter.AddFunction("sspr", (Action<int, int, int, int, int, int, int?, int?, bool?, bool?>)graphics.Sspr);
-            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
-            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
-            interpreter.AddFunction("map", (Action<int, int, int, int, int, int, byte?>)graphics.Map);
+            interpreter.AddFunction("palt", (Func<int?, bool?, object>)graphics.Palt);
+            interpreter.AddFunction("pal", (Func<int?, int?, int, object>)graphics.Pal);
+            interpreter.AddFunction("clip", (Func<int?, int?, int?, int?, object>)graphics.Clip);
+            interpreter.AddFunction("spr", (Func<int, int, int, int?, int?, bool?, bool?, object>)graphics.Spr);
+            interpreter.AddFunction("sspr", (Func<int, int, int, int, int, int, int?, int?, bool?, bool?, object>)graphics.Sspr);
+            interpreter.AddFunction("map", (Func<int, int, int, int, int, int, byte?, object>)graphics.Map);
+            interpreter.AddFunction("map", (Func<int, int, int, int, int, int, byte?, object>)graphics.Map);
+            interpreter.AddFunction("map", (Func<int, int, int, int, int, int, byte?, object>)graphics.Map);
             interpreter.AddFunction("mget", (Func<int, int, byte>)memory.Mget);
-            interpreter.AddFunction("mset", (Action<int, int, byte>)memory.Mset);
-            interpreter.AddFunction("fillp", (Action<double?>)memory.Fillp);
+            interpreter.AddFunction("mset", (Func<int, int, byte, object>)memory.Mset);
+            interpreter.AddFunction("fillp", (Func<double?, object>)memory.Fillp);
 
             // Memory related
-            interpreter.AddFunction("cls", (Action)memory.Cls);
+            interpreter.AddFunction("cls", (Func<object>)memory.Cls);
             interpreter.AddFunction("peek", (Func<int, byte>)memory.Peek);
-            interpreter.AddFunction("poke", (Action<int, byte>)memory.Poke);
+            interpreter.AddFunction("poke", (Func<int, byte, object>)memory.Poke);
             interpreter.AddFunction("peek2", (Func<int, int>)memory.Peek2);
-            interpreter.AddFunction("poke2", (Action<int, int>)memory.Poke2);
+            interpreter.AddFunction("poke2", (Func<int, int, object>)memory.Poke2);
             interpreter.AddFunction("peek4", (Func<int, double>)memory.Peek4);
-            interpreter.AddFunction("poke4", (Action<int, double>)memory.Poke4);
+            interpreter.AddFunction("poke4", (Func<int, double, object>)memory.Poke4);
             interpreter.AddFunction("fget", (Func<int, byte?, object>)memory.Fget);
-            interpreter.AddFunction("fset", (Action<int, byte?, bool?>)memory.Fset);
-            interpreter.AddFunction("camera", (Action<int?, int?>)memory.Camera);
-            interpreter.AddFunction("memcpy", (Action<int, int, int>)memory.Memcpy);
-            interpreter.AddFunction("memset", (Action<int, byte, int>)memory.Memset);
-            interpreter.AddFunction("reload", (Action<int, int, int, string>)memory.Reload);
-            interpreter.AddFunction("cstore", (Action<int, int, int, string>)memory.Cstore);
-            interpreter.AddFunction("cartdata", (Action<object>)memory.Cartdata);
+            interpreter.AddFunction("fset", (Func<int, byte?, bool?, object>)memory.Fset);
+            interpreter.AddFunction("camera", (Func<int?, int?, object>)memory.Camera);
+            interpreter.AddFunction("memcpy", (Func<int, int, int, object>)memory.Memcpy);
+            interpreter.AddFunction("memset", (Func<int, byte, int, object>)memory.Memset);
+            interpreter.AddFunction("reload", (Func<int, int, int, string, object>)memory.Reload);
+            interpreter.AddFunction("cstore", (Func<int, int, int, string, object>)memory.Cstore);
+            interpreter.AddFunction("cartdata", (Func<object, object>)memory.Cartdata);
             interpreter.AddFunction("dget", (Func<int, double>)memory.Dget);
-            interpreter.AddFunction("dset", (Action<int, double>)memory.Dset);
-            interpreter.AddFunction("color", (Action<byte>)memory.Color);
+            interpreter.AddFunction("dset", (Func<int, double, object>)memory.Dset);
+            interpreter.AddFunction("color", (Func<byte, object>)memory.Color);
 
             // Math
             interpreter.AddFunction("max", (Func<double, double, double>)Math.Max);
@@ -124,8 +124,8 @@ namespace pico8_interpreter.Pico8
             interpreter.AddFunction("atan2", (Func<double, double, double>)((dx, dy) => 1 - Math.Atan2(dy, dx) / (2 * Math.PI)));
             interpreter.AddFunction("sqrt", (Func<double, double>)Math.Sqrt);
             interpreter.AddFunction("abs", (Func<double, double>)Math.Abs);
-            interpreter.AddFunction("rnd", (Func<double, double>)(x => random.NextDouble() * x));
-            interpreter.AddFunction("srand", (Action<int>)(x => random = new Random(x)));
+            interpreter.AddFunction("rnd", (Func<double?, double>)Rnd);
+            interpreter.AddFunction("srand", (Func<int, object>)(x => random = new Random(x)));
             interpreter.AddFunction("band", (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) & util.FloatToFixed(y))));
             interpreter.AddFunction("bor", (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) | util.FloatToFixed(y))));
             interpreter.AddFunction("bxor", (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) ^ util.FloatToFixed(y))));
@@ -138,10 +138,14 @@ namespace pico8_interpreter.Pico8
             interpreter.AddFunction("btn", (Func<int?, int?, object>)Btn);
             interpreter.AddFunction("btnp", (Func<int, int?, bool>)Btnp);
 
+            // Music
+            interpreter.AddFunction("music", (Func<int?, int?, int?, object>)Music);
+            interpreter.AddFunction("sfx", (Func<int?, int?, int?, int?, object>)Sfx);
+
             // Misc
             interpreter.AddFunction("time", (Func<int>)(() => (DateTime.Now - timeStart).Seconds));
 
-            interpreter.AddFunction("print", (Action<string>)((s) => s.Substring(0)));//Console.WriteLine);
+            interpreter.AddFunction("print", (Action<object, int?, int?, int?>)((s, x, y, c) => Console.WriteLine(s)));
 
             interpreter.RunScript(@"
                 function all(collection)
@@ -211,6 +215,14 @@ namespace pico8_interpreter.Pico8
                     return o
                 end
 
+                t = type
+                function type(f)
+                    if not f then
+                        return 'nil'
+                    end
+                    return t(f)
+                end
+
                 cocreate = coroutine.create
                 coresume = coroutine.resume
                 costatus = coroutine.status
@@ -218,6 +230,10 @@ namespace pico8_interpreter.Pico8
                 sub = string.sub
                 ");
         }
+
+        public object Music(int? n = null, int? fade_len = null, int? channel_mask = null) { return null; }
+        public object Sfx(int? n = null, int? channel = null, int? offset = null, int? length = null) { return null; }
+        public double Rnd(double? x = null) { if (!x.HasValue) x = 1; return random.NextDouble() * x.Value; }
 
         // Load a game from path and run it. 
         // All paths are considered to be inside pico8/games folder
@@ -251,7 +267,7 @@ namespace pico8_interpreter.Pico8
             loadedGame.interpreter.CallIfDefined("_draw");
         }
 
-        public object Btn(int? i, int? p)
+        public object Btn(int? i = null, int? p = null)
         {
             if (!p.HasValue)
             {
@@ -277,7 +293,7 @@ namespace pico8_interpreter.Pico8
             return false;
         }
 
-        public bool Btnp(int i, int? p)
+        public bool Btnp(int i, int? p = null)
         {
             if (!p.HasValue)
             {

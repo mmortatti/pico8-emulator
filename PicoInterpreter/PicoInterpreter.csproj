@@ -133,6 +133,9 @@
     </None>
     <None Include="app.manifest" />
     <None Include="packages.config" />
+    <None Include="Pico8\Games\billionpaledots.lua">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Pico8\Games\justoneboss.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

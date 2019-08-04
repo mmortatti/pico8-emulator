@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace pico8_interpreter.Pico8
 {
-    public class PicoInterpreter
+    public class PicoInterpreter<G>
     {
         private Random random;
 
@@ -18,22 +20,26 @@ namespace pico8_interpreter.Pico8
         private bool[] BtnLeftCurrent, BtnRightCurrent, BtnUpCurrent, BtnDownCurrent, BtnACurrent, BtnBCurrent;
 
         public MemoryUnit memory;
-        public GraphicsUnit graphics;
+        public GraphicsUnit<G> graphics;
 
         // Struct to hold all information about a running pico8 game.
         public struct Game
         {
             public Cartridge cartridge;
             public ILuaInterpreter interpreter;
+            public string path;
+            public string cartdata_id;
+            public Int32[] cartdata;
         }
 
         public Game loadedGame;
+        public string cartdataPath = "cartdata/";
 
-        public PicoInterpreter()
+        public PicoInterpreter(ref G[] screenData, Func<int, int, int, G> rgbToColor)
         {       
             random = new Random();
             memory = new MemoryUnit();
-            graphics = new GraphicsUnit(ref memory);
+            graphics = new GraphicsUnit<G>(ref memory, ref screenData, rgbToColor);
 
             // Initialie controller variables
             BtnPressedCallbacks = new List<Func<int, bool>>();
@@ -67,6 +73,8 @@ namespace pico8_interpreter.Pico8
                 BtnA[i] = -1;
                 BtnB[i] = -1;
             }
+
+            (new FileInfo("cartdata/")).Directory.Create();
         }
 
         private void InitAPI(ref ILuaInterpreter interpreter)
@@ -138,6 +146,8 @@ namespace pico8_interpreter.Pico8
             interpreter.AddFunction("btn", (Func<int?, int?, object>)Btn);
             interpreter.AddFunction("btnp", (Func<int, int?, bool>)Btnp);
 
+            interpreter.AddFunction("flip", (Action)graphics.Flip);
+
             // Music
             interpreter.AddFunction("music", (Func<int?, int?, int?, object>)Music);
             interpreter.AddFunction("sfx", (Func<int?, int?, int?, int?, object>)Sfx);
@@ -145,7 +155,12 @@ namespace pico8_interpreter.Pico8
             // Misc
             interpreter.AddFunction("time", (Func<int>)(() => (DateTime.Now - timeStart).Seconds));
 
-            interpreter.AddFunction("print", (Action<object, int?, int?, int?>)((s, x, y, c) => Console.WriteLine(s)));
+            interpreter.AddFunction("print", (Action<object, int?, int?, byte?>)Print);
+            interpreter.AddFunction("printh", (Action<object, int?, int?, byte?>)Print);
+
+            interpreter.AddFunction("cartdata", (Action<string>)Cartdata);
+            interpreter.AddFunction("dget", (Func<int, object>)Dget);
+            interpreter.AddFunction("dset", (Action<int, double>)Dset);
 
             interpreter.RunScript(@"
                 function all(collection)
@@ -231,18 +246,109 @@ namespace pico8_interpreter.Pico8
                 ");
         }
 
+        #region TODO
+
         public object Music(int? n = null, int? fade_len = null, int? channel_mask = null) { return null; }
         public object Sfx(int? n = null, int? channel = null, int? offset = null, int? length = null) { return null; }
+        public void Print(object s, int? x = null, int? y = null, byte? c = null)
+        {
+            if (c.HasValue)
+            {
+                memory.DrawColor = c.Value;
+            }
+            Console.WriteLine(String.Format("{0:####.####}", s));
+        }
+
+        #endregion
+
+        private void Cartdata(string id)
+        {
+            Trace.Assert(loadedGame.cartdata_id.Length == 0, "cartdata() can only be called once");
+            Trace.Assert(id.Length <= 64, "cart data id too long");
+            Trace.Assert(id.Length != 0, "empty cart data id");
+
+            var regexItem = new Regex("^[a-zA-Z0-9 ]*$");
+            Trace.Assert(regexItem.IsMatch(id), "cart data id: bad char");
+
+            var fileName = cartdataPath + id;
+            if (File.Exists(fileName))
+            {
+                using (BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open)))
+                {
+                    for (int i = 0; i < loadedGame.cartdata.Length; i++)
+                    {
+                        loadedGame.cartdata[i] = reader.ReadInt32();
+                    }
+                }
+            } else
+            {
+                using (BinaryWriter writer = new BinaryWriter(File.Open(fileName, FileMode.Create)))
+                {
+                    for (int i = 0; i < loadedGame.cartdata.Length; i++)
+                    {
+                        writer.Write(0);
+                        loadedGame.cartdata[i] = 0;
+                    }
+                }
+            }
+
+            loadedGame.cartdata_id = id;
+        }
+
+        private object Dget(int index)
+        {
+            Trace.Assert(index < loadedGame.cartdata.Length, "bad index");
+            return util.FixedToFloat(loadedGame.cartdata[index]);
+        }
+
+        private void Dset(int index, double value)
+        {
+            Trace.Assert(index < loadedGame.cartdata.Length, "bad index");
+            loadedGame.cartdata[index] = util.FloatToFixed(value);
+            SaveCartdata(cartdataPath + loadedGame.cartdata_id);
+        }
+
+        private void SaveCartdata(string fileName)
+        {
+            using (BinaryWriter writer = new BinaryWriter(File.Open(fileName, FileMode.Create)))
+            {
+                for (int i = 0; i < loadedGame.cartdata.Length; i++)
+                {
+                    writer.Write(loadedGame.cartdata[i]);
+                }
+            }
+        }
+
         public double Rnd(double? x = null) { if (!x.HasValue) x = 1; return random.NextDouble() * x.Value; }
+
+        public object Reload(int dest_addr, int source_addr, int len, string filename = "")
+        {
+            Cartridge cart = filename.Length == 0 ? loadedGame.cartridge : new Cartridge(filename);
+
+            memory.Memcpy(dest_addr, source_addr, len, cart.rom);
+            return null;
+        }
+
+        public object Cstore(int dest_addr, int source_addr, int len, string filename = "")
+        {
+            Cartridge cart = filename.Length == 0 ? loadedGame.cartridge : new Cartridge(filename);
+
+            Buffer.BlockCopy(memory.ram, source_addr, loadedGame.cartridge.rom, dest_addr, len);
+            cart.SaveP8();
+            return null;
+        }
 
         // Load a game from path and run it. 
         // All paths are considered to be inside pico8/games folder
         public void LoadGame(string path, ILuaInterpreter interpreter)
         {
             loadedGame = new Game();
-            
+
+            loadedGame.path = path;
             loadedGame.cartridge = new Cartridge(path);
             loadedGame.interpreter = interpreter;
+            loadedGame.cartdata_id = "";
+            loadedGame.cartdata = new Int32[64];
 
             InitAPI(ref loadedGame.interpreter);
 
@@ -258,13 +364,17 @@ namespace pico8_interpreter.Pico8
         public void Update()
         {
             UpdateControllerState();
-            loadedGame.interpreter.CallIfDefined("_update");
+            if (!loadedGame.interpreter.CallIfDefined("_update"))
+            {
+                loadedGame.interpreter.CallIfDefined("_update60");
+            }
         }
 
         // Call scripts draw method
         public void Draw()
         {
             loadedGame.interpreter.CallIfDefined("_draw");
+            graphics.Flip();
         }
 
         public object Btn(int? i = null, int? p = null)

@@ -25,13 +25,16 @@ namespace pico8_interpreter.Pico8
             scriptInterpreter.Call(name);
         }
 
-        public void CallIfDefined(string name)
+        public bool CallIfDefined(string name)
         {
             if (IsDefined(name))
             {
                 var func = scriptInterpreter.Globals[name];
                 scriptInterpreter.Call(func);
+                return true;
             }
+
+            return false;
         }
 
         public bool IsDefined(string name)

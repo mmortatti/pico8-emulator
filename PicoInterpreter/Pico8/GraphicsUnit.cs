@@ -2,7 +2,7 @@
 
 namespace pico8_interpreter.Pico8
 {
-    public class GraphicsUnit
+    public class GraphicsUnit<G>
     {
 
         public int[,] pico8Palette = {
@@ -40,10 +40,15 @@ namespace pico8_interpreter.Pico8
             { 255, 204, 170 } };
 
         MemoryUnit memory;
+        G[] screenColorData;
+        Func<int, int, int, G> rgbToColor;
 
-        public GraphicsUnit(ref MemoryUnit memory)
+        public GraphicsUnit(ref MemoryUnit memory, ref G[] screenColorData, Func<int, int, int, G> rgbToColor)
         {
             this.memory = memory;
+            this.screenColorData = screenColorData;
+            this.rgbToColor = rgbToColor;
+
             memory.DrawColor = 6;
         }
 
@@ -80,7 +85,7 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
-        public void Flip<T>(ref T[] screenColorData, Func<int, int, int, T> rgbToColor)
+        public void Flip()
         {
             byte[] frameBuffer = memory.FrameBuffer;
             for (int i = 0; i < 64 * 128; i++)

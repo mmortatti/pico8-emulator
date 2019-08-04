@@ -27,7 +27,7 @@ namespace pico8_interpreter.Pico8
 
         public static double FixedToFloat(Int32 x)
         {
-            return (double)x / SHIFT_16;
+            return Math.Round((double)x / SHIFT_16, 4);
         }
 
         public static void Swap<T>(ref T lhs, ref T rhs)

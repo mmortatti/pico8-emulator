@@ -19,7 +19,7 @@ namespace pico8_interpreter
         private Texture2D pico8Logo;
         RasterizerState rasterizerState;
 
-        PicoInterpreter pico8;
+        PicoInterpreter<Color> pico8;
 
         Color[] screenColorData;
         Texture2D screenTexture;
@@ -37,7 +37,7 @@ namespace pico8_interpreter
             Resolution.SetResolution(600, 600, false);
 
             this.IsFixedTimeStep = true;//false;
-            this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 30d); //60);
+            this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 60d); //60);
         }
 
         /// <summary>
@@ -66,8 +66,8 @@ namespace pico8_interpreter
             pico8Logo = Content.Load<Texture2D>("pico8");
             rasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
 
-            pico8 = new PicoInterpreter();
-            pico8.LoadGame("justoneboss_lua.lua", new NLuaInterpreter());
+            pico8 = new PicoInterpreter<Color>(ref screenColorData, ((r, g, b) => new Color(r, g, b)));
+            pico8.LoadGame("test5.lua", new MoonSharpInterpreter());
             pico8.SetBtnPressedCallback(((x) => Keyboard.GetState().IsKeyDown((Keys)x)));
             pico8.SetControllerKeys(0, (int)Keys.Left, (int)Keys.Right, (int)Keys.Up, (int)Keys.Down, (int)Keys.Z, (int)Keys.X);
         }
@@ -108,7 +108,6 @@ namespace pico8_interpreter
 
             spriteBatch.Begin(SpriteSortMode.Immediate, null, SamplerState.PointClamp, null, rasterizerState, null, Resolution.getTransformationMatrix());
             pico8.Draw();
-            pico8.graphics.Flip(ref screenColorData, ((r, g, b) => new Color(r, g, b)));
             screenTexture.SetData(screenColorData);
             spriteBatch.Draw(screenTexture, new Rectangle(0, 0, 128, 128), Color.White);
             spriteBatch.End();

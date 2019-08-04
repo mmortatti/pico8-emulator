@@ -22,12 +22,15 @@ namespace pico8_interpreter.Pico8
             (scriptInterpreter[name] as LuaFunction).Call();
         }
 
-        public void CallIfDefined(string name)
+        public bool CallIfDefined(string name)
         {
             if (IsDefined(name))
             {
                 CallFunction(name);
+                return true;
             }
+
+            return false;
         }
 
         public bool IsDefined(string name)

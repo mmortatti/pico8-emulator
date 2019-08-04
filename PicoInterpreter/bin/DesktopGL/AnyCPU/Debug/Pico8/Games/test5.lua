@@ -1,9 +1,5 @@
 ﻿__lua__
 
-function f()
-return 3
-end
+cartdata("blub")
 
-local i = f()
-
-print(type(i))
+print(dget(10))

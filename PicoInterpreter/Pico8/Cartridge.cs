@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System;
 
 namespace pico8_interpreter.Pico8
 {
@@ -14,22 +15,25 @@ namespace pico8_interpreter.Pico8
 
         public readonly byte[] rom;
 
-        public string gameCode
-        {
-            get
-            {
-                return _gameCode;
-            }
-        }
-
-        private string _gameCode = "";
+        public string gameCode { get; private set; } = "";
+        private string gamePath = "";
 
         public Cartridge(string path)
         {
             rom = new byte[0x8005];
 
-            LoadP8(path);
+            gamePath = path;
+            LoadP8(gamePath);
         }
+
+        #region TODO
+
+        public void SaveP8(string filename = "")
+        {
+
+        }
+
+        #endregion
 
         private void LoadP8(string path)
         {
@@ -51,7 +55,7 @@ namespace pico8_interpreter.Pico8
             int state = -1;
             int index = 0;
 
-            _gameCode = "";
+            gameCode = "";
             while (!streamReader.EndOfStream)
             {
                 line = streamReader.ReadLine();
@@ -64,7 +68,7 @@ namespace pico8_interpreter.Pico8
 
                 if (state == stateMap["__lua__"])
                 {
-                    _gameCode += line + '\n';
+                    gameCode += line + '\n';
                 }
                 else if (state == stateMap["__gfx__"])
                 {
@@ -102,7 +106,31 @@ namespace pico8_interpreter.Pico8
                 }
                 else if (state == stateMap["__music__"])
                 {
+                    byte flag = byte.Parse(line.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte val1 = byte.Parse(line.Substring(3, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte val2 = byte.Parse(line.Substring(5, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte val3 = byte.Parse(line.Substring(7, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte val4 = byte.Parse(line.Substring(9, 2), System.Globalization.NumberStyles.HexNumber);
 
+                    // 4th byte never has 7th bit set because it's corresponding flag value is never used.
+                    switch(flag)
+                    {
+                        case 1:
+                            val1 |= 0x80;
+                            break;
+                        case 2:
+                            val2 |= 0x80;
+                            break;
+                        case 4:
+                            val3 |= 0x80;
+                            break;
+                    }
+
+                    rom[ADDR_SONG + index + 0] = val1;
+                    rom[ADDR_SONG + index + 1] = val2;
+                    rom[ADDR_SONG + index + 2] = val3;
+                    rom[ADDR_SONG + index + 3] = val4;
+                    index += 4;
                 }
             }
 

@@ -28,11 +28,8 @@ namespace pico8_interpreter.Pico8
                          ADDR_LINE_Y = 0x5f3e,
                          ADDR_SCREEN = 0x6000,
                          ADDR_END = 0x8000;
-
-        public readonly int SHIFT_16 = 1 << 16;
-
-        private byte[] ram;
         private byte[] screen;
+        public byte[] ram { get; }
         public byte[] FrameBuffer
         {
             get
@@ -154,7 +151,7 @@ namespace pico8_interpreter.Pico8
             ram = new byte[ADDR_END];
             screen = new byte[0x2000];
 
-            InitRamState();
+            Init_ramState();
         }
 
         public void LoadCartridgeData(byte[] cartridgeRom)
@@ -162,7 +159,7 @@ namespace pico8_interpreter.Pico8
             Buffer.BlockCopy(cartridgeRom, 0x0, ram, 0, 0x4300);
         }
 
-        private void InitRamState()
+        private void Init_ramState()
         {
             ram[ADDR_PALETTE_0] = 0x10;
             ram[ADDR_PALETTE_1] = 0x0;
@@ -224,6 +221,13 @@ namespace pico8_interpreter.Pico8
         public object Memcpy(int dest_addr, int source_addr, int len)
         {
             Buffer.BlockCopy(ram, source_addr, ram, dest_addr, len);
+
+            return null;
+        }
+
+        public object Memcpy(int dest_addr, int source_addr, int len, byte[] source)
+        {
+            Buffer.BlockCopy(source, source_addr, ram, dest_addr, len);
 
             return null;
         }

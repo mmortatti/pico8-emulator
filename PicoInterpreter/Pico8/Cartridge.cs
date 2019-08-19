@@ -24,6 +24,9 @@ namespace pico8_interpreter.Pico8
 
             gamePath = path;
             LoadP8(gamePath);
+            Console.WriteLine(gameCode);
+            gameCode = util.ProcessPico8Code(gameCode);
+            Console.WriteLine(gameCode);
         }
 
         #region TODO

@@ -83,6 +83,8 @@
         {
             // "if a != b" => "if a ~= b"
             picoCode = Regex.Replace(picoCode, @"!=", "~=");
+            // Matches and replaces binary style numbers like "0b1010.101" to hex format.
+            picoCode = Regex.Replace(picoCode, @"0b([0-1]+)(?:\.{0,1})([0-1]*){0,1}", ReplaceBinaryNumber, RegexOptions.Multiline);
             // Matches if statements with conditions sorrounded by parenthesis, followed by anything but
             // nothing, only whitespaces or 'then' statement. Example:
             // "if (a ~= b) a=b" => "if (a ~= b) then a=b end"
@@ -91,6 +93,14 @@
             picoCode = Regex.Replace(picoCode, @"([a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[.*\])?)\s*([+\-*\/%])=\s*(.*)$", ReplaceUnaryShorthand, RegexOptions.Multiline);
 
             return picoCode;
+        }
+
+        private static string ReplaceBinaryNumber(Match binaryMatch)
+        {
+            string integerPart = Convert.ToInt32(binaryMatch.Groups[1].ToString(), 2).ToString("X");
+            string fracPart = binaryMatch.Groups[2].Success ? binaryMatch.Groups[2].ToString() : "0";
+
+            return string.Format("0x{0}.{1}", integerPart, fracPart);
         }
 
         private static string ReplaceUnaryShorthand(Match unaryMatch)
@@ -106,7 +116,7 @@
                                             RegexOptions.Multiline);
 
 
-            var terms = Regex.Matches(fixedExp, @"(?:\-?(?:0x)?[0-9.]+)|(?:\-?[a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[[^\]]\])*)");
+            var terms = Regex.Matches(fixedExp, @"(?:\-?(?:0x)?[0-9.A-Fa-f]+)|(?:\-?[a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[[^\]]\])*)");
             if (terms.Count <= 0) return unaryMatch.ToString();
 
             int currentChar = 0;

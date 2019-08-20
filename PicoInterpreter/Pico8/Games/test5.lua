@@ -14,4 +14,6 @@ function foo(l)
 	return a
 end
 
+a += 0b1010.10
+
 a += b - (c - d) * (c == 8 and 0 or 10)

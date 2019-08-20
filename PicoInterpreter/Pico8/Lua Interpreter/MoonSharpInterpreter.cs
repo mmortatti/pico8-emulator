@@ -1,18 +1,30 @@
-﻿using System.Diagnostics;
-using MoonSharp.Interpreter;
-using MoonSharp.RemoteDebugger;
-
-namespace pico8_interpreter.Pico8
+﻿namespace pico8_interpreter.Pico8
 {
-    class MoonSharpInterpreter : ILuaInterpreter
+    using MoonSharp.Interpreter;
+    using MoonSharp.RemoteDebugger;
+    using System.Diagnostics;
+
+    /// <summary>
+    /// Implements the interface for the Moonsharp interpreter. <see cref="MoonSharpInterpreter" />.
+    /// </summary>
+    internal class MoonSharpInterpreter : ILuaInterpreter
     {
+        /// <summary>
+        /// Defines the a script in the Moonsharp interpreter.
+        /// </summary>
         private Script scriptInterpreter;
-        RemoteDebuggerService remoteDebugger;
-        
+
+        /// <summary>
+        /// Defines the debugger for Moonsharp.
+        /// </summary>
+        internal RemoteDebuggerService remoteDebugger;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MoonSharpInterpreter"/> class.
+        /// </summary>
         public MoonSharpInterpreter()
         {
             scriptInterpreter = new Script();
-            //ActivateRemoteDebugger(scriptInterpreter);
         }
 
         public void AddFunction(string name, object func)

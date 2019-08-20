@@ -1,0 +1,855 @@
+\hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{}\doxysection{pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit Class Reference}
+\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit}\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+
+
+Defines P\+I\+C\+O-\/8 \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{Memory\+Unit}}  
+
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ace7a306ef13fbd1bc1c1075d1e031254}{Memory\+Unit}} ()
+\begin{DoxyCompactList}\small\item\em Initializes a new instance of the \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{Memory\+Unit}} class. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_affa06f84ae62ba80485fd943841811b0}{Load\+Cartridge\+Data}} (byte\mbox{[}$\,$\mbox{]} cartridge\+Rom)
+\begin{DoxyCompactList}\small\item\em Loads R\+OM contents to R\+AM. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a89a6edc08628ebf9ee8caf38108a59a8}{Fillp}} (double? p=null)
+\begin{DoxyCompactList}\small\item\em The P\+I\+C\+O-\/8 fill pattern is a 4x4 2-\/colour tiled pattern observed by\+: circ() circfill() rect() rectfill() pset() line() \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a05a6c3fa1db0ce4b8974a453962c601a}{get\+Fill\+P\+Bit}} (int x, int y)
+\begin{DoxyCompactList}\small\item\em Gets the bit in a 4x4 grid defined by the fill pattern. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_af32887ea12ac7a99e603adbb0b2dae8b}{Memset}} (int dest\+\_\+addr, byte val, int len)
+\begin{DoxyCompactList}\small\item\em Set len bytes to val. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa73b95685d513b7fae8187e493574d51}{Memcpy}} (int dest\+\_\+addr, int source\+\_\+addr, int len)
+\begin{DoxyCompactList}\small\item\em Copy len bytes of base ram from source to dest. Sections can be overlapping. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a420b6ddb97e0a0d0a9f6bfbe45cd8110}{Memcpy}} (int dest\+\_\+addr, int source\+\_\+addr, int len, byte\mbox{[}$\,$\mbox{]} source)
+\begin{DoxyCompactList}\small\item\em Copy len bytes from given source to R\+AM. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae2ac6e75be504688086f88df85f1b701}{Color}} (byte col)
+\begin{DoxyCompactList}\small\item\em Set the current colour to be used by drawing functions \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a4fc84ec8e1ffac3006813e053d619df0}{Get\+Draw\+Color}} (int color)
+\begin{DoxyCompactList}\small\item\em Gets the actual color that the color index is set to in the Draw palette (changed with pal()). \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_abd55631ae19ea24b9534bcb3b939cd97}{Get\+Screen\+Color}} (int color)
+\begin{DoxyCompactList}\small\item\em Gets the actual color that the color index is set to in the Screen palette (changed with pal()). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a5ab0c9fb8ea9be6d4f2f00ec5deaf333}{Set\+Transparent}} (int col)
+\begin{DoxyCompactList}\small\item\em Sets transparency value for a given color. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a058d5618b8fd0dd353a136456e56e067}{Reset\+Transparent}} (int col)
+\begin{DoxyCompactList}\small\item\em Reset transparency for a given color. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa97f60aa3f8a3fd04e6df1b81f9c41e1}{Set\+Draw\+Palette}} (int c0, int c1)
+\begin{DoxyCompactList}\small\item\em Set draw palette for c0 to c1. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a944e1abcb9bf2e799c66647d6835b760}{Set\+Screen\+Palette}} (int c0, int c1)
+\begin{DoxyCompactList}\small\item\em Set screen palette for c0 to c1. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a0c0ec9cba9182c97dff3fb9da462e7c7}{Camera}} (int? x=null, int? y=null)
+\begin{DoxyCompactList}\small\item\em Set a screen offset of -\/x, -\/y for all drawing operations camera() to reset \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae475e05ba402197618d4135b88e9d52a}{Cls}} ()
+\begin{DoxyCompactList}\small\item\em Clear the screen and reset the clipping rectangle \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a889f92e3244c74780535808f9359b35a}{Peek}} (int addr)
+\begin{DoxyCompactList}\small\item\em Read one byte to an address in base ram. Legal addresses are 0x0..0x7fff Reading out of range returns 0 \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ad3d58b7a48519564a7bfc52f8d386700}{Poke}} (int addr, byte val)
+\begin{DoxyCompactList}\small\item\em Writes one byte to an address in base ram. Legal addresses are 0x0..0x7fff Writing out of range causes a fault \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a32eb7fc5968e6c37a62cc7e6611dcdc7}{Peek2}} (int addr)
+\begin{DoxyCompactList}\small\item\em 16-\/bit version of Peek. Read one number (16-\/bit integer) in little-\/endian format\+: 16 bit\+: 0xffff.\+0000 addr does not need to be aligned to 2-\/byte boundaries. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a5f549f976c76a9b60f735ab9aa51f896}{Poke2}} (int addr, int val)
+\begin{DoxyCompactList}\small\item\em 16-\/bit version of Poke. Write one number (val, 16-\/bit integer) in little-\/endian format\+: 16 bit\+: 0xffff.\+0000 addr does not need to be aligned to 2-\/byte boundaries. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa6f4c03ffd611766c6becd964cb288fe}{Peek4}} (int addr)
+\begin{DoxyCompactList}\small\item\em 32-\/bit version of Peek. Read one number (32-\/bit fixed point) in little-\/endian format\+: 32 bit\+: 0xffff.\+ffff addr does not need to be aligned to 4-\/byte boundaries. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a95a9dc01ac3152c4173a5888d01e7243}{Poke4}} (int addr, double val)
+\begin{DoxyCompactList}\small\item\em 32-\/bit version of Poke. Write one number (val, 32-\/bit fixed point) in little-\/endian format\+: 32 bit\+: 0xffff.\+ffff addr does not need to be aligned to 4-\/byte boundaries. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a7386df1cb81eb00eac3b2ad86b669780}{Fget}} (int n, byte? f=null)
+\begin{DoxyCompactList}\small\item\em Get the value (v) of a sprite\textquotesingle{}s flag f is the flag index 0..7 v is boolean and can be true or false \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ac240df94fa741afa27abfe04c58c666a}{Fset}} (int n, byte? f=null, bool? v=null)
+\begin{DoxyCompactList}\small\item\em Set the value (v) of a sprite\textquotesingle{}s flag f is the flag index 0..7 v is boolean and can be true or false \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a507f16d10cb32eb71d12034a37029fb2}{Mget}} (int x, int y)
+\begin{DoxyCompactList}\small\item\em Get map value (v) at x,y \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_afc8daeac3648b948029e20d0f1b0de37}{Mset}} (int x, int y, byte v)
+\begin{DoxyCompactList}\small\item\em Set map value (v) at x,y \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a42a86b94c11ab6fb17ecb5b695b6b67e}{Get\+Pixel}} (int x, int y, int offset=A\+D\+D\+R\+\_\+\+S\+C\+R\+E\+EN)
+\begin{DoxyCompactList}\small\item\em Gets the pixel value at screen position (x,y). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ad1ab98614c5ec774e8589b5024dca354}{Write\+Pixel}} (int x, int y, byte color, int offset=A\+D\+D\+R\+\_\+\+S\+C\+R\+E\+EN)
+\begin{DoxyCompactList}\small\item\em Writes a color byte value at screen position (x,y)/ \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+const int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a27a810caa4da47f389ae7c854488b76d}{A\+D\+D\+R\+\_\+\+G\+FX}} = 0x0
+\begin{DoxyCompactList}\small\item\em Defines memory sections of P\+I\+C\+O-\/8 R\+AM. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+byte\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae64221c5f244be444f138328ba889757}{ram}}\hspace{0.3cm}{\ttfamily  \mbox{[}get\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Defines the ram block. \end{DoxyCompactList}\item 
+byte\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae01a7a20d25bb64909c1ec717e0d74a1}{Frame\+Buffer}}\hspace{0.3cm}{\ttfamily  \mbox{[}get\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Public accessor for the screen buffer. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a2a0bc4901e4af47b6044482dcbc9cd69}{Draw\+Color}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Gets or sets the Draw\+Color. Used to keep track of the current default color value to use for drawing. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a7aeee9610e0a876e120fc6bf3fe04d14}{cameraX}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em X position of the camera. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a75970e2dc799169fa0774d53ea2cdb79}{cameraY}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Y position of the camera. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a487b9489a7f3b5e96c95d42fced81340}{lineX}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Default X position for line drawing. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a0f9e4b71ec425eb41570a6d63c2cb90a}{lineY}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Default Y position for line drawing. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_afb02b6df5c96c76413fdd42c3a4fea45}{clip\+X0}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em X0 position for the clipping rectangle. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa3f9e8354208652a244002aa2c44104c}{clip\+Y0}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Y0 position for the clipping rectangle. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a9b284551d0f5fd3150282aba8b7eb14b}{clip\+X1}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em X1 position for the clipping rectangle. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a6b068be4b6e67a43e00a3b97f182f999}{clip\+Y1}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Y1 position for the clipping rectangle. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a39315f4109d265a47e60359f7207e534}{screenX}}\hspace{0.3cm}{\ttfamily  \mbox{[}get\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Gets the screenX \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a01a8cf7bf61ad6cc0d9cc462e2f98efd}{screenY}}\hspace{0.3cm}{\ttfamily  \mbox{[}get\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Gets the screenY \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a87ac4ca5f6749f46646b23a1f94a14a9}{fill\+Pattern}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Current fill pattern. \end{DoxyCompactList}\item 
+bool? \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a135148fd5f4dee7f732b858dcc116d08}{fillp\+Transparent}}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}
+\begin{DoxyCompactList}\small\item\em Gets or sets a value indicating whether the second fill pattern color is transparent or not. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Defines P\+I\+C\+O-\/8 \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{Memory\+Unit}} 
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ace7a306ef13fbd1bc1c1075d1e031254}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ace7a306ef13fbd1bc1c1075d1e031254}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!MemoryUnit@{MemoryUnit}}
+\index{MemoryUnit@{MemoryUnit}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{MemoryUnit()}{MemoryUnit()}}
+{\footnotesize\ttfamily pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Memory\+Unit (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Initializes a new instance of the \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{Memory\+Unit}} class. 
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a0c0ec9cba9182c97dff3fb9da462e7c7}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a0c0ec9cba9182c97dff3fb9da462e7c7}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Camera@{Camera}}
+\index{Camera@{Camera}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Camera()}{Camera()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Camera (\begin{DoxyParamCaption}\item[{int?}]{x = {\ttfamily null},  }\item[{int?}]{y = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Set a screen offset of -\/x, -\/y for all drawing operations camera() to reset 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position.\\
+\hline
+{\em y} & The y position.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae475e05ba402197618d4135b88e9d52a}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae475e05ba402197618d4135b88e9d52a}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Cls@{Cls}}
+\index{Cls@{Cls}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Cls()}{Cls()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Cls (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Clear the screen and reset the clipping rectangle 
+
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae2ac6e75be504688086f88df85f1b701}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae2ac6e75be504688086f88df85f1b701}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Color@{Color}}
+\index{Color@{Color}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Color()}{Color()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Color (\begin{DoxyParamCaption}\item[{byte}]{col }\end{DoxyParamCaption})}
+
+
+
+Set the current colour to be used by drawing functions 
+
+
+\begin{DoxyParams}{Parameters}
+{\em col} & The color to set to.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a7386df1cb81eb00eac3b2ad86b669780}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a7386df1cb81eb00eac3b2ad86b669780}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Fget@{Fget}}
+\index{Fget@{Fget}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Fget()}{Fget()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Fget (\begin{DoxyParamCaption}\item[{int}]{n,  }\item[{byte?}]{f = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Get the value (v) of a sprite\textquotesingle{}s flag f is the flag index 0..7 v is boolean and can be true or false 
+
+The initial state of flags 0..7 are settable in the sprite editor, using the line of little colourful buttons.
+
+The meaning of sprite flags is up to the user, or can be used to indicate which group (\textquotesingle{}layer\textquotesingle{}) of sprites should be drawn by map.
+
+If the flag index is omitted, all flags are retrieved/set as a bitfield fset(2, 1+2+8) -- sets bits 0,1 and 3 fset(2, 4, true) -- sets bit 4 print(fget(2)) -- 27 (1+2+8+16)
+
+
+\begin{DoxyParams}{Parameters}
+{\em n} & The sprite number\\
+\hline
+{\em f} & The flag index to get\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The flag value
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a89a6edc08628ebf9ee8caf38108a59a8}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a89a6edc08628ebf9ee8caf38108a59a8}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Fillp@{Fillp}}
+\index{Fillp@{Fillp}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Fillp()}{Fillp()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Fillp (\begin{DoxyParamCaption}\item[{double?}]{p = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+The P\+I\+C\+O-\/8 fill pattern is a 4x4 2-\/colour tiled pattern observed by\+: circ() circfill() rect() rectfill() pset() line() 
+
+p is a bitfield in reading order starting from the highest bit.\+To calculate the value
+
+of p for a desired pattern, add the bit values together\+:
+
+.-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---. \tabulinesep=1mm
+\begin{longtabu}spread 0pt [c]{*{4}{|X[-1]}|}
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ 32768  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ 16384  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ 8192  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ 4096   }\\\cline{1-4}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ 32768  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ 16384  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ 8192  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ 4096   }\\\cline{1-4}
+\endhead
+2048  &1024  &512  &256   \\\cline{1-4}
+-\/-\/---  &-\/-\/---  &-\/-\/---  &-\/-\/---   \\\cline{1-4}
+128  &64  &32  &16   \\\cline{1-4}
+-\/-\/---  &-\/-\/---  &-\/-\/---  &-\/-\/---   \\\cline{1-4}
+8  &4  &2  &1   \\\cline{1-4}
+\end{longtabu}
+\textquotesingle{}-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/---\textquotesingle{}
+
+For example, F\+I\+L\+LP(4 + 8 + 64 + 128 + 256 + 512 + 4096 + 8192) would create a checkerboard pattern. This can be more neatly expressed in binary\+: F\+I\+L\+L\+P(0b0011001111001100)
+
+The default fill pattern is 0, which means a single solid colour is drawn.
+
+To specify a second colour for the pattern, use the high bits of any colour parameter\+:
+
+F\+I\+L\+L\+P(0b0011010101101000) C\+I\+R\+C\+F\+I\+L\+L(64,64,20, 0x4\+E) -- brown and pink
+
+An additional bit 0b0.\+1 can be set to indicate that the second colour is not drawn.
+
+F\+I\+L\+LP(0b0011001111001100.\+1) -- checkboard with transparent squares
+
+
+\begin{DoxyParams}{Parameters}
+{\em p} & The fill pattern.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ac240df94fa741afa27abfe04c58c666a}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ac240df94fa741afa27abfe04c58c666a}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Fset@{Fset}}
+\index{Fset@{Fset}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Fset()}{Fset()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Fset (\begin{DoxyParamCaption}\item[{int}]{n,  }\item[{byte?}]{f = {\ttfamily null},  }\item[{bool?}]{v = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Set the value (v) of a sprite\textquotesingle{}s flag f is the flag index 0..7 v is boolean and can be true or false 
+
+The initial state of flags 0..7 are settable in the sprite editor, using the line of little colourful buttons.
+
+The meaning of sprite flags is up to the user, or can be used to indicate which group (\textquotesingle{}layer\textquotesingle{}) of sprites should be drawn by map.
+
+If the flag index is omitted, all flags are retrieved/set as a bitfield fset(2, 1+2+8) -- sets bits 0,1 and 3 fset(2, 4, true) -- sets bit 4 print(fget(2)) -- 27 (1+2+8+16)
+
+
+\begin{DoxyParams}{Parameters}
+{\em n} & The sprite number.\\
+\hline
+{\em f} & The flag index.\\
+\hline
+{\em v} & The value to set the flag to.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a4fc84ec8e1ffac3006813e053d619df0}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a4fc84ec8e1ffac3006813e053d619df0}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!GetDrawColor@{GetDrawColor}}
+\index{GetDrawColor@{GetDrawColor}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{GetDrawColor()}{GetDrawColor()}}
+{\footnotesize\ttfamily byte pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Get\+Draw\+Color (\begin{DoxyParamCaption}\item[{int}]{color }\end{DoxyParamCaption})}
+
+
+
+Gets the actual color that the color index is set to in the Draw palette (changed with pal()). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em color} & The color to check.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The actual color index value for the given color.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a05a6c3fa1db0ce4b8974a453962c601a}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a05a6c3fa1db0ce4b8974a453962c601a}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!getFillPBit@{getFillPBit}}
+\index{getFillPBit@{getFillPBit}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{getFillPBit()}{getFillPBit()}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+get\+Fill\+P\+Bit (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y }\end{DoxyParamCaption})}
+
+
+
+Gets the bit in a 4x4 grid defined by the fill pattern. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position\\
+\hline
+{\em y} & The y position\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The bit at (x,y).
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a42a86b94c11ab6fb17ecb5b695b6b67e}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a42a86b94c11ab6fb17ecb5b695b6b67e}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!GetPixel@{GetPixel}}
+\index{GetPixel@{GetPixel}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{GetPixel()}{GetPixel()}}
+{\footnotesize\ttfamily byte pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Get\+Pixel (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y,  }\item[{int}]{offset = {\ttfamily ADDR\+\_\+SCREEN} }\end{DoxyParamCaption})}
+
+
+
+Gets the pixel value at screen position (x,y). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x screen position\\
+\hline
+{\em y} & The y screen position\\
+\hline
+{\em offset} & The address offset to read from. You can use it to read from other ram sections (which is bad design because of the name, I know ...).\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The color byte value.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_abd55631ae19ea24b9534bcb3b939cd97}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_abd55631ae19ea24b9534bcb3b939cd97}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!GetScreenColor@{GetScreenColor}}
+\index{GetScreenColor@{GetScreenColor}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{GetScreenColor()}{GetScreenColor()}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Get\+Screen\+Color (\begin{DoxyParamCaption}\item[{int}]{color }\end{DoxyParamCaption})}
+
+
+
+Gets the actual color that the color index is set to in the Screen palette (changed with pal()). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em color} & The color to check.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The actual color index value for the given color.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_affa06f84ae62ba80485fd943841811b0}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_affa06f84ae62ba80485fd943841811b0}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!LoadCartridgeData@{LoadCartridgeData}}
+\index{LoadCartridgeData@{LoadCartridgeData}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{LoadCartridgeData()}{LoadCartridgeData()}}
+{\footnotesize\ttfamily void pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Load\+Cartridge\+Data (\begin{DoxyParamCaption}\item[{byte\mbox{[}$\,$\mbox{]}}]{cartridge\+Rom }\end{DoxyParamCaption})}
+
+
+
+Loads R\+OM contents to R\+AM. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em cartridge\+Rom} & The cartridge R\+OM to copy from.\\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa73b95685d513b7fae8187e493574d51}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa73b95685d513b7fae8187e493574d51}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Memcpy@{Memcpy}}
+\index{Memcpy@{Memcpy}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Memcpy()}{Memcpy()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Memcpy (\begin{DoxyParamCaption}\item[{int}]{dest\+\_\+addr,  }\item[{int}]{source\+\_\+addr,  }\item[{int}]{len }\end{DoxyParamCaption})}
+
+
+
+Copy len bytes of base ram from source to dest. Sections can be overlapping. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dest\+\_\+addr} & The address to write to.\\
+\hline
+{\em source\+\_\+addr} & The address to read from.\+r\\
+\hline
+{\em len} & The length of the block to copy.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a420b6ddb97e0a0d0a9f6bfbe45cd8110}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a420b6ddb97e0a0d0a9f6bfbe45cd8110}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Memcpy@{Memcpy}}
+\index{Memcpy@{Memcpy}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Memcpy()}{Memcpy()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Memcpy (\begin{DoxyParamCaption}\item[{int}]{dest\+\_\+addr,  }\item[{int}]{source\+\_\+addr,  }\item[{int}]{len,  }\item[{byte\mbox{[}$\,$\mbox{]}}]{source }\end{DoxyParamCaption})}
+
+
+
+Copy len bytes from given source to R\+AM. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dest\+\_\+addr} & The address to write to.\\
+\hline
+{\em source\+\_\+addr} & The address to read from.\+r\\
+\hline
+{\em len} & The length of the block to copy.\\
+\hline
+{\em source} & The source array of bytes to read from.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_af32887ea12ac7a99e603adbb0b2dae8b}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_af32887ea12ac7a99e603adbb0b2dae8b}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Memset@{Memset}}
+\index{Memset@{Memset}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Memset()}{Memset()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Memset (\begin{DoxyParamCaption}\item[{int}]{dest\+\_\+addr,  }\item[{byte}]{val,  }\item[{int}]{len }\end{DoxyParamCaption})}
+
+
+
+Set len bytes to val. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dest\+\_\+addr} & The address to write to.\\
+\hline
+{\em val} & The value to write\\
+\hline
+{\em len} & The length in bytes. Writes val to positions from dest\+\_\+addr to dest\+\_\+addr + len -\/ 1.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a507f16d10cb32eb71d12034a37029fb2}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a507f16d10cb32eb71d12034a37029fb2}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Mget@{Mget}}
+\index{Mget@{Mget}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Mget()}{Mget()}}
+{\footnotesize\ttfamily byte pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Mget (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y }\end{DoxyParamCaption})}
+
+
+
+Get map value (v) at x,y 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position\\
+\hline
+{\em y} & The y position\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The map value at (x,y)
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_afc8daeac3648b948029e20d0f1b0de37}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_afc8daeac3648b948029e20d0f1b0de37}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Mset@{Mset}}
+\index{Mset@{Mset}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Mset()}{Mset()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Mset (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y,  }\item[{byte}]{v }\end{DoxyParamCaption})}
+
+
+
+Set map value (v) at x,y 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position\\
+\hline
+{\em y} & The y position\\
+\hline
+{\em v} & The value to set map position to\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a889f92e3244c74780535808f9359b35a}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a889f92e3244c74780535808f9359b35a}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Peek@{Peek}}
+\index{Peek@{Peek}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Peek()}{Peek()}}
+{\footnotesize\ttfamily byte pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Peek (\begin{DoxyParamCaption}\item[{int}]{addr }\end{DoxyParamCaption})}
+
+
+
+Read one byte to an address in base ram. Legal addresses are 0x0..0x7fff Reading out of range returns 0 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The address to read from.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The value at address position
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a32eb7fc5968e6c37a62cc7e6611dcdc7}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a32eb7fc5968e6c37a62cc7e6611dcdc7}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Peek2@{Peek2}}
+\index{Peek2@{Peek2}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Peek2()}{Peek2()}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Peek2 (\begin{DoxyParamCaption}\item[{int}]{addr }\end{DoxyParamCaption})}
+
+
+
+16-\/bit version of Peek. Read one number (16-\/bit integer) in little-\/endian format\+: 16 bit\+: 0xffff.\+0000 addr does not need to be aligned to 2-\/byte boundaries. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The address to read from.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+integer where the first 8 bits are ram\mbox{[}addr\mbox{]} and the next 8 bits are ram\mbox{[}addr + 1\mbox{]}
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa6f4c03ffd611766c6becd964cb288fe}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa6f4c03ffd611766c6becd964cb288fe}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Peek4@{Peek4}}
+\index{Peek4@{Peek4}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Peek4()}{Peek4()}}
+{\footnotesize\ttfamily double pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Peek4 (\begin{DoxyParamCaption}\item[{int}]{addr }\end{DoxyParamCaption})}
+
+
+
+32-\/bit version of Peek. Read one number (32-\/bit fixed point) in little-\/endian format\+: 32 bit\+: 0xffff.\+ffff addr does not need to be aligned to 4-\/byte boundaries. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The address to read from.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Fixed point value turned floating point created in the following bit format\+: 0x$<$ram\mbox{[}addr+3\mbox{]}$>$$<$ram\mbox{[}addr+2\mbox{]}$>$.$<$ram\mbox{[}addr+1\mbox{]}$>$$<$ram\mbox{[}addr+0\mbox{]}$>$$<$/ram$>$
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ad3d58b7a48519564a7bfc52f8d386700}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ad3d58b7a48519564a7bfc52f8d386700}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Poke@{Poke}}
+\index{Poke@{Poke}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Poke()}{Poke()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Poke (\begin{DoxyParamCaption}\item[{int}]{addr,  }\item[{byte}]{val }\end{DoxyParamCaption})}
+
+
+
+Writes one byte to an address in base ram. Legal addresses are 0x0..0x7fff Writing out of range causes a fault 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The addr\\
+\hline
+{\em val} & The val\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a5f549f976c76a9b60f735ab9aa51f896}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a5f549f976c76a9b60f735ab9aa51f896}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Poke2@{Poke2}}
+\index{Poke2@{Poke2}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Poke2()}{Poke2()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Poke2 (\begin{DoxyParamCaption}\item[{int}]{addr,  }\item[{int}]{val }\end{DoxyParamCaption})}
+
+
+
+16-\/bit version of Poke. Write one number (val, 16-\/bit integer) in little-\/endian format\+: 16 bit\+: 0xffff.\+0000 addr does not need to be aligned to 2-\/byte boundaries. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The address to write to.\\
+\hline
+{\em val} & The 16-\/bit integer value to write\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a95a9dc01ac3152c4173a5888d01e7243}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a95a9dc01ac3152c4173a5888d01e7243}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!Poke4@{Poke4}}
+\index{Poke4@{Poke4}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{Poke4()}{Poke4()}}
+{\footnotesize\ttfamily object pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Poke4 (\begin{DoxyParamCaption}\item[{int}]{addr,  }\item[{double}]{val }\end{DoxyParamCaption})}
+
+
+
+32-\/bit version of Poke. Write one number (val, 32-\/bit fixed point) in little-\/endian format\+: 32 bit\+: 0xffff.\+ffff addr does not need to be aligned to 4-\/byte boundaries. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em addr} & The address to write to.\\
+\hline
+{\em val} & The 32-\/bit integer value to write\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a058d5618b8fd0dd353a136456e56e067}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a058d5618b8fd0dd353a136456e56e067}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!ResetTransparent@{ResetTransparent}}
+\index{ResetTransparent@{ResetTransparent}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{ResetTransparent()}{ResetTransparent()}}
+{\footnotesize\ttfamily void pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Reset\+Transparent (\begin{DoxyParamCaption}\item[{int}]{col }\end{DoxyParamCaption})}
+
+
+
+Reset transparency for a given color. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em col} & The color value to reset transparency of.\\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa97f60aa3f8a3fd04e6df1b81f9c41e1}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa97f60aa3f8a3fd04e6df1b81f9c41e1}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!SetDrawPalette@{SetDrawPalette}}
+\index{SetDrawPalette@{SetDrawPalette}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{SetDrawPalette()}{SetDrawPalette()}}
+{\footnotesize\ttfamily void pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Set\+Draw\+Palette (\begin{DoxyParamCaption}\item[{int}]{c0,  }\item[{int}]{c1 }\end{DoxyParamCaption})}
+
+
+
+Set draw palette for c0 to c1. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em c0} & Color to change palette of.\\
+\hline
+{\em c1} & Color to change palette to.\\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a944e1abcb9bf2e799c66647d6835b760}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a944e1abcb9bf2e799c66647d6835b760}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!SetScreenPalette@{SetScreenPalette}}
+\index{SetScreenPalette@{SetScreenPalette}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{SetScreenPalette()}{SetScreenPalette()}}
+{\footnotesize\ttfamily void pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Set\+Screen\+Palette (\begin{DoxyParamCaption}\item[{int}]{c0,  }\item[{int}]{c1 }\end{DoxyParamCaption})}
+
+
+
+Set screen palette for c0 to c1. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em c0} & Color to change palette of.\\
+\hline
+{\em c1} & Color to change palette to.\\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a5ab0c9fb8ea9be6d4f2f00ec5deaf333}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a5ab0c9fb8ea9be6d4f2f00ec5deaf333}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!SetTransparent@{SetTransparent}}
+\index{SetTransparent@{SetTransparent}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{SetTransparent()}{SetTransparent()}}
+{\footnotesize\ttfamily void pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Set\+Transparent (\begin{DoxyParamCaption}\item[{int}]{col }\end{DoxyParamCaption})}
+
+
+
+Sets transparency value for a given color. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em col} & The color value to set transparency of.\\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ad1ab98614c5ec774e8589b5024dca354}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ad1ab98614c5ec774e8589b5024dca354}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!WritePixel@{WritePixel}}
+\index{WritePixel@{WritePixel}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{WritePixel()}{WritePixel()}}
+{\footnotesize\ttfamily void pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Write\+Pixel (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y,  }\item[{byte}]{color,  }\item[{int}]{offset = {\ttfamily ADDR\+\_\+SCREEN} }\end{DoxyParamCaption})}
+
+
+
+Writes a color byte value at screen position (x,y)/ 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x screen position\\
+\hline
+{\em y} & The y screen position\\
+\hline
+{\em color} & The color byte to set screen position to\\
+\hline
+{\em offset} & The address offset to read from. You can use it to read from other ram sections (which is bad design because of the name, I know ...).\\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a27a810caa4da47f389ae7c854488b76d}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a27a810caa4da47f389ae7c854488b76d}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!ADDR\_GFX@{ADDR\_GFX}}
+\index{ADDR\_GFX@{ADDR\_GFX}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{ADDR\_GFX}{ADDR\_GFX}}
+{\footnotesize\ttfamily const int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+A\+D\+D\+R\+\_\+\+G\+FX = 0x0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Defines memory sections of P\+I\+C\+O-\/8 R\+AM. 
+
+
+
+\doxysubsection{Property Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a7aeee9610e0a876e120fc6bf3fe04d14}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a7aeee9610e0a876e120fc6bf3fe04d14}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!cameraX@{cameraX}}
+\index{cameraX@{cameraX}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{cameraX}{cameraX}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+cameraX\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+X position of the camera. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a75970e2dc799169fa0774d53ea2cdb79}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a75970e2dc799169fa0774d53ea2cdb79}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!cameraY@{cameraY}}
+\index{cameraY@{cameraY}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{cameraY}{cameraY}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+cameraY\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+Y position of the camera. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_afb02b6df5c96c76413fdd42c3a4fea45}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_afb02b6df5c96c76413fdd42c3a4fea45}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!clipX0@{clipX0}}
+\index{clipX0@{clipX0}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{clipX0}{clipX0}}
+{\footnotesize\ttfamily byte pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+clip\+X0\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+X0 position for the clipping rectangle. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a9b284551d0f5fd3150282aba8b7eb14b}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a9b284551d0f5fd3150282aba8b7eb14b}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!clipX1@{clipX1}}
+\index{clipX1@{clipX1}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{clipX1}{clipX1}}
+{\footnotesize\ttfamily byte pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+clip\+X1\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+X1 position for the clipping rectangle. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa3f9e8354208652a244002aa2c44104c}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_aa3f9e8354208652a244002aa2c44104c}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!clipY0@{clipY0}}
+\index{clipY0@{clipY0}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{clipY0}{clipY0}}
+{\footnotesize\ttfamily byte pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+clip\+Y0\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+Y0 position for the clipping rectangle. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a6b068be4b6e67a43e00a3b97f182f999}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a6b068be4b6e67a43e00a3b97f182f999}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!clipY1@{clipY1}}
+\index{clipY1@{clipY1}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{clipY1}{clipY1}}
+{\footnotesize\ttfamily byte pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+clip\+Y1\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+Y1 position for the clipping rectangle. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a2a0bc4901e4af47b6044482dcbc9cd69}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a2a0bc4901e4af47b6044482dcbc9cd69}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!DrawColor@{DrawColor}}
+\index{DrawColor@{DrawColor}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{DrawColor}{DrawColor}}
+{\footnotesize\ttfamily byte pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Draw\+Color\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+Gets or sets the Draw\+Color. Used to keep track of the current default color value to use for drawing. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a87ac4ca5f6749f46646b23a1f94a14a9}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a87ac4ca5f6749f46646b23a1f94a14a9}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!fillPattern@{fillPattern}}
+\index{fillPattern@{fillPattern}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{fillPattern}{fillPattern}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+fill\+Pattern\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+Current fill pattern. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a135148fd5f4dee7f732b858dcc116d08}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a135148fd5f4dee7f732b858dcc116d08}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!fillpTransparent@{fillpTransparent}}
+\index{fillpTransparent@{fillpTransparent}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{fillpTransparent}{fillpTransparent}}
+{\footnotesize\ttfamily bool? pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+fillp\+Transparent\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+Gets or sets a value indicating whether the second fill pattern color is transparent or not. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae01a7a20d25bb64909c1ec717e0d74a1}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae01a7a20d25bb64909c1ec717e0d74a1}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!FrameBuffer@{FrameBuffer}}
+\index{FrameBuffer@{FrameBuffer}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{FrameBuffer}{FrameBuffer}}
+{\footnotesize\ttfamily byte \mbox{[}$\,$\mbox{]} pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+Frame\+Buffer\hspace{0.3cm}{\ttfamily [get]}}
+
+
+
+Public accessor for the screen buffer. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a487b9489a7f3b5e96c95d42fced81340}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a487b9489a7f3b5e96c95d42fced81340}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!lineX@{lineX}}
+\index{lineX@{lineX}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{lineX}{lineX}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+lineX\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+Default X position for line drawing. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a0f9e4b71ec425eb41570a6d63c2cb90a}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a0f9e4b71ec425eb41570a6d63c2cb90a}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!lineY@{lineY}}
+\index{lineY@{lineY}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{lineY}{lineY}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+lineY\hspace{0.3cm}{\ttfamily [get]}, {\ttfamily [set]}}
+
+
+
+Default Y position for line drawing. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae64221c5f244be444f138328ba889757}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_ae64221c5f244be444f138328ba889757}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!ram@{ram}}
+\index{ram@{ram}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{ram}{ram}}
+{\footnotesize\ttfamily byte \mbox{[}$\,$\mbox{]} pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+ram\hspace{0.3cm}{\ttfamily [get]}}
+
+
+
+Defines the ram block. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a39315f4109d265a47e60359f7207e534}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a39315f4109d265a47e60359f7207e534}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!screenX@{screenX}}
+\index{screenX@{screenX}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{screenX}{screenX}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+screenX\hspace{0.3cm}{\ttfamily [get]}}
+
+
+
+Gets the screenX 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a01a8cf7bf61ad6cc0d9cc462e2f98efd}\label{classpico8__interpreter_1_1_pico8_1_1_memory_unit_a01a8cf7bf61ad6cc0d9cc462e2f98efd}} 
+\index{pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}!screenY@{screenY}}
+\index{screenY@{screenY}!pico8\_interpreter.Pico8.MemoryUnit@{pico8\_interpreter.Pico8.MemoryUnit}}
+\doxysubsubsection{\texorpdfstring{screenY}{screenY}}
+{\footnotesize\ttfamily int pico8\+\_\+interpreter.\+Pico8.\+Memory\+Unit.\+screenY\hspace{0.3cm}{\ttfamily [get]}}
+
+
+
+Gets the screenY 
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Memory\+Unit.\+cs\end{DoxyCompactItemize}

@@ -9,27 +9,60 @@
 ////THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-
 namespace IndependentResolutionRendering
 {
-    static class Resolution
+    using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Graphics;
+
+    /// <summary>
+    /// Defines the <see cref="Resolution" />
+    /// </summary>
+    internal static class Resolution
     {
+        /// <summary>
+        /// Defines the _Device
+        /// </summary>
         static private GraphicsDeviceManager _Device = null;
 
+        /// <summary>
+        /// Defines the _Width
+        /// </summary>
         static private int _Width = 800;
+
+        /// <summary>
+        /// Defines the _Height
+        /// </summary>
         static private int _Height = 600;
+
+        /// <summary>
+        /// Defines the _VWidth
+        /// </summary>
         static private int _VWidth = 1024;
+
+        /// <summary>
+        /// Defines the _VHeight
+        /// </summary>
         static private int _VHeight = 768;
+
+        /// <summary>
+        /// Defines the _ScaleMatrix
+        /// </summary>
         static private Matrix _ScaleMatrix;
+
+        /// <summary>
+        /// Defines the _FullScreen
+        /// </summary>
         static private bool _FullScreen = false;
+
+        /// <summary>
+        /// Defines the _dirtyMatrix
+        /// </summary>
         static private bool _dirtyMatrix = true;
 
+        /// <summary>
+        /// The Init
+        /// </summary>
+        /// <param name="device">The device<see cref="GraphicsDeviceManager"/></param>
         static public void Init(ref GraphicsDeviceManager device)
         {
             _Width = device.PreferredBackBufferWidth;
@@ -39,14 +72,23 @@ namespace IndependentResolutionRendering
             ApplyResolutionSettings();
         }
 
-
+        /// <summary>
+        /// The getTransformationMatrix
+        /// </summary>
+        /// <returns>The <see cref="Matrix"/></returns>
         static public Matrix getTransformationMatrix()
         {
             if (_dirtyMatrix) RecreateScaleMatrix();
-            
+
             return _ScaleMatrix;
         }
 
+        /// <summary>
+        /// The SetResolution
+        /// </summary>
+        /// <param name="Width">The Width<see cref="int"/></param>
+        /// <param name="Height">The Height<see cref="int"/></param>
+        /// <param name="FullScreen">The FullScreen<see cref="bool"/></param>
         static public void SetResolution(int Width, int Height, bool FullScreen)
         {
             _Width = Width;
@@ -54,9 +96,14 @@ namespace IndependentResolutionRendering
 
             _FullScreen = FullScreen;
 
-           ApplyResolutionSettings();
+            ApplyResolutionSettings();
         }
 
+        /// <summary>
+        /// The SetVirtualResolution
+        /// </summary>
+        /// <param name="Width">The Width<see cref="int"/></param>
+        /// <param name="Height">The Height<see cref="int"/></param>
         static public void SetVirtualResolution(int Width, int Height)
         {
             _VWidth = Width;
@@ -65,51 +112,54 @@ namespace IndependentResolutionRendering
             _dirtyMatrix = true;
         }
 
+        /// <summary>
+        /// The ApplyResolutionSettings
+        /// </summary>
         static private void ApplyResolutionSettings()
-       {
+        {
 
 #if XBOX360
            _FullScreen = true;
 #endif
 
-           // If we aren't using a full screen mode, the height and width of the window can
-           // be set to anything equal to or smaller than the actual screen size.
-           if (_FullScreen == false)
-           {
-               if ((_Width <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
-                   && (_Height <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height))
-               {
-                   _Device.PreferredBackBufferWidth = _Width;
-                   _Device.PreferredBackBufferHeight = _Height;
-                   _Device.IsFullScreen = _FullScreen;
-                   _Device.ApplyChanges();
-               }
-           }
-           else
-           {
-               // If we are using full screen mode, we should check to make sure that the display
-               // adapter can handle the video mode we are trying to set.  To do this, we will
-               // iterate through the display modes supported by the adapter and check them against
-               // the mode we want to set.
-               foreach (DisplayMode dm in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
-               {
-                   // Check the width and height of each mode against the passed values
-                   if ((dm.Width == _Width) && (dm.Height == _Height))
-                   {
-                       // The mode is supported, so set the buffer formats, apply changes and return
-                       _Device.PreferredBackBufferWidth = _Width;
-                       _Device.PreferredBackBufferHeight = _Height;
-                       _Device.IsFullScreen = _FullScreen;
-                       _Device.ApplyChanges();
-                   }
-               }
-           }
+            // If we aren't using a full screen mode, the height and width of the window can
+            // be set to anything equal to or smaller than the actual screen size.
+            if (_FullScreen == false)
+            {
+                if ((_Width <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
+                    && (_Height <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height))
+                {
+                    _Device.PreferredBackBufferWidth = _Width;
+                    _Device.PreferredBackBufferHeight = _Height;
+                    _Device.IsFullScreen = _FullScreen;
+                    _Device.ApplyChanges();
+                }
+            }
+            else
+            {
+                // If we are using full screen mode, we should check to make sure that the display
+                // adapter can handle the video mode we are trying to set.  To do this, we will
+                // iterate through the display modes supported by the adapter and check them against
+                // the mode we want to set.
+                foreach (DisplayMode dm in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
+                {
+                    // Check the width and height of each mode against the passed values
+                    if ((dm.Width == _Width) && (dm.Height == _Height))
+                    {
+                        // The mode is supported, so set the buffer formats, apply changes and return
+                        _Device.PreferredBackBufferWidth = _Width;
+                        _Device.PreferredBackBufferHeight = _Height;
+                        _Device.IsFullScreen = _FullScreen;
+                        _Device.ApplyChanges();
+                    }
+                }
+            }
 
-           _dirtyMatrix = true;
+            _dirtyMatrix = true;
 
-           _Width =   _Device.PreferredBackBufferWidth;
-           _Height = _Device.PreferredBackBufferHeight;
-       }
+            _Width = _Device.PreferredBackBufferWidth;
+            _Height = _Device.PreferredBackBufferHeight;
+        }
 
         /// <summary>
         /// Sets the device to use the draw pump
@@ -129,6 +179,9 @@ namespace IndependentResolutionRendering
             _Device.GraphicsDevice.Clear(Color.CornflowerBlue);
         }
 
+        /// <summary>
+        /// The RecreateScaleMatrix
+        /// </summary>
         static private void RecreateScaleMatrix()
         {
             _dirtyMatrix = false;
@@ -138,7 +191,9 @@ namespace IndependentResolutionRendering
                            1f);
         }
 
-
+        /// <summary>
+        /// The FullViewport
+        /// </summary>
         static public void FullViewport()
         {
             Viewport vp = new Viewport();
@@ -157,6 +212,9 @@ namespace IndependentResolutionRendering
             return (float)_VWidth / (float)_VHeight;
         }
 
+        /// <summary>
+        /// The ResetViewport
+        /// </summary>
         static public void ResetViewport()
         {
             float targetAspectRatio = getVirtualAspectRatio();
@@ -164,7 +222,7 @@ namespace IndependentResolutionRendering
             int width = _Device.PreferredBackBufferWidth;
             int height = (int)(width / targetAspectRatio + .5f);
             bool changed = false;
-            
+
             if (height > _Device.PreferredBackBufferHeight)
             {
                 height = _Device.PreferredBackBufferHeight;
@@ -190,6 +248,5 @@ namespace IndependentResolutionRendering
 
             _Device.GraphicsDevice.Viewport = viewport;
         }
-
     }
 }

@@ -1,42 +1,107 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text.RegularExpressions;
-
-namespace pico8_interpreter.Pico8
+﻿namespace pico8_interpreter.Pico8
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Text.RegularExpressions;
+
+    /// <summary>
+    /// Defines the <see cref="PicoInterpreter{G}" />
+    /// </summary>
+    /// <typeparam name="G"></typeparam>
     public class PicoInterpreter<G>
     {
+        /// <summary>
+        /// Defines a random object to use in PICO-8 random functions.
+        /// </summary>
         private Random random;
 
+        /// <summary>
+        /// Defines the time where the cartridge started running (at cartridge load time).
+        /// </summary>
         private DateTime timeStart;
 
-        // Function callback to retrieve if button was pressed
+        /// <summary>
+        /// Defines a list of functions that are used to know if a specific button was pressed or not.
+        /// </summary>
         private List<Func<int, bool>> BtnPressedCallbacks;
+
         // First Players keys
+        /// <summary>
+        /// Defines the BtnLeft, BtnRight, BtnUp, BtnDown, BtnA, BtnB
+        /// </summary>
         private int[] BtnLeft, BtnRight, BtnUp, BtnDown, BtnA, BtnB;
+
+        /// <summary>
+        /// Defines the BtnLeftLast, BtnRightLast, BtnUpLast, BtnDownLast, BtnALast, BtnBLast
+        /// </summary>
         private bool[] BtnLeftLast, BtnRightLast, BtnUpLast, BtnDownLast, BtnALast, BtnBLast;
+
+        /// <summary>
+        /// Defines the BtnLeftCurrent, BtnRightCurrent, BtnUpCurrent, BtnDownCurrent, BtnACurrent, BtnBCurrent
+        /// </summary>
         private bool[] BtnLeftCurrent, BtnRightCurrent, BtnUpCurrent, BtnDownCurrent, BtnACurrent, BtnBCurrent;
 
+        /// <summary>
+        /// Defines the memory unit
+        /// </summary>
         public MemoryUnit memory;
+
+        /// <summary>
+        /// Defines the graphics unit
+        /// </summary>
         public GraphicsUnit<G> graphics;
 
-        // Struct to hold all information about a running pico8 game.
+        /// <summary>
+        /// Defines the <see cref="Game" />
+        /// Struct to hold all information about a running pico8 game.
+        /// </summary>
         public struct Game
         {
+            /// <summary>
+            /// Defines the cartridge
+            /// </summary>
             public Cartridge cartridge;
+
+            /// <summary>
+            /// Defines the interpreter
+            /// </summary>
             public ILuaInterpreter interpreter;
+
+            /// <summary>
+            /// Defines the path
+            /// </summary>
             public string path;
+
+            /// <summary>
+            /// Defines the cartdata_id
+            /// </summary>
             public string cartdata_id;
+
+            /// <summary>
+            /// Defines the cartdata
+            /// </summary>
             public Int32[] cartdata;
         }
 
+        /// <summary>
+        /// Defines the currently loaded game.
+        /// </summary>
         public Game loadedGame;
+
+        /// <summary>
+        /// Defines the cartdata folder path.
+        /// </summary>
         public string cartdataPath = "cartdata/";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PicoInterpreter{G}"/> class.
+        /// </summary>
+        /// <param name="screenData">The screen color data reference.</param>
+        /// <param name="rgbToColor">Function to convert RBG calues to an arbitrary color value.</param>
         public PicoInterpreter(ref G[] screenData, Func<int, int, int, G> rgbToColor)
-        {       
+        {
             random = new Random();
             memory = new MemoryUnit();
             graphics = new GraphicsUnit<G>(ref memory, ref screenData, rgbToColor);
@@ -77,6 +142,10 @@ namespace pico8_interpreter.Pico8
             (new FileInfo("cartdata/")).Directory.Create();
         }
 
+        /// <summary>
+        /// Initializes the PICO-8 API.
+        /// </summary>
+        /// <param name="interpreter">The interpreter to use when adding the functions. <see cref="ILuaInterpreter"/></param>
         private void InitAPI(ref ILuaInterpreter interpreter)
         {
             // Graphics
@@ -114,11 +183,11 @@ namespace pico8_interpreter.Pico8
             interpreter.AddFunction("camera", (Func<int?, int?, object>)memory.Camera);
             interpreter.AddFunction("memcpy", (Func<int, int, int, object>)memory.Memcpy);
             interpreter.AddFunction("memset", (Func<int, byte, int, object>)memory.Memset);
-            interpreter.AddFunction("reload", (Func<int, int, int, string, object>)memory.Reload);
-            interpreter.AddFunction("cstore", (Func<int, int, int, string, object>)memory.Cstore);
-            interpreter.AddFunction("cartdata", (Func<object, object>)memory.Cartdata);
-            interpreter.AddFunction("dget", (Func<int, double>)memory.Dget);
-            interpreter.AddFunction("dset", (Func<int, double, object>)memory.Dset);
+            interpreter.AddFunction("reload", (Func<int, int, int, string, object>)Reload);
+            interpreter.AddFunction("cstore", (Func<int, int, int, string, object>)Cstore);
+            interpreter.AddFunction("cartdata", (Action<string>)Cartdata);
+            interpreter.AddFunction("dget", (Func<int, object>)Dget);
+            interpreter.AddFunction("dset", (Action<int, double>)Dset);
             interpreter.AddFunction("color", (Func<byte, object>)memory.Color);
 
             // Math
@@ -157,10 +226,6 @@ namespace pico8_interpreter.Pico8
 
             interpreter.AddFunction("print", (Action<object, int?, int?, byte?>)Print);
             interpreter.AddFunction("printh", (Action<object, int?, int?, byte?>)Print);
-
-            interpreter.AddFunction("cartdata", (Action<string>)Cartdata);
-            interpreter.AddFunction("dget", (Func<int, object>)Dget);
-            interpreter.AddFunction("dset", (Action<int, double>)Dset);
 
             interpreter.RunScript(@"
                 function all(collection)
@@ -246,10 +311,60 @@ namespace pico8_interpreter.Pico8
                 ");
         }
 
-        #region TODO
+        /// <summary>
+        /// Play music starting from pattern n (0..63)
+		/// n -1 to stop music
+        /// fade_len in ms(default: 0)
+        ///
+        /// channel_mask specifies which channels to reserve for music only
+        ///
+        ///    e.g.to play on channels 0..2: 1+2+4 = 7
+        ///
+        /// Reserved channels can still be used to play sound effects on, but only when that
+        /// 
+        /// channel index is explicitly requested by sfx().
+        /// </summary>
+        /// <param name="n">The pattern number</param>
+        /// <param name="fade_len">The amount of time taken to fade music from 0 to full volume.</param>
+        /// <param name="channel_mask">specifies which channels to reserve for music only</param>
+        /// <returns>The </returns>
+        public object Music(int? n = null, int? fade_len = null, int? channel_mask = null)
+        {
+            return null;
+        }
 
-        public object Music(int? n = null, int? fade_len = null, int? channel_mask = null) { return null; }
-        public object Sfx(int? n = null, int? channel = null, int? offset = null, int? length = null) { return null; }
+        /// <summary>
+        /// Play sfx n on channel (0..3) from note offset (0..31) for length notes
+		/// n -1 to stop sound on that channel
+        ///
+        /// n -2 to release sound on that channel from looping
+        ///
+        /// Any music playing on the channel will be halted
+        /// offset in number of notes(0..31)
+        ///
+        /// channel -1 (default) to automatically choose a channel that is not being used
+        ///
+        /// channel -2 to stop the sound from playing on any channel
+        /// </summary>
+        /// <param name="n">The n</param>
+        /// <param name="channel">The channel</param>
+        /// <param name="offset">The offset</param>
+        /// <param name="length">The length</param>
+        /// <returns>The </returns>
+        public object Sfx(int? n = null, int? channel = null, int? offset = null, int? length = null)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Print a string
+		/// If only str is supplied, and the cursor reaches the end of the screen,
+		/// a carriage return and vertical scroll is automatically applied.
+        /// </summary>
+        /// <param name="s">The string to print</param>
+        /// <param name="x">The x position</param>
+        /// <param name="y">The y position</param>
+        /// <param name="c">The c the color to draw the string.</param>
         public void Print(object s, int? x = null, int? y = null, byte? c = null)
         {
             if (c.HasValue)
@@ -259,8 +374,34 @@ namespace pico8_interpreter.Pico8
             Console.WriteLine(String.Format("{0:####.####}", s));
         }
 
-        #endregion
-
+        /// <summary>
+        /// cartdata() opens a permanent data storage slot indexed by id, that can be
+        /// 	used to store and retrieve up to 256 bytes(64 numbers) worth of data using 
+        /// 	DSET() and DGET().
+        /// 	
+        /// 	CARTDATA("zep_dark_forest") -- can only be set once per session
+        /// 	-- later in the program..
+        ///     DSET(0, score)
+        /// 
+        /// 
+        /// id is a string up to 64 characters long, and should be unusual enough that
+        /// 
+        /// other cartridges do not accidentally use the same id.
+        /// 
+        /// e.g.cartdata("zep_jelpi")
+        /// 
+        /// 
+        /// legal characters are a..z, 0..9 and underscore(_)
+        /// 
+        /// 
+        /// returns true if data was loaded, otherwise false
+        /// 
+        /// cartdata can not be called more than once per cartridge execution.
+        /// 
+        /// Once a cartdata id has been set, the area of memory 0x5e00..0x5eff is mapped
+        /// to permanent storage, and can either be accessed directly or via dget/dset.
+        /// </summary>
+        /// <param name="id">The id for the cartdata file</param>
         private void Cartdata(string id)
         {
             Trace.Assert(loadedGame.cartdata_id.Length == 0, "cartdata() can only be called once");
@@ -280,7 +421,8 @@ namespace pico8_interpreter.Pico8
                         loadedGame.cartdata[i] = reader.ReadInt32();
                     }
                 }
-            } else
+            }
+            else
             {
                 using (BinaryWriter writer = new BinaryWriter(File.Open(fileName, FileMode.Create)))
                 {
@@ -295,12 +437,27 @@ namespace pico8_interpreter.Pico8
             loadedGame.cartdata_id = id;
         }
 
+        /// <summary>
+        /// Get the number stored at index (0..63)
+		/// Use this only after you have called cartdata()
+        /// </summary>
+        /// <param name="index">The index</param>
+        /// <returns>The value</returns>
         private object Dget(int index)
         {
             Trace.Assert(index < loadedGame.cartdata.Length, "bad index");
             return util.FixedToFloat(loadedGame.cartdata[index]);
         }
 
+        /// <summary>
+        /// Set the number stored at index (0..63)
+		/// Use this only after you have called cartdata()
+        ///
+        /// There is no need to flush written data -- it is automatically
+        /// saved to permanent storage even if POKE()'ed directly.
+        /// </summary>
+        /// <param name="index">The index</param>
+        /// <param name="value">The value</param>
         private void Dset(int index, double value)
         {
             Trace.Assert(index < loadedGame.cartdata.Length, "bad index");
@@ -308,6 +465,10 @@ namespace pico8_interpreter.Pico8
             SaveCartdata(cartdataPath + loadedGame.cartdata_id);
         }
 
+        /// <summary>
+        /// Saves cartdata information to file.
+        /// </summary>
+        /// <param name="fileName">The fileName to write to.</param>
         private void SaveCartdata(string fileName)
         {
             using (BinaryWriter writer = new BinaryWriter(File.Open(fileName, FileMode.Create)))
@@ -319,8 +480,27 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        public double Rnd(double? x = null) { if (!x.HasValue) x = 1; return random.NextDouble() * x.Value; }
+        /// <summary>
+        /// Returns a random number n, where 0 <= n < x
+		/// If you want an integer, use flr(rnd(x))
+        /// </summary>
+        /// <param name="x">The x</param>
+        /// <returns>The </returns>
+        public double Rnd(double? x = null)
+        {
+            if (!x.HasValue) x = 1; return random.NextDouble() * x.Value;
+        }
 
+        /// <summary>
+        /// Same as memcpy, but copies from cart rom
+		/// The code section( >= 0x4300) is protected and can not be read.
+        /// If filename specified, load data from a different cartridge.
+        /// </summary>
+        /// <param name="dest_addr">The destination address to write to.</param>
+        /// <param name="source_addr">The source address to read from.</param>
+        /// <param name="len">The length of data to read/write.</param>
+        /// <param name="filename">The path to a different cartridge.</param>
+        /// <returns>Returns null everytime.</returns>
         public object Reload(int dest_addr, int source_addr, int len, string filename = "")
         {
             Cartridge cart = filename.Length == 0 ? loadedGame.cartridge : new Cartridge(filename);
@@ -329,6 +509,18 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Same as memcpy, but copies from base ram to cart rom
+        /// cstore() is equivalent to cstore(0, 0, 0x4300)
+        /// Can use for writing tools to construct carts or to visualize the state
+        /// of the map / spritesheet using the map editor / gfx editor.
+        /// The code section ( >= 0x4300) is protected and can not be written to.
+        /// </summary>
+        /// <param name="dest_addr">The destination address to write to.</param>
+        /// <param name="source_addr">The source address to read from.</param>
+        /// <param name="len">The length of data to read/write.</param>
+        /// <param name="filename">The path to a different cartridge.</param>
+        /// <returns>Returns null everytime.</returns>
         public object Cstore(int dest_addr, int source_addr, int len, string filename = "")
         {
             Cartridge cart = filename.Length == 0 ? loadedGame.cartridge : new Cartridge(filename);
@@ -338,8 +530,12 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
-        // Load a game from path and run it. 
-        // All paths are considered to be inside pico8/games folder
+        /// <summary>
+        /// Load a game from path and run it. 
+        /// All paths are considered to be inside pico8/games folder
+        /// </summary>
+        /// <param name="path">The path to read cart from.</param>
+        /// <param name="interpreter">The interpreter to use.<see cref="ILuaInterpreter"/></param>
         public void LoadGame(string path, ILuaInterpreter interpreter)
         {
             loadedGame = new Game();
@@ -360,7 +556,9 @@ namespace pico8_interpreter.Pico8
             loadedGame.interpreter.CallIfDefined("_init");
         }
 
-        // Call scripts update method
+        /// <summary>
+        /// Call scripts update method
+        /// </summary>
         public void Update()
         {
             UpdateControllerState();
@@ -370,13 +568,36 @@ namespace pico8_interpreter.Pico8
             }
         }
 
-        // Call scripts draw method
+        /// <summary>
+        /// Call scripts draw method
+        /// </summary>
         public void Draw()
         {
             loadedGame.interpreter.CallIfDefined("_draw");
             graphics.Flip();
         }
 
+        /// <summary>
+        /// get button i state for player p (default 0) 
+		/// i: 0..5: left right up down button_o button_x
+        ///
+        /// p: player index 0..7
+        ///
+        ///
+        /// Instead of using a number for i, it is also possible to use a button glyph.
+        ///
+        /// (In the coded editor, use Shift-L R U D O X)
+        ///
+        /// If no parameters supplied, returns a bitfield of all 12 button states for player 0 & 1
+        ///	 P0: bits 0..5  P1: bits 8..13
+        ///
+        /// Default keyboard mappings to player buttons:
+        ///	player 0: cursors, Z,X / C,V / N,M
+        ///    player 1: ESDF, LSHIFT,A / TAB,Q,E
+        /// </summary>
+        /// <param name="i">The index of the button</param>
+        /// <param name="p">The player index.</param>
+        /// <returns>The button state value.</returns>
         public object Btn(int? i = null, int? p = null)
         {
             if (!p.HasValue)
@@ -384,7 +605,7 @@ namespace pico8_interpreter.Pico8
                 p = 0;
             }
 
-            switch(i.Value)
+            switch (i.Value)
             {
                 case 0:
                     return BtnLeftCurrent[p.Value];
@@ -403,6 +624,16 @@ namespace pico8_interpreter.Pico8
             return false;
         }
 
+        /// <summary>
+        /// btnp is short for "Button Pressed"; Instead of being true when a button is held down, 
+		/// btnp returns true when a button is down AND it was not down the last frame.It also
+        /// repeats after 15 frames, returning true every 4 frames after that(at 30fps -- double
+        /// that at 60fp). This can be used for things like menu navigation or grid-wise player
+        /// movement.
+        /// </summary>
+        /// <param name="i">The index of the button</param>
+        /// <param name="p">The player index.</param>
+        /// <returns>The button state value.</returns>
         public bool Btnp(int i, int? p = null)
         {
             if (!p.HasValue)
@@ -430,6 +661,9 @@ namespace pico8_interpreter.Pico8
             return false;
         }
 
+        /// <summary>
+        /// Updates all controller state stuff.
+        /// </summary>
         private void UpdateControllerState()
         {
             foreach (var f in BtnPressedCallbacks)
@@ -459,6 +693,16 @@ namespace pico8_interpreter.Pico8
             BtnPressedCallbacks.Add(callback);
         }
 
+        /// <summary>
+        /// Sets controller key values. Used to call BtnPressedCallbacks so that it know the indexes of each button.
+        /// </summary>
+        /// <param name="index">The player index</param>
+        /// <param name="Left">The Left button index</param>
+        /// <param name="Right">The Right button index</param>
+        /// <param name="Up">The Up button index</param>
+        /// <param name="Down">The Down button index</param>
+        /// <param name="A">The A button index</param>
+        /// <param name="B">The B button index</param>
         public void SetControllerKeys(int index, int Left, int Right, int Up, int Down, int A, int B)
         {
             Trace.Assert(index >= 0 && index <= 7);

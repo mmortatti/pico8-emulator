@@ -1,0 +1,399 @@
+\hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{}\doxysection{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter$<$ G $>$ Class Template Reference}
+\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+
+
+Defines the \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af6d986ae767ba21809321cfd67c242c3}{Pico\+Interpreter$<$\+G$>$}}  
+
+
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structpico8__interpreter_1_1_pico8_1_1_pico_interpreter_1_1_game}{Game}}
+\begin{DoxyCompactList}\small\item\em Defines the \mbox{\hyperlink{structpico8__interpreter_1_1_pico8_1_1_pico_interpreter_1_1_game}{Game}} Struct to hold all information about a running pico8 game. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af6d986ae767ba21809321cfd67c242c3}{Pico\+Interpreter}} (ref G\mbox{[}$\,$\mbox{]} screen\+Data, Func$<$ int, int, int, G $>$ rgb\+To\+Color)
+\begin{DoxyCompactList}\small\item\em Initializes a new instance of the \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af6d986ae767ba21809321cfd67c242c3}{Pico\+Interpreter$<$\+G$>$}} class. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ac44bc9fc810ed02368ea8364802de232}{Music}} (int? n=null, int? fade\+\_\+len=null, int? channel\+\_\+mask=null)
+\begin{DoxyCompactList}\small\item\em Play music starting from pattern n (0..63) n -\/1 to stop music fade\+\_\+len in ms(default\+: 0) \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_aefefb7ebdb5f7a4093f7754d94256aad}{Sfx}} (int? n=null, int? channel=null, int? offset=null, int? length=null)
+\begin{DoxyCompactList}\small\item\em Play sfx n on channel (0..3) from note offset (0..31) for length notes n -\/1 to stop sound on that channel \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a675ecb9a5247dd619b2055cde10d01d1}{Print}} (object s, int? x=null, int? y=null, byte? c=null)
+\begin{DoxyCompactList}\small\item\em Print a string If only str is supplied, and the cursor reaches the end of the screen, a carriage return and vertical scroll is automatically applied. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_adf0a20540a7be531223d20853fd971b2}{Rnd}} (double? x=null)
+\begin{DoxyCompactList}\small\item\em Returns a random number n, where 0 $<$= n $<$ x If you want an integer, use flr(rnd(x)) \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ae0a808f3f6d652f2ee709f0c7c56c6f1}{Reload}} (int dest\+\_\+addr, int source\+\_\+addr, int len, string filename=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Same as memcpy, but copies from cart rom The code section( $>$= 0x4300) is protected and can not be read. If filename specified, load data from a different cartridge. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a40dbaa35ebdc646285d509cdcb1a02bf}{Cstore}} (int dest\+\_\+addr, int source\+\_\+addr, int len, string filename=\char`\"{}\char`\"{})
+\begin{DoxyCompactList}\small\item\em Same as memcpy, but copies from base ram to cart rom cstore() is equivalent to cstore(0, 0, 0x4300) Can use for writing tools to construct carts or to visualize the state of the map / spritesheet using the map editor / gfx editor. The code section ( $>$= 0x4300) is protected and can not be written to. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a0dd526ee34c041a07cab5e525ef5ad2c}{Load\+Game}} (string path, I\+Lua\+Interpreter interpreter)
+\begin{DoxyCompactList}\small\item\em Load a game from path and run it. All paths are considered to be inside pico8/games folder \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_aec641e70268b05627a18f018a2a23e8e}{Update}} ()
+\begin{DoxyCompactList}\small\item\em Call scripts update method \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a7e251a06bea0fff254c1f288daef7538}{Draw}} ()
+\begin{DoxyCompactList}\small\item\em Call scripts draw method \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af15f89bbff2a764b9ae9e13ef2c1f8d5}{Btn}} (int? i=null, int? p=null)
+\begin{DoxyCompactList}\small\item\em get button i state for player p (default 0) i\+: 0..5\+: left right up down button\+\_\+o button\+\_\+x \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a8474645bc7af1f0f81438f773c3a018a}{Btnp}} (int i, int? p=null)
+\begin{DoxyCompactList}\small\item\em btnp is short for \char`\"{}\+Button Pressed\char`\"{}; Instead of being true when a button is held down, btnp returns true when a button is down A\+ND it was not down the last frame.\+It also repeats after 15 frames, returning true every 4 frames after that(at 30fps -- double that at 60fp). This can be used for things like menu navigation or grid-\/wise player movement. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ae37a56ad277e4843d6f8a319880563f9}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ae37a56ad277e4843d6f8a319880563f9}} 
+void {\bfseries Set\+Btn\+Pressed\+Callback} (Func$<$ int, bool $>$ callback)
+\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a696e5b7be07883ed56db3b3729dd627e}{Set\+Controller\+Keys}} (int index, int Left, int Right, int Up, int Down, int A, int B)
+\begin{DoxyCompactList}\small\item\em Sets controller key values. Used to call Btn\+Pressed\+Callbacks so that it know the indexes of each button. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{Memory\+Unit}} \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a383a87961ede55b02d32f00ac507f16e}{memory}}
+\begin{DoxyCompactList}\small\item\em Defines the memory unit \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{Graphics\+Unit}}$<$ G $>$ \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ac9f349566db8feec36a3dbb69bf80ded}{graphics}}
+\begin{DoxyCompactList}\small\item\em Defines the graphics unit \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structpico8__interpreter_1_1_pico8_1_1_pico_interpreter_1_1_game}{Game}} \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a617feb19d93873a39dd934211aa12d50}{loaded\+Game}}
+\begin{DoxyCompactList}\small\item\em Defines the currently loaded game. \end{DoxyCompactList}\item 
+string \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ae6e60cf69eaf5b0805d0f4a43801dce8}{cartdata\+Path}} = \char`\"{}cartdata/\char`\"{}
+\begin{DoxyCompactList}\small\item\em Defines the cartdata folder path. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Defines the \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af6d986ae767ba21809321cfd67c242c3}{Pico\+Interpreter$<$\+G$>$}} 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em G} & \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af6d986ae767ba21809321cfd67c242c3}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af6d986ae767ba21809321cfd67c242c3}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!PicoInterpreter@{PicoInterpreter}}
+\index{PicoInterpreter@{PicoInterpreter}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{PicoInterpreter()}{PicoInterpreter()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.\mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{Pico\+Interpreter}} (\begin{DoxyParamCaption}\item[{ref G\mbox{[}$\,$\mbox{]}}]{screen\+Data,  }\item[{Func$<$ int, int, int, G $>$}]{rgb\+To\+Color }\end{DoxyParamCaption})}
+
+
+
+Initializes a new instance of the \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af6d986ae767ba21809321cfd67c242c3}{Pico\+Interpreter$<$\+G$>$}} class. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em screen\+Data} & The screen color data reference.\\
+\hline
+{\em rgb\+To\+Color} & Function to convert R\+BG calues to an arbitrary color value.\\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af15f89bbff2a764b9ae9e13ef2c1f8d5}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_af15f89bbff2a764b9ae9e13ef2c1f8d5}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Btn@{Btn}}
+\index{Btn@{Btn}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Btn()}{Btn()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Btn (\begin{DoxyParamCaption}\item[{int?}]{i = {\ttfamily null},  }\item[{int?}]{p = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+get button i state for player p (default 0) i\+: 0..5\+: left right up down button\+\_\+o button\+\_\+x 
+
+p\+: player index 0..7
+
+Instead of using a number for i, it is also possible to use a button glyph.
+
+(In the coded editor, use Shift-\/L R U D O X)
+
+If no parameters supplied, returns a bitfield of all 12 button states for player 0 \& 1 P0\+: bits 0..5 P1\+: bits 8..13
+
+Default keyboard mappings to player buttons\+: player 0\+: cursors, Z,X / C,V / N,M player 1\+: E\+S\+DF, L\+S\+H\+I\+FT,A / T\+AB,Q,E
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & The index of the button\\
+\hline
+{\em p} & The player index.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The button state value.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a8474645bc7af1f0f81438f773c3a018a}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a8474645bc7af1f0f81438f773c3a018a}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Btnp@{Btnp}}
+\index{Btnp@{Btnp}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Btnp()}{Btnp()}}
+{\footnotesize\ttfamily bool \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Btnp (\begin{DoxyParamCaption}\item[{int}]{i,  }\item[{int?}]{p = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+btnp is short for \char`\"{}\+Button Pressed\char`\"{}; Instead of being true when a button is held down, btnp returns true when a button is down A\+ND it was not down the last frame.\+It also repeats after 15 frames, returning true every 4 frames after that(at 30fps -- double that at 60fp). This can be used for things like menu navigation or grid-\/wise player movement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & The index of the button\\
+\hline
+{\em p} & The player index.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The button state value.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a40dbaa35ebdc646285d509cdcb1a02bf}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a40dbaa35ebdc646285d509cdcb1a02bf}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Cstore@{Cstore}}
+\index{Cstore@{Cstore}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Cstore()}{Cstore()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Cstore (\begin{DoxyParamCaption}\item[{int}]{dest\+\_\+addr,  }\item[{int}]{source\+\_\+addr,  }\item[{int}]{len,  }\item[{string}]{filename = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})}
+
+
+
+Same as memcpy, but copies from base ram to cart rom cstore() is equivalent to cstore(0, 0, 0x4300) Can use for writing tools to construct carts or to visualize the state of the map / spritesheet using the map editor / gfx editor. The code section ( $>$= 0x4300) is protected and can not be written to. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dest\+\_\+addr} & The destination address to write to.\\
+\hline
+{\em source\+\_\+addr} & The source address to read from.\\
+\hline
+{\em len} & The length of data to read/write.\\
+\hline
+{\em filename} & The path to a different cartridge.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a7e251a06bea0fff254c1f288daef7538}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a7e251a06bea0fff254c1f288daef7538}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Draw@{Draw}}
+\index{Draw@{Draw}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Draw()}{Draw()}}
+{\footnotesize\ttfamily void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Draw (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call scripts draw method 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a0dd526ee34c041a07cab5e525ef5ad2c}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a0dd526ee34c041a07cab5e525ef5ad2c}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!LoadGame@{LoadGame}}
+\index{LoadGame@{LoadGame}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{LoadGame()}{LoadGame()}}
+{\footnotesize\ttfamily void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Load\+Game (\begin{DoxyParamCaption}\item[{string}]{path,  }\item[{I\+Lua\+Interpreter}]{interpreter }\end{DoxyParamCaption})}
+
+
+
+Load a game from path and run it. All paths are considered to be inside pico8/games folder 
+
+
+\begin{DoxyParams}{Parameters}
+{\em path} & The path to read cart from.\\
+\hline
+{\em interpreter} & The interpreter to use.I\+Lua\+Interpreter\\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ac44bc9fc810ed02368ea8364802de232}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ac44bc9fc810ed02368ea8364802de232}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Music@{Music}}
+\index{Music@{Music}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Music()}{Music()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Music (\begin{DoxyParamCaption}\item[{int?}]{n = {\ttfamily null},  }\item[{int?}]{fade\+\_\+len = {\ttfamily null},  }\item[{int?}]{channel\+\_\+mask = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Play music starting from pattern n (0..63) n -\/1 to stop music fade\+\_\+len in ms(default\+: 0) 
+
+channel\+\_\+mask specifies which channels to reserve for music only
+
+e.\+g.\+to play on channels 0..2\+: 1+2+4 = 7
+
+Reserved channels can still be used to play sound effects on, but only when that
+
+channel index is explicitly requested by sfx().
+
+
+\begin{DoxyParams}{Parameters}
+{\em n} & The pattern number\\
+\hline
+{\em fade\+\_\+len} & The amount of time taken to fade music from 0 to full volume.\\
+\hline
+{\em channel\+\_\+mask} & specifies which channels to reserve for music only\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a675ecb9a5247dd619b2055cde10d01d1}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a675ecb9a5247dd619b2055cde10d01d1}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Print@{Print}}
+\index{Print@{Print}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Print()}{Print()}}
+{\footnotesize\ttfamily void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Print (\begin{DoxyParamCaption}\item[{object}]{s,  }\item[{int?}]{x = {\ttfamily null},  }\item[{int?}]{y = {\ttfamily null},  }\item[{byte?}]{c = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Print a string If only str is supplied, and the cursor reaches the end of the screen, a carriage return and vertical scroll is automatically applied. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em s} & The string to print\\
+\hline
+{\em x} & The x position\\
+\hline
+{\em y} & The y position\\
+\hline
+{\em c} & The c the color to draw the string.\\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ae0a808f3f6d652f2ee709f0c7c56c6f1}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ae0a808f3f6d652f2ee709f0c7c56c6f1}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Reload@{Reload}}
+\index{Reload@{Reload}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Reload()}{Reload()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Reload (\begin{DoxyParamCaption}\item[{int}]{dest\+\_\+addr,  }\item[{int}]{source\+\_\+addr,  }\item[{int}]{len,  }\item[{string}]{filename = {\ttfamily \char`\"{}\char`\"{}} }\end{DoxyParamCaption})}
+
+
+
+Same as memcpy, but copies from cart rom The code section( $>$= 0x4300) is protected and can not be read. If filename specified, load data from a different cartridge. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em dest\+\_\+addr} & The destination address to write to.\\
+\hline
+{\em source\+\_\+addr} & The source address to read from.\\
+\hline
+{\em len} & The length of data to read/write.\\
+\hline
+{\em filename} & The path to a different cartridge.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_adf0a20540a7be531223d20853fd971b2}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_adf0a20540a7be531223d20853fd971b2}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Rnd@{Rnd}}
+\index{Rnd@{Rnd}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Rnd()}{Rnd()}}
+{\footnotesize\ttfamily double \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Rnd (\begin{DoxyParamCaption}\item[{double?}]{x = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Returns a random number n, where 0 $<$= n $<$ x If you want an integer, use flr(rnd(x)) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a696e5b7be07883ed56db3b3729dd627e}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a696e5b7be07883ed56db3b3729dd627e}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!SetControllerKeys@{SetControllerKeys}}
+\index{SetControllerKeys@{SetControllerKeys}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{SetControllerKeys()}{SetControllerKeys()}}
+{\footnotesize\ttfamily void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Set\+Controller\+Keys (\begin{DoxyParamCaption}\item[{int}]{index,  }\item[{int}]{Left,  }\item[{int}]{Right,  }\item[{int}]{Up,  }\item[{int}]{Down,  }\item[{int}]{A,  }\item[{int}]{B }\end{DoxyParamCaption})}
+
+
+
+Sets controller key values. Used to call Btn\+Pressed\+Callbacks so that it know the indexes of each button. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The player index\\
+\hline
+{\em Left} & The Left button index\\
+\hline
+{\em Right} & The Right button index\\
+\hline
+{\em Up} & The Up button index\\
+\hline
+{\em Down} & The Down button index\\
+\hline
+{\em A} & The A button index\\
+\hline
+{\em B} & The B button index\\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_aefefb7ebdb5f7a4093f7754d94256aad}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_aefefb7ebdb5f7a4093f7754d94256aad}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Sfx@{Sfx}}
+\index{Sfx@{Sfx}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Sfx()}{Sfx()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Sfx (\begin{DoxyParamCaption}\item[{int?}]{n = {\ttfamily null},  }\item[{int?}]{channel = {\ttfamily null},  }\item[{int?}]{offset = {\ttfamily null},  }\item[{int?}]{length = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Play sfx n on channel (0..3) from note offset (0..31) for length notes n -\/1 to stop sound on that channel 
+
+n -\/2 to release sound on that channel from looping
+
+Any music playing on the channel will be halted offset in number of notes(0..31)
+
+channel -\/1 (default) to automatically choose a channel that is not being used
+
+channel -\/2 to stop the sound from playing on any channel
+
+
+\begin{DoxyParams}{Parameters}
+{\em n} & The n\\
+\hline
+{\em channel} & The channel\\
+\hline
+{\em offset} & The offset\\
+\hline
+{\em length} & The length\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_aec641e70268b05627a18f018a2a23e8e}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_aec641e70268b05627a18f018a2a23e8e}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!Update@{Update}}
+\index{Update@{Update}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Update()}{Update()}}
+{\footnotesize\ttfamily void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Call scripts update method 
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ae6e60cf69eaf5b0805d0f4a43801dce8}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ae6e60cf69eaf5b0805d0f4a43801dce8}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!cartdataPath@{cartdataPath}}
+\index{cartdataPath@{cartdataPath}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{cartdataPath}{cartdataPath}}
+{\footnotesize\ttfamily string \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.cartdata\+Path = \char`\"{}cartdata/\char`\"{}}
+
+
+
+Defines the cartdata folder path. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ac9f349566db8feec36a3dbb69bf80ded}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_ac9f349566db8feec36a3dbb69bf80ded}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!graphics@{graphics}}
+\index{graphics@{graphics}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{graphics}{graphics}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{Graphics\+Unit}}$<$G$>$ \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.graphics}
+
+
+
+Defines the graphics unit 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a617feb19d93873a39dd934211aa12d50}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a617feb19d93873a39dd934211aa12d50}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!loadedGame@{loadedGame}}
+\index{loadedGame@{loadedGame}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{loadedGame}{loadedGame}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structpico8__interpreter_1_1_pico8_1_1_pico_interpreter_1_1_game}{Game}} \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.loaded\+Game}
+
+
+
+Defines the currently loaded game. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a383a87961ede55b02d32f00ac507f16e}\label{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter_a383a87961ede55b02d32f00ac507f16e}} 
+\index{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}!memory@{memory}}
+\index{memory@{memory}!pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$@{pico8\_interpreter.Pico8.PicoInterpreter$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{memory}{memory}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{Memory\+Unit}} \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_pico_interpreter}{pico8\+\_\+interpreter.\+Pico8.\+Pico\+Interpreter}}$<$ G $>$.memory}
+
+
+
+Defines the memory unit 
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Pico8.\+cs\end{DoxyCompactItemize}

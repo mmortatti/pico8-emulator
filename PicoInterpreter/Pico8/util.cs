@@ -1,37 +1,71 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-
-namespace pico8_interpreter.Pico8
+﻿namespace pico8_interpreter.Pico8
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text.RegularExpressions;
+
+    /// <summary>
+    /// Defines the <see cref="util" /> class. Used to define various useful functions.
+    /// </summary>
     public static class util
     {
+        /// <summary>
+        /// Defines a 2^16 value;
+        /// </summary>
         public static readonly int SHIFT_16 = 1 << 16;
 
-        public static byte GetHalf(byte[] arr, int index, bool rightmost = true)
+        /// <summary>
+        /// Returns half of a byte. Either rightmost 4 bits or leftmost.
+        /// </summary>
+        /// <param name="b">The byte to read from.<see cref="byte"/></param>
+        /// <param name="rightmost">True if it should extract the rightmost 4 bits, false to extract leftmost 4 bits.</param>
+        /// <returns>The final byte that was read<see cref="byte"/></returns>
+        public static byte GetHalf(byte b, bool rightmost = true)
         {
             byte mask = (byte)(rightmost ? 0x0f : 0xf0);
-            byte val = (byte)(arr[index] & mask);
+            byte val = (byte)(b & mask);
             return (byte)(rightmost ? val : val >> 4);
         }
 
-        public static void SetHalf(byte[] arr, int index, byte val, bool rightmost = true)
+        /// <summary>
+        /// Sets half of a byte, either rightmost of leftmost 4 bits.
+        /// </summary>
+        /// <param name="b">The byte to set</param>
+        /// <param name="val">The value to set the byte to</param>
+        /// <param name="rightmost">True if it should set the rightmost 4 bits, false to set leftmost 4 bits.<see cref="bool"/></param>
+        public static void SetHalf(ref byte b, byte val, bool rightmost = true)
         {
             byte mask = (byte)(rightmost ? 0xf0 : 0x0f);
             val = (byte)(rightmost ? val & 0x0f : val << 4);
-            arr[index] = (byte)((byte)(arr[index] & mask) | val);
+            b = (byte)((byte)(b & mask) | val);
         }
 
+        /// <summary>
+        /// Converts a floating point number to fixed point.
+        /// </summary>
+        /// <param name="x">The floating point value to turn to fixed point.</param>
+        /// <returns>The fixed point number generated.</returns>
         public static Int32 FloatToFixed(double x)
         {
             return (Int32)(x * SHIFT_16);
         }
 
+        /// <summary>
+        /// Converts a fixed point number to a floating point.
+        /// </summary>
+        /// <param name="x">The fixed point number to convert.</param>
+        /// <returns>The floating point number generated.</returns>
         public static double FixedToFloat(Int32 x)
         {
             return Math.Round((double)x / SHIFT_16, 4);
         }
 
+        /// <summary>
+        /// Swaps two numbers.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lhs">First value to swap.<see cref="T"/></param>
+        /// <param name="rhs">Second value to swap.<see cref="T"/></param>
         public static void Swap<T>(ref T lhs, ref T rhs)
         {
             T temp;
@@ -40,19 +74,23 @@ namespace pico8_interpreter.Pico8
             rhs = temp;
         }
 
-        #region PICO-8 Shorthand
-        public static string ProcessPico8Code(string luaCode)
+        /// <summary>
+        /// Converts PICO-8 code to plain lua code.
+        /// </summary>
+        /// <param name="picoCode">The PICO-8 code to convert.</param>
+        /// <returns>The converted Lua code.</returns>
+        public static string ProcessPico8Code(string picoCode)
         {
             // "if a != b" => "if a ~= b"
-            luaCode = Regex.Replace(luaCode, @"!=", "~=");
+            picoCode = Regex.Replace(picoCode, @"!=", "~=");
             // Matches if statements with conditions sorrounded by parenthesis, followed by anything but
             // nothing, only whitespaces or 'then' statement. Example:
             // "if (a ~= b) a=b" => "if (a ~= b) then a=b end"
-            luaCode = Regex.Replace(luaCode, @"[iI][fF]\s*(\(.*\))((?!(?:\s*$)|(?:.*then)).+)$", ReplaceIfShorthand, RegexOptions.Multiline);
+            picoCode = Regex.Replace(picoCode, @"[iI][fF]\s*(\(.*\))((?!(?:\s*$)|(?:.*then)).+)$", ReplaceIfShorthand, RegexOptions.Multiline);
             // Matches <var> <op>= <exp> type expressions, like "a += b".
-            luaCode = Regex.Replace(luaCode, @"([a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[.*\])?)\s*([+\-*\/%])=\s*(.*)$", ReplaceUnaryShorthand, RegexOptions.Multiline);
+            picoCode = Regex.Replace(picoCode, @"([a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[.*\])?)\s*([+\-*\/%])=\s*(.*)$", ReplaceUnaryShorthand, RegexOptions.Multiline);
 
-            return luaCode;
+            return picoCode;
         }
 
         private static string ReplaceUnaryShorthand(Match unaryMatch)
@@ -62,9 +100,9 @@ namespace pico8_interpreter.Pico8
             // This needs to be done before processing the shorthand because we might see another
             // shorthand in the expression area. For example, "a += b + foo(function(c) c += 10 end)", 
             // where we see another shorthand inside the expression on the right.
-            string fixedExp = Regex.Replace(Regex.Replace(unaryMatch.Groups[3].ToString(), @"\.\s+", "."), 
-                                            @"([a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[.*\])?)\s*([+\-*\/%])=\s*(.*)$", 
-                                            ReplaceUnaryShorthand, 
+            string fixedExp = Regex.Replace(Regex.Replace(unaryMatch.Groups[3].ToString(), @"\.\s+", "."),
+                                            @"([a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[.*\])?)\s*([+\-*\/%])=\s*(.*)$",
+                                            ReplaceUnaryShorthand,
                                             RegexOptions.Multiline);
 
 
@@ -75,7 +113,7 @@ namespace pico8_interpreter.Pico8
             int currentTermIndex = 0;
             bool expectTerm = true;
 
-            while(currentChar < fixedExp.Length)
+            while (currentChar < fixedExp.Length)
             {
                 if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\s"))
                 {
@@ -130,14 +168,15 @@ namespace pico8_interpreter.Pico8
                             currentChar += 1;
                         }
 
-                        while(currentTermIndex < terms.Count && terms[currentTermIndex].Index <= currentChar)
+                        while (currentTermIndex < terms.Count && terms[currentTermIndex].Index <= currentChar)
                         {
                             currentTermIndex += 1;
                         }
 
                         expectTerm = false;
                     }
-                } else
+                }
+                else
                 {
                     if (!expectTerm)
                     {
@@ -160,7 +199,5 @@ namespace pico8_interpreter.Pico8
         {
             return string.Format("if {0} then {1} end", ifMatch.Groups[1], ifMatch.Groups[2]);
         }
-
-        #endregion
     }
 }

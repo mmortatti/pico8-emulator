@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace pico8_interpreter
+﻿namespace pico8_interpreter
 {
+    using System;
+
     /// <summary>
     /// The main class.
     /// </summary>
@@ -11,7 +11,7 @@ namespace pico8_interpreter
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        internal static void Main()
         {
             using (var game = new Game1())
                 game.Run();

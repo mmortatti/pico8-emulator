@@ -1,0 +1,484 @@
+\hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{}\doxysection{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit$<$ G $>$ Class Template Reference}
+\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+
+
+Defines the P\+I\+C\+O-\/8 \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a117665ac5f645595ba942257ef913870}{Graphics\+Unit$<$\+G$>$}}  
+
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a117665ac5f645595ba942257ef913870}{Graphics\+Unit}} (ref \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{Memory\+Unit}} memory, ref G\mbox{[}$\,$\mbox{]} screen\+Color\+Data, Func$<$ int, int, int, G $>$ rgb\+To\+Color)
+\begin{DoxyCompactList}\small\item\em Initializes a new instance of the \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a117665ac5f645595ba942257ef913870}{Graphics\+Unit$<$\+G$>$}} class. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a7123d8078955d024f22428905bc4e6cb}{Map}} (int cel\+\_\+x, int cel\+\_\+y, int sx, int sy, int cel\+\_\+w, int cel\+\_\+h, byte? layer=null)
+\begin{DoxyCompactList}\small\item\em Draw section of map (in cels) at screen position sx, sy (pixels) if layer is specified, only cels with the same flag number set are drawn \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a870f661a2dfb9f2d809ca9e483d5f834}{Flip}} ()
+\begin{DoxyCompactList}\small\item\em Turns current screen data into color data. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_aeb69b53bedaf9e6fd416c7c6ccce5ffe}{Spr}} (int n, int x, int y, int? w=null, int? h=null, bool? flip\+\_\+x=null, bool? flip\+\_\+y=null)
+\begin{DoxyCompactList}\small\item\em Draw sprite n (0..255) at position x,y. Width and height are 1,1 by default and specify how many sprites wide to blit. Colour 0 drawn as transparent by default (see palt()) \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ad337536faeeee8404a7b10f8dc239f87}{Sspr}} (int sx, int sy, int sw, int sh, int dx, int dy, int? dw=null, int? dh=null, bool? flip\+\_\+x=null, bool? flip\+\_\+y=null)
+\begin{DoxyCompactList}\small\item\em Stretch rectangle from sprite sheet (sx, sy, sw, sh) (given in pixels) and draw in rectangle(dx, dy, dw, dh) Colour 0 drawn as transparent by default (see palt()) \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a314bfab63c9a15ae81703d6cb45d099c}{Sget}} (int x, int y)
+\begin{DoxyCompactList}\small\item\em Get color of a spritesheet pixel. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ab6183aaa3057263bc4f97b555d6e047b}{Sset}} (int x, int y, byte? col=null)
+\begin{DoxyCompactList}\small\item\em Sets color of a spritesheet pixel. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a0dabbcc0f53fbb7a1c7f4949d5220d25}{Pset}} (int x, int y, byte? col=null)
+\begin{DoxyCompactList}\small\item\em Sets a pixel value to the screen. \end{DoxyCompactList}\item 
+byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ab65ef2cec108f85c2a10ff9030f10607}{Pget}} (int x, int y)
+\begin{DoxyCompactList}\small\item\em Gets the color of a pixel. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a0f6fa867346c6730ebf9eb6f8300c375}{Palt}} (int? col=null, bool? t=null)
+\begin{DoxyCompactList}\small\item\em The Palt \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a859da8a1ae401d6938148404f969550f}{Pal}} (int? c0=null, int? c1=null, int p=0)
+\begin{DoxyCompactList}\small\item\em Draw all instances of colour c0 as c1 in subsequent draw calls. pal() to reset to system defaults (including transparency values and fill pattern). Two types of palette (p; defaults to 0)\+: 0 draw palette \+: colours are remapped on draw (e.\+g. to re-\/colour sprites) 1 screen palette \+: colours are remapped on display (e.\+g. for fades) \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ac940e2a7126151f408a2ce3621021234}{Clip}} (int? x=null, int? y=null, int? w=null, int? h=null)
+\begin{DoxyCompactList}\small\item\em Sets the screen\textquotesingle{}s clipping region in pixels. clip() to reset. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a8c4be1438161017dd403792161b57d09}{Rect}} (int x0, int y0, int x1, int y1, byte? col=null)
+\begin{DoxyCompactList}\small\item\em Draws a rectangle \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a9ad309c106bdf7b9c019d1b68a41668d}{Rectfill}} (int x0, int y0, int x1, int y1, byte? col=null)
+\begin{DoxyCompactList}\small\item\em Draws a filled rectangle. \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ae2b8a896338764cffbdcb0518d48cbc7}{Line}} (int x0, int y0, int? x1=null, int? y1=null, byte? col=null)
+\begin{DoxyCompactList}\small\item\em Draw a line \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a8adf92cb2fb03368c1b5c7740bd2aefe}{Circ}} (int x, int y, double r, byte? col=null)
+\begin{DoxyCompactList}\small\item\em Draws a circle \end{DoxyCompactList}\item 
+object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ac617b070e87b95111c0de4091fa10448}{Circ\+Fill}} (int x, int y, double r, byte? col=null)
+\begin{DoxyCompactList}\small\item\em Draws a filled circle. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int\mbox{[},\mbox{]} \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ade54ec3c866a9c26910c66e031bfab75}{pico8\+Palette}}
+\begin{DoxyCompactList}\small\item\em Defines R\+GB values for the P\+I\+C\+O-\/8 palette. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Defines the P\+I\+C\+O-\/8 \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a117665ac5f645595ba942257ef913870}{Graphics\+Unit$<$\+G$>$}} 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em G} & \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a117665ac5f645595ba942257ef913870}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a117665ac5f645595ba942257ef913870}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!GraphicsUnit@{GraphicsUnit}}
+\index{GraphicsUnit@{GraphicsUnit}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{GraphicsUnit()}{GraphicsUnit()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.\mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{Graphics\+Unit}} (\begin{DoxyParamCaption}\item[{ref \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{Memory\+Unit}}}]{memory,  }\item[{ref G\mbox{[}$\,$\mbox{]}}]{screen\+Color\+Data,  }\item[{Func$<$ int, int, int, G $>$}]{rgb\+To\+Color }\end{DoxyParamCaption})}
+
+
+
+Initializes a new instance of the \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a117665ac5f645595ba942257ef913870}{Graphics\+Unit$<$\+G$>$}} class. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em memory} & The \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_memory_unit}{Memory\+Unit}} reference\\
+\hline
+{\em screen\+Color\+Data} & The screen\+Color\+Data reference\\
+\hline
+{\em rgb\+To\+Color} & The rgb\+To\+Color function to use\\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a8adf92cb2fb03368c1b5c7740bd2aefe}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a8adf92cb2fb03368c1b5c7740bd2aefe}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Circ@{Circ}}
+\index{Circ@{Circ}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Circ()}{Circ()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Circ (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y,  }\item[{double}]{r,  }\item[{byte?}]{col = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Draws a circle 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position of the circle.\\
+\hline
+{\em y} & The y position of the circle.\\
+\hline
+{\em r} & The radius of the circle\\
+\hline
+{\em col} & The color to draw the circle.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ac617b070e87b95111c0de4091fa10448}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ac617b070e87b95111c0de4091fa10448}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!CircFill@{CircFill}}
+\index{CircFill@{CircFill}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{CircFill()}{CircFill()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Circ\+Fill (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y,  }\item[{double}]{r,  }\item[{byte?}]{col = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Draws a filled circle. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position of the circle.\\
+\hline
+{\em y} & The y position of the circle.\\
+\hline
+{\em r} & The radius of the circle\\
+\hline
+{\em col} & The color to draw the circle.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ac940e2a7126151f408a2ce3621021234}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ac940e2a7126151f408a2ce3621021234}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Clip@{Clip}}
+\index{Clip@{Clip}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Clip()}{Clip()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Clip (\begin{DoxyParamCaption}\item[{int?}]{x = {\ttfamily null},  }\item[{int?}]{y = {\ttfamily null},  }\item[{int?}]{w = {\ttfamily null},  }\item[{int?}]{h = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Sets the screen\textquotesingle{}s clipping region in pixels. clip() to reset. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position of the clipping rectangle\\
+\hline
+{\em y} & The y position of the clipping rectangle\\
+\hline
+{\em w} & The width of the clipping rectangle\\
+\hline
+{\em h} & The height of the clipping rectangle\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a870f661a2dfb9f2d809ca9e483d5f834}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a870f661a2dfb9f2d809ca9e483d5f834}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Flip@{Flip}}
+\index{Flip@{Flip}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Flip()}{Flip()}}
+{\footnotesize\ttfamily void \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Flip (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Turns current screen data into color data. 
+
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ae2b8a896338764cffbdcb0518d48cbc7}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ae2b8a896338764cffbdcb0518d48cbc7}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Line@{Line}}
+\index{Line@{Line}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Line()}{Line()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Line (\begin{DoxyParamCaption}\item[{int}]{x0,  }\item[{int}]{y0,  }\item[{int?}]{x1 = {\ttfamily null},  }\item[{int?}]{y1 = {\ttfamily null},  }\item[{byte?}]{col = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Draw a line 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x0} & The x0 position of the line\\
+\hline
+{\em y0} & The y0 position of the line\\
+\hline
+{\em x1} & The x1 position of the line\\
+\hline
+{\em y1} & The y1 position of the line\\
+\hline
+{\em col} & The color of the line\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a7123d8078955d024f22428905bc4e6cb}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a7123d8078955d024f22428905bc4e6cb}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Map@{Map}}
+\index{Map@{Map}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Map()}{Map()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Map (\begin{DoxyParamCaption}\item[{int}]{cel\+\_\+x,  }\item[{int}]{cel\+\_\+y,  }\item[{int}]{sx,  }\item[{int}]{sy,  }\item[{int}]{cel\+\_\+w,  }\item[{int}]{cel\+\_\+h,  }\item[{byte?}]{layer = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Draw section of map (in cels) at screen position sx, sy (pixels) if layer is specified, only cels with the same flag number set are drawn 
+
+
+\begin{DoxyParams}{Parameters}
+{\em cel\+\_\+x} & The starting x axis cell position\\
+\hline
+{\em cel\+\_\+y} & The starting y axis cell position\\
+\hline
+{\em sx} & The screen position to draw to in the x axis\\
+\hline
+{\em sy} & The screen position to draw to in the y axis\\
+\hline
+{\em cel\+\_\+w} & The width of the map to draw\\
+\hline
+{\em cel\+\_\+h} & The height of the map to draw\\
+\hline
+{\em layer} & The layer to use for drawing\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a859da8a1ae401d6938148404f969550f}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a859da8a1ae401d6938148404f969550f}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Pal@{Pal}}
+\index{Pal@{Pal}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Pal()}{Pal()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Pal (\begin{DoxyParamCaption}\item[{int?}]{c0 = {\ttfamily null},  }\item[{int?}]{c1 = {\ttfamily null},  }\item[{int}]{p = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+Draw all instances of colour c0 as c1 in subsequent draw calls. pal() to reset to system defaults (including transparency values and fill pattern). Two types of palette (p; defaults to 0)\+: 0 draw palette \+: colours are remapped on draw (e.\+g. to re-\/colour sprites) 1 screen palette \+: colours are remapped on display (e.\+g. for fades) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em c0} & The color to change.\\
+\hline
+{\em c1} & The color to change to.\\
+\hline
+{\em p} & The palette to make the change to. Defaults to 0.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a0f6fa867346c6730ebf9eb6f8300c375}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a0f6fa867346c6730ebf9eb6f8300c375}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Palt@{Palt}}
+\index{Palt@{Palt}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Palt()}{Palt()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Palt (\begin{DoxyParamCaption}\item[{int?}]{col = {\ttfamily null},  }\item[{bool?}]{t = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+The Palt 
+
+
+\begin{DoxyParams}{Parameters}
+{\em col} & The col\\
+\hline
+{\em t} & The t\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ab65ef2cec108f85c2a10ff9030f10607}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ab65ef2cec108f85c2a10ff9030f10607}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Pget@{Pget}}
+\index{Pget@{Pget}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Pget()}{Pget()}}
+{\footnotesize\ttfamily byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Pget (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y }\end{DoxyParamCaption})}
+
+
+
+Gets the color of a pixel. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position.\\
+\hline
+{\em y} & The y position.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a0dabbcc0f53fbb7a1c7f4949d5220d25}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a0dabbcc0f53fbb7a1c7f4949d5220d25}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Pset@{Pset}}
+\index{Pset@{Pset}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Pset()}{Pset()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Pset (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y,  }\item[{byte?}]{col = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Sets a pixel value to the screen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position on the screen.\\
+\hline
+{\em y} & The y position on the screen.\\
+\hline
+{\em col} & The color value to set the pixel to.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a8c4be1438161017dd403792161b57d09}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a8c4be1438161017dd403792161b57d09}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Rect@{Rect}}
+\index{Rect@{Rect}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Rect()}{Rect()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Rect (\begin{DoxyParamCaption}\item[{int}]{x0,  }\item[{int}]{y0,  }\item[{int}]{x1,  }\item[{int}]{y1,  }\item[{byte?}]{col = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Draws a rectangle 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x0} & The x0 position of the rectangle\\
+\hline
+{\em y0} & The y0 position of the rectangle\\
+\hline
+{\em x1} & The x1 position of the rectangle\\
+\hline
+{\em y1} & The y1 position of the rectangle\\
+\hline
+{\em col} & The color of the rectangle\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a9ad309c106bdf7b9c019d1b68a41668d}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a9ad309c106bdf7b9c019d1b68a41668d}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Rectfill@{Rectfill}}
+\index{Rectfill@{Rectfill}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Rectfill()}{Rectfill()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Rectfill (\begin{DoxyParamCaption}\item[{int}]{x0,  }\item[{int}]{y0,  }\item[{int}]{x1,  }\item[{int}]{y1,  }\item[{byte?}]{col = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Draws a filled rectangle. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x0} & The x0 position of the rectangle\\
+\hline
+{\em y0} & The y0 position of the rectangle\\
+\hline
+{\em x1} & The x1 position of the rectangle\\
+\hline
+{\em y1} & The y1 position of the rectangle\\
+\hline
+{\em col} & The color of the rectangle\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a314bfab63c9a15ae81703d6cb45d099c}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_a314bfab63c9a15ae81703d6cb45d099c}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Sget@{Sget}}
+\index{Sget@{Sget}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Sget()}{Sget()}}
+{\footnotesize\ttfamily byte \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Sget (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y }\end{DoxyParamCaption})}
+
+
+
+Get color of a spritesheet pixel. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position in the spritesheet to extract the pixel from.\\
+\hline
+{\em y} & The y position in the spritesheet to extract the pixel from.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The color value.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_aeb69b53bedaf9e6fd416c7c6ccce5ffe}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_aeb69b53bedaf9e6fd416c7c6ccce5ffe}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Spr@{Spr}}
+\index{Spr@{Spr}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Spr()}{Spr()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Spr (\begin{DoxyParamCaption}\item[{int}]{n,  }\item[{int}]{x,  }\item[{int}]{y,  }\item[{int?}]{w = {\ttfamily null},  }\item[{int?}]{h = {\ttfamily null},  }\item[{bool?}]{flip\+\_\+x = {\ttfamily null},  }\item[{bool?}]{flip\+\_\+y = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Draw sprite n (0..255) at position x,y. Width and height are 1,1 by default and specify how many sprites wide to blit. Colour 0 drawn as transparent by default (see palt()) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em n} & The number of the sprite to draw\\
+\hline
+{\em x} & The x position to draw the sprite to\\
+\hline
+{\em y} & The y position to draw the sprite to\\
+\hline
+{\em w} & The width of the spritesheet to draw from\\
+\hline
+{\em h} & The height of the spritesheet to draw from\\
+\hline
+{\em flip\+\_\+x} & If it should flip horizontally\\
+\hline
+{\em flip\+\_\+y} & If it should flip vertically\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ab6183aaa3057263bc4f97b555d6e047b}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ab6183aaa3057263bc4f97b555d6e047b}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Sset@{Sset}}
+\index{Sset@{Sset}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Sset()}{Sset()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Sset (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y,  }\item[{byte?}]{col = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Sets color of a spritesheet pixel. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The x position in the spritesheet where the pixel will be set.\\
+\hline
+{\em y} & The y position in the spritesheet where the pixel will be set.\\
+\hline
+{\em col} & The color value to set the pixel to.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime.
+\end{DoxyReturn}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ad337536faeeee8404a7b10f8dc239f87}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ad337536faeeee8404a7b10f8dc239f87}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!Sspr@{Sspr}}
+\index{Sspr@{Sspr}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{Sspr()}{Sspr()}}
+{\footnotesize\ttfamily object \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.Sspr (\begin{DoxyParamCaption}\item[{int}]{sx,  }\item[{int}]{sy,  }\item[{int}]{sw,  }\item[{int}]{sh,  }\item[{int}]{dx,  }\item[{int}]{dy,  }\item[{int?}]{dw = {\ttfamily null},  }\item[{int?}]{dh = {\ttfamily null},  }\item[{bool?}]{flip\+\_\+x = {\ttfamily null},  }\item[{bool?}]{flip\+\_\+y = {\ttfamily null} }\end{DoxyParamCaption})}
+
+
+
+Stretch rectangle from sprite sheet (sx, sy, sw, sh) (given in pixels) and draw in rectangle(dx, dy, dw, dh) Colour 0 drawn as transparent by default (see palt()) 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sx} & The starting pixel x position in the spritesheet to draw from.\\
+\hline
+{\em sy} & The starting pixel y position in the spritesheet to draw from.\\
+\hline
+{\em sw} & The width to draw from the spritesheet.\\
+\hline
+{\em sh} & The height to draw from the spritesheet.\\
+\hline
+{\em dx} & The x position to draw the spritesheet on the screen.\\
+\hline
+{\em dy} & The y position to draw the spritesheet on the screen.\\
+\hline
+{\em dw} & The width of the screen rectangle that the spritesheet section is drawn to. Defaults to sw.\\
+\hline
+{\em dh} & The height of the screen rectangle that the spritesheet section is drawn to. Defaults to sh.\\
+\hline
+{\em flip\+\_\+x} & If it should flip horizontally\\
+\hline
+{\em flip\+\_\+y} & If it should flip vertically\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Returns null everytime
+\end{DoxyReturn}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ade54ec3c866a9c26910c66e031bfab75}\label{classpico8__interpreter_1_1_pico8_1_1_graphics_unit_ade54ec3c866a9c26910c66e031bfab75}} 
+\index{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}!pico8Palette@{pico8Palette}}
+\index{pico8Palette@{pico8Palette}!pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$@{pico8\_interpreter.Pico8.GraphicsUnit$<$ G $>$}}
+\doxysubsubsection{\texorpdfstring{pico8Palette}{pico8Palette}}
+{\footnotesize\ttfamily int \mbox{[},\mbox{]} \mbox{\hyperlink{classpico8__interpreter_1_1_pico8_1_1_graphics_unit}{pico8\+\_\+interpreter.\+Pico8.\+Graphics\+Unit}}$<$ G $>$.pico8\+Palette}
+
+
+
+Defines R\+GB values for the P\+I\+C\+O-\/8 palette. 
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Graphics\+Unit.\+cs\end{DoxyCompactItemize}

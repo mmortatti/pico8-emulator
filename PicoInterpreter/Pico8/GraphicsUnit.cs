@@ -1,10 +1,16 @@
-﻿using System;
-
-namespace pico8_interpreter.Pico8
+﻿namespace pico8_interpreter.Pico8
 {
+    using System;
+
+    /// <summary>
+    /// Defines the PICO-8 <see cref="GraphicsUnit{G}" />
+    /// </summary>
+    /// <typeparam name="G"></typeparam>
     public class GraphicsUnit<G>
     {
-
+        /// <summary>
+        /// Defines RGB values for the PICO-8 palette.
+        /// </summary>
         public int[,] pico8Palette = {
             // Black
             { 0, 0, 0 },
@@ -39,10 +45,27 @@ namespace pico8_interpreter.Pico8
             // Peach
             { 255, 204, 170 } };
 
-        MemoryUnit memory;
-        G[] screenColorData;
-        Func<int, int, int, G> rgbToColor;
+        /// <summary>
+        /// Reference to PICO-8s memory unit.
+        /// </summary>
+        internal MemoryUnit memory;
 
+        /// <summary>
+        /// Defines the array of color values for PICO-8 screen.
+        /// </summary>
+        internal G[] screenColorData;
+
+        /// <summary>
+        /// Defines a function to translate RGB values to a color value.
+        /// </summary>
+        internal Func<int, int, int, G> rgbToColor;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GraphicsUnit{G}"/> class.
+        /// </summary>
+        /// <param name="memory">The <see cref="MemoryUnit"/> reference</param>
+        /// <param name="screenColorData">The screenColorData reference</param>
+        /// <param name="rgbToColor">The rgbToColor function to use</param>
         public GraphicsUnit(ref MemoryUnit memory, ref G[] screenColorData, Func<int, int, int, G> rgbToColor)
         {
             this.memory = memory;
@@ -52,14 +75,21 @@ namespace pico8_interpreter.Pico8
             memory.DrawColor = 6;
         }
 
-        #region TODO
-
-
-        #endregion
-
+        /// <summary>
+        /// Draw section of map (in cels) at screen position sx, sy (pixels)
+        /// if layer is specified, only cels with the same flag number set are drawn
+        /// </summary>
+        /// <param name="cel_x">The starting x axis cell position</param>
+        /// <param name="cel_y">The starting y axis cell position</param>
+        /// <param name="sx">The screen position to draw to in the x axis</param>
+        /// <param name="sy">The screen position to draw to in the y axis</param>
+        /// <param name="cel_w">The width of the map to draw</param>
+        /// <param name="cel_h">The height of the map to draw</param>
+        /// <param name="layer">The layer to use for drawing</param>
+        /// <returns>Returns null everytime</returns>
         public object Map(int cel_x, int cel_y, int sx, int sy, int cel_w, int cel_h, byte? layer = null)
         {
-            for (int h = 0; h < cel_h; h++) 
+            for (int h = 0; h < cel_h; h++)
             {
                 for (int w = 0; w < cel_w; w++)
                 {
@@ -85,6 +115,9 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Turns current screen data into color data.
+        /// </summary>
         public void Flip()
         {
             byte[] frameBuffer = memory.FrameBuffer;
@@ -105,6 +138,19 @@ namespace pico8_interpreter.Pico8
             }
         }
 
+        /// <summary>
+        /// Draw sprite n (0..255) at position x,y.
+		/// Width and height are 1,1 by default and specify how many sprites wide to blit.
+        /// Colour 0 drawn as transparent by default (see palt())
+        /// </summary>
+        /// <param name="n">The number of the sprite to draw</param>
+        /// <param name="x">The x position to draw the sprite to</param>
+        /// <param name="y">The y position to draw the sprite to</param>
+        /// <param name="w">The width of the spritesheet to draw from</param>
+        /// <param name="h">The height of the spritesheet to draw from</param>
+        /// <param name="flip_x">If it should flip horizontally</param>
+        /// <param name="flip_y">If it should flip vertically</param>
+        /// <returns>Returns null everytime</returns>
         public object Spr(int n, int x, int y, int? w = null, int? h = null, bool? flip_x = null, bool? flip_y = null)
         {
             if (n < 0 || n > 255)
@@ -146,6 +192,22 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Stretch rectangle from sprite sheet (sx, sy, sw, sh) (given in pixels)
+		/// and draw in rectangle(dx, dy, dw, dh)
+        /// Colour 0 drawn as transparent by default (see palt())
+        /// </summary>
+        /// <param name="sx">The starting pixel x position in the spritesheet to draw from.</param>
+        /// <param name="sy">The starting pixel y position in the spritesheet to draw from.</param>
+        /// <param name="sw">The width to draw from the spritesheet.</param>
+        /// <param name="sh">The height to draw from the spritesheet.</param>
+        /// <param name="dx">The x position to draw the spritesheet on the screen.</param>
+        /// <param name="dy">The y position to draw the spritesheet on the screen.</param>
+        /// <param name="dw">The width of the screen rectangle that the spritesheet section is drawn to. Defaults to sw.</param>
+        /// <param name="dh">The height of the screen rectangle that the spritesheet section is drawn to. Defaults to sh.</param>
+        /// <param name="flip_x">If it should flip horizontally</param>
+        /// <param name="flip_y">If it should flip vertically</param>
+        /// <returns>Returns null everytime</returns>
         public object Sspr(int sx, int sy, int sw, int sh, int dx, int dy, int? dw = null, int? dh = null, bool? flip_x = null, bool? flip_y = null)
         {
             if (!dw.HasValue)
@@ -172,15 +234,15 @@ namespace pico8_interpreter.Pico8
             float screenX = dx;
             float screenY = dy;
 
-            while(x < sx + sw && screenX < dx + dw)
+            while (x < sx + sw && screenX < dx + dw)
             {
                 y = sy;
                 screenY = dy;
                 while (y < sy + sh && screenY < dy + dh)
                 {
                     byte sprColor = Sget((int)x, (int)y);
-                    Psett((flip_x.Value ? dx + dw.Value - ((int)screenX - dx) : (int)screenX), 
-                          (flip_y.Value ? dy + dh.Value - ((int)screenY - dy) : (int)screenY), 
+                    Psett((flip_x.Value ? dx + dw.Value - ((int)screenX - dx) : (int)screenX),
+                          (flip_y.Value ? dy + dh.Value - ((int)screenY - dy) : (int)screenY),
                           sprColor);
 
                     y += ratioY;
@@ -193,11 +255,24 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Get color of a spritesheet pixel.
+        /// </summary>
+        /// <param name="x">The x position in the spritesheet to extract the pixel from.</param>
+        /// <param name="y">The y position in the spritesheet to extract the pixel from.</param>
+        /// <returns>The color value.</returns>
         public byte Sget(int x, int y)
         {
             return memory.GetPixel(x, y, MemoryUnit.ADDR_GFX);
         }
 
+        /// <summary>
+        /// Sets color of a spritesheet pixel.
+        /// </summary>
+        /// <param name="x">The x position in the spritesheet where the pixel will be set.</param>
+        /// <param name="y">The y position in the spritesheet where the pixel will be set.</param>
+        /// <param name="col">The color value to set the pixel to.</param>
+        /// <returns>Returns null everytime.</returns>
         public object Sset(int x, int y, byte? col = null)
         {
             if (col.HasValue)
@@ -205,11 +280,18 @@ namespace pico8_interpreter.Pico8
                 memory.DrawColor = col.Value;
             }
 
-            memory.WritePixel(x, y, memory.DrawColor,MemoryUnit.ADDR_GFX);
+            memory.WritePixel(x, y, memory.DrawColor, MemoryUnit.ADDR_GFX);
 
             return null;
         }
 
+        /// <summary>
+        /// Sets a pixel value to the screen.
+        /// </summary>
+        /// <param name="x">The x position on the screen.</param>
+        /// <param name="y">The y position on the screen.</param>
+        /// <param name="col">The color value to set the pixel to.</param>
+        /// <returns>Returns null everytime.</returns>
         public object Pset(int x, int y, byte? col = null)
         {
             x -= memory.cameraX;
@@ -234,8 +316,14 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
-        // Set pixel considering transparency value. Used for spr, sspr and map.
-        public object Psett(int x, int y, byte? col = null)
+        /// <summary>
+        /// Set pixel considering transparency value. Used for spr, sspr and map.
+        /// </summary>
+        /// <param name="x">The x position on the screen.</param>
+        /// <param name="y">The y position on the screen.</param>
+        /// <param name="col">The color value to set the pixel to.</param>
+        /// <returns>Returns null everytime.</returns>
+        private object Psett(int x, int y, byte? col = null)
         {
             x -= memory.cameraX;
             y -= memory.cameraY;
@@ -257,11 +345,23 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Gets the color of a pixel.
+        /// </summary>
+        /// <param name="x">The x position.</param>
+        /// <param name="y">The y position.</param>
+        /// <returns>Returns null everytime.</returns>
         public byte Pget(int x, int y)
         {
             return memory.GetPixel((int)x, (int)y);
         }
 
+        /// <summary>
+        /// The Palt
+        /// </summary>
+        /// <param name="col">The col</param>
+        /// <param name="t">The t</param>
+        /// <returns>The </returns>
         public object Palt(int? col = null, bool? t = null)
         {
             if (!col.HasValue || !t.HasValue)
@@ -286,6 +386,17 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Draw all instances of colour c0 as c1 in subsequent draw calls.
+        /// pal() to reset to system defaults (including transparency values and fill pattern).
+        /// Two types of palette (p; defaults to 0):
+        ///     0 draw palette   : colours are remapped on draw    (e.g. to re-colour sprites)
+        ///     1 screen palette : colours are remapped on display (e.g. for fades)
+        /// </summary>
+        /// <param name="c0">The color to change.</param>
+        /// <param name="c1">The color to change to.</param>
+        /// <param name="p">The palette to make the change to. Defaults to 0.</param>
+        /// <returns>Returns null everytime.</returns>
         public object Pal(int? c0 = null, int? c1 = null, int p = 0)
         {
             if (!c0.HasValue || !c1.HasValue)
@@ -312,6 +423,15 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Sets the screen's clipping region in pixels.
+        /// clip() to reset.
+        /// </summary>
+        /// <param name="x">The x position of the clipping rectangle</param>
+        /// <param name="y">The y position of the clipping rectangle</param>
+        /// <param name="w">The width of the clipping rectangle</param>
+        /// <param name="h">The height of the clipping rectangle</param>
+        /// <returns>Returns null everytime.</returns>
         public object Clip(int? x = null, int? y = null, int? w = null, int? h = null)
         {
             if (!x.HasValue || !y.HasValue || !w.HasValue || !h.HasValue)
@@ -327,6 +447,15 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Draws a rectangle
+        /// </summary>
+        /// <param name="x0">The x0 position of the rectangle</param>
+        /// <param name="y0">The y0 position of the rectangle</param>
+        /// <param name="x1">The x1 position of the rectangle</param>
+        /// <param name="y1">The y1 position of the rectangle</param>
+        /// <param name="col">The color of the rectangle</param>
+        /// <returns>returns null everytime.</returns>
         public object Rect(int x0, int y0, int x1, int y1, byte? col = null)
         {
             Line(x0, y0, x1, y0, col);
@@ -336,6 +465,16 @@ namespace pico8_interpreter.Pico8
 
             return null;
         }
+
+        /// <summary>
+        /// Draws a filled rectangle.
+        /// </summary>
+        /// <param name="x0">The x0 position of the rectangle</param>
+        /// <param name="y0">The y0 position of the rectangle</param>
+        /// <param name="x1">The x1 position of the rectangle</param>
+        /// <param name="y1">The y1 position of the rectangle</param>
+        /// <param name="col">The color of the rectangle</param>
+        /// <returns>returns null everytime.</returns>
         public object Rectfill(int x0, int y0, int x1, int y1, byte? col = null)
         {
             if (y0 > y1)
@@ -351,6 +490,15 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Draw a line
+        /// </summary>
+        /// <param name="x0">The x0 position of the line</param>
+        /// <param name="y0">The y0 position of the line</param>
+        /// <param name="x1">The x1 position of the line</param>
+        /// <param name="y1">The y1 position of the line</param>
+        /// <param name="col">The color of the line</param>
+        /// <returns>returns null everytime.</returns>
         public object Line(int x0, int y0, int? x1 = null, int? y1 = null, byte? col = null)
         {
             if (x1.HasValue)
@@ -372,7 +520,7 @@ namespace pico8_interpreter.Pico8
             {
                 memory.DrawColor = col.Value;
             }
-            
+
             bool steep = false;
             if (Math.Abs(x1_screen - x0_screen) < Math.Abs(y1_screen - y0_screen))
             {
@@ -415,6 +563,14 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Draws a circle
+        /// </summary>
+        /// <param name="x">The x position of the circle.</param>
+        /// <param name="y">The y position of the circle.</param>
+        /// <param name="r">The radius of the circle</param>
+        /// <param name="col">The color to draw the circle.</param>
+        /// <returns>Returns null everytime.</returns>
         public object Circ(int x, int y, double r, byte? col = null)
         {
             if (col.HasValue)
@@ -427,6 +583,14 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        /// <summary>
+        /// Draws a filled circle.
+        /// </summary>
+        /// <param name="x">The x position of the circle.</param>
+        /// <param name="y">The y position of the circle.</param>
+        /// <param name="r">The radius of the circle</param>
+        /// <param name="col">The color to draw the circle.</param>
+        /// <returns>Returns null everytime.</returns>
         public object CircFill(int x, int y, double r, byte? col = null)
         {
             if (col.HasValue)

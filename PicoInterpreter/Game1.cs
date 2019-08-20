@@ -1,29 +1,55 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-//using MonoGame.Extended;
-using IndependentResolutionRendering;
-using pico8_interpreter.Pico8;
-using System.IO;
-using System;
-
-namespace pico8_interpreter
+﻿namespace pico8_interpreter
 {
+    using IndependentResolutionRendering;
+    using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Graphics;
+    using Microsoft.Xna.Framework.Input;
+    using pico8_interpreter.Pico8;
+    using System;
+
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
     public class Game1 : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        /// <summary>
+        /// Defines the graphics
+        /// </summary>
+        internal GraphicsDeviceManager graphics;
+
+        /// <summary>
+        /// Defines the spriteBatch
+        /// </summary>
+        internal SpriteBatch spriteBatch;
+
+        /// <summary>
+        /// Defines the pico8Logo
+        /// </summary>
         private Texture2D pico8Logo;
-        RasterizerState rasterizerState;
 
-        PicoInterpreter<Color> pico8;
+        /// <summary>
+        /// Defines the rasterizerState
+        /// </summary>
+        internal RasterizerState rasterizerState;
 
-        Color[] screenColorData;
-        Texture2D screenTexture;
+        /// <summary>
+        /// Defines the pico8
+        /// </summary>
+        internal PicoInterpreter<Color> pico8;
 
+        /// <summary>
+        /// Defines the screenColorData
+        /// </summary>
+        internal Color[] screenColorData;
+
+        /// <summary>
+        /// Defines the screenTexture
+        /// </summary>
+        internal Texture2D screenTexture;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Game1"/> class.
+        /// </summary>
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -78,7 +104,6 @@ namespace pico8_interpreter
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>

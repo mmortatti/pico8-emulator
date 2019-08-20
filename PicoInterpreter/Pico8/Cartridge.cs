@@ -1,11 +1,17 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System;
-
-namespace pico8_interpreter.Pico8
+﻿namespace pico8_interpreter.Pico8
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+
+    /// <summary>
+    /// Defines the PICO-8 Cartridge.<see cref="Cartridge" />
+    /// </summary>
     public class Cartridge
     {
+        /// <summary>
+        /// Defines some of the memory regions for the Cartridge's ROM.
+        /// </summary>
         public const int ADDR_GFX = 0x0,
                          ADDR_GFX_MAP = 0x1000,
                          ADDR_MAP = 0x2000,
@@ -13,11 +19,25 @@ namespace pico8_interpreter.Pico8
                          ADDR_SONG = 0x3100,
                          ADDR_SFX = 0x3200;
 
+        /// <summary>
+        /// Defines the cartridges rom.
+        /// </summary>
         public readonly byte[] rom;
 
+        /// <summary>
+        /// Defines the lua game code.
+        /// </summary>
         public string gameCode { get; private set; } = "";
+
+        /// <summary>
+        /// Defines the path to the lua cartridge.
+        /// </summary>
         private string gamePath = "";
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Cartridge"/> class.
+        /// </summary>
+        /// <param name="path">The path<see cref="string"/></param>
         public Cartridge(string path)
         {
             rom = new byte[0x8005];
@@ -29,15 +49,18 @@ namespace pico8_interpreter.Pico8
             Console.WriteLine(gameCode);
         }
 
-        #region TODO
-
+        /// <summary>
+        /// Saves cartridge ROM to a P8 file.
+        /// </summary>
+        /// <param name="filename">The filename to write to.<see cref="string"/></param>
         public void SaveP8(string filename = "")
         {
-
         }
 
-        #endregion
-
+        /// <summary>
+        /// Load P8 file.
+        /// </summary>
+        /// <param name="path">The path to the P8 file.<see cref="string"/></param>
         private void LoadP8(string path)
         {
             string completePath = "Pico8/Games/" + path;
@@ -78,7 +101,7 @@ namespace pico8_interpreter.Pico8
                     foreach (char c in line)
                     {
                         byte val = byte.Parse(c.ToString(), System.Globalization.NumberStyles.HexNumber);
-                        util.SetHalf(rom, index / 2 + ADDR_GFX, val, index % 2 == 0);
+                        util.SetHalf(ref rom[index / 2 + ADDR_GFX], val, index % 2 == 0);
                         index += 1;
                     }
                 }
@@ -103,7 +126,7 @@ namespace pico8_interpreter.Pico8
                     foreach (char c in line)
                     {
                         byte val = byte.Parse(c.ToString(), System.Globalization.NumberStyles.HexNumber);
-                        util.SetHalf(rom, index / 2 + ADDR_SFX, val, index % 2 == 0);
+                        util.SetHalf(ref rom[index / 2 + ADDR_SFX], val, index % 2 == 0);
                         index += 1;
                     }
                 }
@@ -116,7 +139,7 @@ namespace pico8_interpreter.Pico8
                     byte val4 = byte.Parse(line.Substring(9, 2), System.Globalization.NumberStyles.HexNumber);
 
                     // 4th byte never has 7th bit set because it's corresponding flag value is never used.
-                    switch(flag)
+                    switch (flag)
                     {
                         case 1:
                             val1 |= 0x80;
@@ -136,26 +159,6 @@ namespace pico8_interpreter.Pico8
                     index += 4;
                 }
             }
-
-            //_gameCode = Depicofier.Depicofy.Clean(_gameCode, false);
-
-            //for (int y = 0; y < 32; y++) 
-            //{
-            //    for (int x = 0; x < 256; x++)
-            //    {
-            //        Console.Write("{0:x}", GetHalf(x, y, 256, 32, ADDR_MAP));
-            //    }
-            //    Console.Write("\n");
-            //}
-            //Console.Write("\n");
-            //for (int y = 32; y < 64; y++)
-            //{
-            //    for (int x = 0; x < 256; x++)
-            //    {
-            //        Console.Write("{0:x}", GetHalf(x, y % 32, 256, 32, ADDR_GFX_MAP));
-            //    }
-            //    Console.Write("\n");
-            //}
         }
     }
 }

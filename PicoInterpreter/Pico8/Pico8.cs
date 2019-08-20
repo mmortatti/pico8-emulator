@@ -15,7 +15,7 @@
         /// <summary>
         /// Defines a random object to use in PICO-8 random functions.
         /// </summary>
-        private Random random;
+        public Random random;
 
         /// <summary>
         /// Defines the time where the cartridge started running (at cartridge load time).
@@ -164,8 +164,6 @@
             interpreter.AddFunction("spr", (Func<int, int, int, int?, int?, bool?, bool?, object>)graphics.Spr);
             interpreter.AddFunction("sspr", (Func<int, int, int, int, int, int, int?, int?, bool?, bool?, object>)graphics.Sspr);
             interpreter.AddFunction("map", (Func<int, int, int, int, int, int, byte?, object>)graphics.Map);
-            interpreter.AddFunction("map", (Func<int, int, int, int, int, int, byte?, object>)graphics.Map);
-            interpreter.AddFunction("map", (Func<int, int, int, int, int, int, byte?, object>)graphics.Map);
             interpreter.AddFunction("mget", (Func<int, int, byte>)memory.Mget);
             interpreter.AddFunction("mset", (Func<int, int, byte, object>)memory.Mset);
             interpreter.AddFunction("fillp", (Func<double?, object>)memory.Fillp);
@@ -202,7 +200,7 @@
             interpreter.AddFunction("sqrt", (Func<double, double>)Math.Sqrt);
             interpreter.AddFunction("abs", (Func<double, double>)Math.Abs);
             interpreter.AddFunction("rnd", (Func<double?, double>)Rnd);
-            interpreter.AddFunction("srand", (Func<int, object>)(x => random = new Random(x)));
+            interpreter.AddFunction("srand", (Func<int, object>)Srand);
             interpreter.AddFunction("band", (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) & util.FloatToFixed(y))));
             interpreter.AddFunction("bor", (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) | util.FloatToFixed(y))));
             interpreter.AddFunction("bxor", (Func<double, double, double>)((x, y) => util.FixedToFloat(util.FloatToFixed(x) ^ util.FloatToFixed(y))));
@@ -222,7 +220,7 @@
             interpreter.AddFunction("sfx", (Func<int?, int?, int?, int?, object>)Sfx);
 
             // Misc
-            interpreter.AddFunction("time", (Func<int>)(() => (DateTime.Now - timeStart).Seconds));
+            interpreter.AddFunction("time", (Func<int>)Time);
 
             interpreter.AddFunction("print", (Action<object, int?, int?, byte?>)Print);
             interpreter.AddFunction("printh", (Action<object, int?, int?, byte?>)Print);
@@ -402,7 +400,7 @@
         /// to permanent storage, and can either be accessed directly or via dget/dset.
         /// </summary>
         /// <param name="id">The id for the cartdata file</param>
-        private void Cartdata(string id)
+        public void Cartdata(string id)
         {
             Trace.Assert(loadedGame.cartdata_id.Length == 0, "cartdata() can only be called once");
             Trace.Assert(id.Length <= 64, "cart data id too long");
@@ -443,7 +441,7 @@
         /// </summary>
         /// <param name="index">The index</param>
         /// <returns>The value</returns>
-        private object Dget(int index)
+        public object Dget(int index)
         {
             Trace.Assert(index < loadedGame.cartdata.Length, "bad index");
             return util.FixedToFloat(loadedGame.cartdata[index]);
@@ -458,7 +456,7 @@
         /// </summary>
         /// <param name="index">The index</param>
         /// <param name="value">The value</param>
-        private void Dset(int index, double value)
+        public void Dset(int index, double value)
         {
             Trace.Assert(index < loadedGame.cartdata.Length, "bad index");
             loadedGame.cartdata[index] = util.FloatToFixed(value);
@@ -489,6 +487,26 @@
         public double Rnd(double? x = null)
         {
             if (!x.HasValue) x = 1; return random.NextDouble() * x.Value;
+        }
+
+        /// <summary>
+        /// Changes random seed.
+        /// </summary>
+        /// <param name="x">The new seed</param>
+        /// <returns>Returns null everytime.</returns>
+        public object Srand(int x)
+        {
+            random = new Random(x);
+            return null;
+        }
+
+        /// <summary>
+        /// Returns time passed since start.
+        /// </summary>
+        /// <returns>Returns time passed since start.</returns>
+        public int Time()
+        {
+            return (DateTime.Now - timeStart).Seconds;
         }
 
         /// <summary>

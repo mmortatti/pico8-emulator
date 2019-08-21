@@ -539,9 +539,9 @@
         /// <param name="len">The length of data to read/write.</param>
         /// <param name="filename">The path to a different cartridge.</param>
         /// <returns>Returns null everytime.</returns>
-        public object Cstore(int dest_addr, int source_addr, int len, string filename = "")
+        public object Cstore(int dest_addr, int source_addr, int len, string filename = null)
         {
-            Cartridge cart = filename.Length == 0 ? loadedGame.cartridge : new Cartridge(filename);
+            Cartridge cart = filename == null ? loadedGame.cartridge : new Cartridge(filename);
 
             Buffer.BlockCopy(memory.ram, source_addr, loadedGame.cartridge.rom, dest_addr, len);
             cart.SaveP8();

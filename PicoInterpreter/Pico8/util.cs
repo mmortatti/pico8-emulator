@@ -88,7 +88,7 @@
             // Matches if statements with conditions sorrounded by parenthesis, followed by anything but
             // nothing, only whitespaces or 'then' statement. Example:
             // "if (a ~= b) a=b" => "if (a ~= b) then a=b end"
-            picoCode = Regex.Replace(picoCode, @"[iI][fF]\s*(\(.*\))((?!(?:\s*$)|(?:.*then)).+)$", ReplaceIfShorthand, RegexOptions.Multiline);
+            picoCode = Regex.Replace(picoCode, @"[iI][fF]\s*(\((?!(?:.*then)).*\))((?!(?:\s*$)|(?:.*then)|(?:.*and)|(?:.*or)).+)$", ReplaceIfShorthand, RegexOptions.Multiline);
             // Matches <var> <op>= <exp> type expressions, like "a += b".
             picoCode = Regex.Replace(picoCode, @"([a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[.*\])?)\s*([+\-*\/%])=\s*(.*)$", ReplaceUnaryShorthand, RegexOptions.Multiline);
 

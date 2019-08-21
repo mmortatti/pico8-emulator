@@ -63,7 +63,7 @@
             Resolution.SetResolution(600, 600, false);
 
             this.IsFixedTimeStep = true;//false;
-            this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 60d); //60);
+            this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 30d); //60);
         }
 
         /// <summary>

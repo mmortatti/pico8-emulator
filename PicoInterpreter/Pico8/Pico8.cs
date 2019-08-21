@@ -520,6 +520,7 @@
         /// <returns>Returns null everytime.</returns>
         public object Reload(int dest_addr, int source_addr, int len, string filename = "")
         {
+            Trace.Assert(dest_addr < 0x4300);
             Cartridge cart = filename.Length == 0 ? loadedGame.cartridge : new Cartridge(filename);
 
             memory.Memcpy(dest_addr, source_addr, len, cart.rom);

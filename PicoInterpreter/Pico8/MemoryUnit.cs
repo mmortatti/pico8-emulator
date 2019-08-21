@@ -386,6 +386,25 @@
         }
 
         /// <summary>
+        /// Set the cursor position and carriage return margin. If col is specified, also set the current colour.
+        /// </summary>
+        /// <param name="x">The x position</param>
+        /// <param name="y">The Y position</param>
+        /// <param name="col">The color to set default for</param>
+        /// <returns>Returns null everytime</returns>
+        public object Cursor(int x, int y, byte? col = null)
+        {
+            cursorX = x;
+            cursorY = y;
+            if (col.HasValue)
+            {
+                DrawColor = col.Value;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Set the current colour to be used by drawing functions
         /// </summary>
         /// <param name="col">The color to set to.</param>

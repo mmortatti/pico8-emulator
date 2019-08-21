@@ -2035,7 +2035,7 @@ function add_time(t)
 end
 
 function timer_update(timer)
-  timer.t= timer.t-time()-last
+  timer.t= timer.t-(time()-last)
 end
 
 function e_is_any(e, op)

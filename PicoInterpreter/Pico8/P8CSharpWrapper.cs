@@ -70,7 +70,7 @@ namespace pico8_interpreter.Pico8
         public Action Flip;
         public Func<int?, int?, int?, object> Music;
         public Func<int?, int?, int?, int?, object> Sfx;
-        public Func<int> Time;
+        public Func<double> Time;
         public Action<object, int?, int?, byte?> Print;
         public Action<object, int?, int?, byte?> Printh;
 

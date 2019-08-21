@@ -220,7 +220,7 @@
             interpreter.AddFunction("sfx", (Func<int?, int?, int?, int?, object>)Sfx);
 
             // Misc
-            interpreter.AddFunction("time", (Func<int>)Time);
+            interpreter.AddFunction("time", (Func<double>)Time);
 
             interpreter.AddFunction("print", (Action<object, int?, int?, byte?>)graphics.Print);
             interpreter.AddFunction("printh", (Action<object, int?, int?, byte?>)Print);
@@ -503,9 +503,9 @@
         /// Returns time passed since start.
         /// </summary>
         /// <returns>Returns time passed since start.</returns>
-        public int Time()
+        public double Time()
         {
-            return (DateTime.Now - timeStart).Seconds;
+            return (DateTime.Now - timeStart).TotalSeconds;
         }
 
         /// <summary>

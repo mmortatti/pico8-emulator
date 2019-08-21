@@ -40,11 +40,15 @@
         /// Initializes a new instance of the <see cref="Cartridge"/> class.
         /// </summary>
         /// <param name="path">The path<see cref="string"/></param>
-        public Cartridge(string path)
+        public Cartridge(string path, bool createNew = false)
         {
             rom = new byte[0x8005];
 
-            gamePath = path;
+            gamePath = "Pico8/Games/" + path;
+            if (createNew && !File.Exists(gamePath))
+            {
+                File.Create(gamePath).Close();
+            }
             LoadP8(gamePath);
             gameCode = util.ProcessPico8Code(gameCode);
         }
@@ -60,9 +64,8 @@
                 filename = gamePath;
             }
 
-            Console.WriteLine(filename);
-
-            using (StreamWriter file = new StreamWriter(filename))
+            var fs = new FileStream(filename, FileMode.OpenOrCreate);
+            using (StreamWriter file = new StreamWriter(fs))
             {
                 file.WriteLine("pico-8 cartridge // http://www.pico-8.com");
                 file.WriteLine($"version {rom[ADDR_META]}");
@@ -145,6 +148,8 @@
 
                     file.Write($"{flag.ToString("D2")} {val0.ToString("x2")}{val1.ToString("x2")}{val2.ToString("x2")}{val3.ToString("x2")}\n");
                 }
+
+                file.Close();
             }
         }
 
@@ -154,8 +159,7 @@
         /// <param name="path">The path to the P8 file.<see cref="string"/></param>
         private void LoadP8(string path)
         {
-            string completePath = "Pico8/Games/" + path;
-            var streamReader = new StreamReader(completePath);
+            var streamReader = new StreamReader(path);
 
             Dictionary<string, int> stateMap = new Dictionary<string, int>
             {
@@ -261,9 +265,10 @@
                     rom[ADDR_SONG + index + 2] = val3;
                     rom[ADDR_SONG + index + 3] = val4;
                     index += 4;
-                    Console.WriteLine($"{flag} {val1}{val2}{val3}{val4}");
                 }
             }
+
+            streamReader.Close();
         }
     }
 }

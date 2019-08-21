@@ -406,8 +406,7 @@
             Trace.Assert(id.Length <= 64, "cart data id too long");
             Trace.Assert(id.Length != 0, "empty cart data id");
 
-            var regexItem = new Regex("^[a-zA-Z0-9 ]*$");
-            Trace.Assert(regexItem.IsMatch(id), "cart data id: bad char");
+            Trace.Assert(Regex.IsMatch(id, "^[a-zA-Z0-9 ]*$"), "cart data id: bad char");
 
             var fileName = cartdataPath + id;
             if (File.Exists(fileName))
@@ -541,9 +540,10 @@
         /// <returns>Returns null everytime.</returns>
         public object Cstore(int dest_addr, int source_addr, int len, string filename = null)
         {
-            Cartridge cart = filename == null ? loadedGame.cartridge : new Cartridge(filename);
+            Trace.Assert(dest_addr < 0x4300);
+            Cartridge cart = filename == null ? loadedGame.cartridge : new Cartridge(filename, true);
 
-            Buffer.BlockCopy(memory.ram, source_addr, loadedGame.cartridge.rom, dest_addr, len);
+            Buffer.BlockCopy(memory.ram, source_addr, cart.rom, dest_addr, len);
             cart.SaveP8();
             return null;
         }

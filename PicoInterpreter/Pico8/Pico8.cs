@@ -222,7 +222,7 @@
             // Misc
             interpreter.AddFunction("time", (Func<int>)Time);
 
-            interpreter.AddFunction("print", (Action<object, int?, int?, byte?>)Print);
+            interpreter.AddFunction("print", (Action<object, int?, int?, byte?>)graphics.Print);
             interpreter.AddFunction("printh", (Action<object, int?, int?, byte?>)Print);
 
             interpreter.RunScript(@"

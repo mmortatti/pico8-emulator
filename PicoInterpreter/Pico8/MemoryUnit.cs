@@ -73,6 +73,18 @@
             }
         }
 
+        public int cursorX
+        {
+            get => ram[ADDR_CURSOR_X];
+            set => ram[ADDR_CURSOR_X] = (byte)value;
+        }
+
+        public int cursorY
+        {
+            get => ram[ADDR_CURSOR_Y];
+            set => ram[ADDR_CURSOR_Y] = (byte)value;
+        }
+
         /// <summary>
         /// X position of the camera.
         /// </summary>

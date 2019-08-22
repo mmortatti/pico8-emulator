@@ -72,7 +72,7 @@ namespace pico8_interpreter.Pico8
         public Func<int?, int?, int?, int?, object> Sfx;
         public Func<double> Time;
         public Action<object, int?, int?, byte?> Print;
-        public Action<object, int?, int?, byte?> Printh;
+        public Action<object> Printh;
 
         public P8CSharpWrapper(ref PicoInterpreter<G> _pico8)
         {
@@ -91,8 +91,8 @@ namespace pico8_interpreter.Pico8
             // Misc
             Time = pico8.Time;
 
-            Print = pico8.Print;
-            Printh = pico8.Print;
+            Print = pico8.graphics.Print;
+            Printh = pico8.Printh;
 
             // Math
             Max = Math.Max;

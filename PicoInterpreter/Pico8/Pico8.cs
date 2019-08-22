@@ -223,7 +223,7 @@
             interpreter.AddFunction("time", (Func<double>)Time);
 
             interpreter.AddFunction("print", (Action<object, int?, int?, byte?>)graphics.Print);
-            interpreter.AddFunction("printh", (Action<object, int?, int?, byte?>)Print);
+            interpreter.AddFunction("printh", (Action<object>)Printh);
 
             interpreter.RunScript(@"
                 function all(collection)
@@ -355,20 +355,11 @@
         }
 
         /// <summary>
-        /// Print a string
-		/// If only str is supplied, and the cursor reaches the end of the screen,
-		/// a carriage return and vertical scroll is automatically applied.
+        /// Print a string to the console,
         /// </summary>
         /// <param name="s">The string to print</param>
-        /// <param name="x">The x position</param>
-        /// <param name="y">The y position</param>
-        /// <param name="c">The c the color to draw the string.</param>
-        public void Print(object s, int? x = null, int? y = null, byte? c = null)
+        public void Printh(object s)
         {
-            if (c.HasValue)
-            {
-                memory.DrawColor = c.Value;
-            }
             Console.WriteLine(String.Format("{0:####.####}", s));
         }
 

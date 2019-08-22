@@ -10,7 +10,7 @@
     /// Defines the <see cref="PicoInterpreter{G}" />
     /// </summary>
     /// <typeparam name="G"></typeparam>
-    public class PicoInterpreter<G>
+    public class PicoInterpreter<G, A>
     {
         /// <summary>
         /// Defines a random object to use in PICO-8 random functions.
@@ -52,6 +52,11 @@
         /// Defines the graphics unit
         /// </summary>
         public GraphicsUnit<G> graphics;
+
+        /// <summary>
+        /// Defines the audio unit.
+        /// </summary>
+        public AudioUnit<A> audio;
 
         /// <summary>
         /// Defines the <see cref="Game" />
@@ -105,6 +110,7 @@
             random = new Random();
             memory = new MemoryUnit();
             graphics = new GraphicsUnit<G>(ref memory, ref screenData, rgbToColor);
+            audio = new AudioUnit<A>();
 
             // Initialie controller variables
             BtnPressedCallbacks = new List<Func<int, bool>>();
@@ -576,6 +582,8 @@
             {
                 loadedGame.interpreter.CallIfDefined("_update60");
             }
+
+            audio.UpdateAudio();
         }
 
         /// <summary>

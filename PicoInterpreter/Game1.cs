@@ -2,6 +2,7 @@
 {
     using IndependentResolutionRendering;
     using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Audio;
     using Microsoft.Xna.Framework.Graphics;
     using Microsoft.Xna.Framework.Input;
     using pico8_interpreter.Pico8;
@@ -35,7 +36,7 @@
         /// <summary>
         /// Defines the pico8
         /// </summary>
-        internal PicoInterpreter<Color> pico8;
+        internal PicoInterpreter<Color, byte> pico8;
 
         /// <summary>
         /// Defines the screenColorData
@@ -46,6 +47,9 @@
         /// Defines the screenTexture
         /// </summary>
         internal Texture2D screenTexture;
+
+        internal DynamicSoundEffectInstance soundEffectInstance;
+        internal byte[,] audioBuffers;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Game1"/> class.
@@ -92,10 +96,43 @@
             pico8Logo = Content.Load<Texture2D>("pico8");
             rasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
 
-            pico8 = new PicoInterpreter<Color>(ref screenColorData, ((r, g, b) => new Color(r, g, b)));
-            pico8.LoadGame("test4.lua", new MoonSharpInterpreter());
+            pico8 = new PicoInterpreter<Color, byte>(ref screenColorData, ((r, g, b) => new Color(r, g, b)));
+            pico8.LoadGame("test5.lua", new MoonSharpInterpreter());
             pico8.SetBtnPressedCallback(((x) => Keyboard.GetState().IsKeyDown((Keys)x)));
             pico8.SetControllerKeys(0, (int)Keys.Left, (int)Keys.Right, (int)Keys.Up, (int)Keys.Down, (int)Keys.Z, (int)Keys.X);
+
+            soundEffectInstance = new DynamicSoundEffectInstance(pico8.audio.sampleRate, AudioChannels.Mono);
+            audioBuffers = new byte[pico8.audio.channelCount, pico8.audio.samplesPerBuffer * 2];
+            pico8.audio.ConvertBufferCallback = (from) => {
+                int channels = from.GetLength(0);
+                int samplesPerBuffer = from.GetLength(1);
+
+                for (int i = 0; i < samplesPerBuffer; i += 1)
+                {
+                    for (int c = 0; c < channels; c++)
+                    {
+                        // First clamp the value to the [-1.0..1.0] range
+                        float floatSample = MathHelper.Clamp(from[c, i], -1.0f, 1.0f);
+
+                        // Convert it to the 16 bit [short.MinValue..short.MaxValue] range
+                        short shortSample = (short)(floatSample >= 0.0f ? floatSample * short.MaxValue : floatSample * short.MinValue * -1);
+
+                        // Store the 16 bit sample as two consecutive 8 bit values in the buffer with regard to endian-ness
+                        if (!BitConverter.IsLittleEndian)
+                        {
+                            audioBuffers[c, i] = (byte)(shortSample >> 8);
+                            audioBuffers[c, i + 1] = (byte)shortSample;
+                        }
+                        else
+                        {
+                            audioBuffers[c, i * 2] = (byte)shortSample;
+                            audioBuffers[c, i * 2 + 1] = (byte)(shortSample >> 8);
+                        }
+                    }
+                }
+            };
+
+            soundEffectInstance.Play();
         }
 
         /// <summary>
@@ -117,6 +154,13 @@
                 Exit();
 
             pico8.Update();
+
+            while(soundEffectInstance.PendingBufferCount < 3)
+            {
+                byte[] sample = new byte[audioBuffers.GetLength(1)];
+                Buffer.BlockCopy(audioBuffers, 0, sample, 0, sample.Length);
+                soundEffectInstance.SubmitBuffer(sample);
+            }
 
             base.Update(gameTime);
         }

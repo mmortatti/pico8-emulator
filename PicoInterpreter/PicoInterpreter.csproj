@@ -47,6 +47,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Game1.cs" />
+    <Compile Include="Pico8\AudioUnit.cs" />
     <Compile Include="Pico8\Cartridge.cs" />
     <Compile Include="Pico8\GraphicsUnit.cs" />
     <Compile Include="Pico8\Lua Interpreter\ILuaInterpreter.cs" />

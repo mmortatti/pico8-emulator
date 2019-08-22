@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace pico8_interpreter.Pico8
 {
-    public class P8CSharpWrapper<G>
+    public class P8CSharpWrapper<G, A>
     {
-        public PicoInterpreter<G> pico8;
+        public PicoInterpreter<G, A> pico8;
 
         public Func<int, int, int?, int?, byte?, object> Line;
         public Func<int, int, int, int, byte?, object> Rect;
@@ -74,7 +74,7 @@ namespace pico8_interpreter.Pico8
         public Action<object, int?, int?, byte?> Print;
         public Action<object> Printh;
 
-        public P8CSharpWrapper(ref PicoInterpreter<G> _pico8)
+        public P8CSharpWrapper(ref PicoInterpreter<G, A> _pico8)
         {
             pico8 = _pico8;
 

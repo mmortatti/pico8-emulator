@@ -120,8 +120,8 @@
                         // Store the 16 bit sample as two consecutive 8 bit values in the buffer with regard to endian-ness
                         if (!BitConverter.IsLittleEndian)
                         {
-                            audioBuffers[c, i] = (byte)(shortSample >> 8);
-                            audioBuffers[c, i + 1] = (byte)shortSample;
+                            audioBuffers[c, i * 2] = (byte)(shortSample >> 8);
+                            audioBuffers[c, i * 2 + 1] = (byte)shortSample;
                         }
                         else
                         {
@@ -157,6 +157,7 @@
 
             while(soundEffectInstance.PendingBufferCount < 3)
             {
+                pico8.audio.UpdateAudio();
                 byte[] sample = new byte[audioBuffers.GetLength(1)];
                 Buffer.BlockCopy(audioBuffers, 0, sample, 0, sample.Length);
                 soundEffectInstance.SubmitBuffer(sample);

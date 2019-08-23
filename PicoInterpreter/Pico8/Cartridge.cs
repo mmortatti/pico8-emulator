@@ -226,12 +226,38 @@
                 }
                 else if (state == stateMap["__sfx__"])
                 {
-                    foreach (char c in line)
+                    if (Regex.IsMatch(line, @"^\s*$"))
                     {
-                        byte val = byte.Parse(c.ToString(), System.Globalization.NumberStyles.HexNumber);
-                        util.SetHalf(ref rom[index / 2 + ADDR_SFX], val, index % 2 == 0);
-                        index += 1;
+                        continue;
                     }
+
+                    byte editor = byte.Parse(line.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte speed = byte.Parse(line.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte startLoop = byte.Parse(line.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+                    byte endLoop = byte.Parse(line.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
+
+                    rom[ADDR_SFX + index * 68 + 64] = editor;
+                    rom[ADDR_SFX + index * 68 + 65] = speed;
+                    rom[ADDR_SFX + index * 68 + 66] = startLoop;
+                    rom[ADDR_SFX + index * 68 + 67] = editor;
+
+                    int off = 0;
+                    for (int i = 0; i < line.Length - 8; i += 5)
+                    {
+                        byte pitch = byte.Parse(line.Substring(i + 8, 2), System.Globalization.NumberStyles.HexNumber);
+                        byte waveform = byte.Parse(line.Substring(i + 8 + 2, 1), System.Globalization.NumberStyles.HexNumber);
+                        byte volume = byte.Parse(line.Substring(i + 8 + 3, 1), System.Globalization.NumberStyles.HexNumber);
+                        byte effect = byte.Parse(line.Substring(i + 8 + 4, 1), System.Globalization.NumberStyles.HexNumber);
+
+                        byte lo = (byte)(pitch | (waveform << 6));
+                        byte hi = (byte)((waveform >> 2) | (volume << 1) | (effect << 4));
+
+                        rom[ADDR_SFX + index * 68 + off] = lo;
+                        rom[ADDR_SFX + index * 68 + off + 1] = hi;
+                        off += 2;
+                    }
+
+                    index += 1;
                 }
                 else if (state == stateMap["__music__"])
                 {

@@ -110,7 +110,7 @@
             random = new Random();
             memory = new MemoryUnit();
             graphics = new GraphicsUnit<G>(ref memory, ref screenData, rgbToColor);
-            audio = new AudioUnit<A>();
+            audio = new AudioUnit<A>(ref memory);
 
             // Initialie controller variables
             BtnPressedCallbacks = new List<Func<int, bool>>();
@@ -222,8 +222,8 @@
             interpreter.AddFunction("flip", (Action)graphics.Flip);
 
             // Music
-            interpreter.AddFunction("music", (Func<int?, int?, int?, object>)Music);
-            interpreter.AddFunction("sfx", (Func<int?, int?, int?, int?, object>)Sfx);
+            interpreter.AddFunction("music", (Func<int?, int?, int?, object>)audio.Music);
+            interpreter.AddFunction("sfx", (Func<int?, int?, int?, int?, object>)audio.Sfx);
 
             // Misc
             interpreter.AddFunction("time", (Func<double>)Time);
@@ -582,8 +582,6 @@
             {
                 loadedGame.interpreter.CallIfDefined("_update60");
             }
-
-            audio.UpdateAudio();
         }
 
         /// <summary>

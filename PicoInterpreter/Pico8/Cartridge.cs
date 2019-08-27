@@ -112,11 +112,24 @@
                 file.WriteLine("__sfx__");
                 for (int j = 0; j < 64; j += 1)
                 {
-                    for (int i = 0; i < 84; i += 1)
+                    byte editor = rom[ADDR_SFX + j * 68 + 64];
+                    byte speed = rom[ADDR_SFX + j * 68 + 65];
+                    byte startLoop = rom[ADDR_SFX + j * 68 + 66];
+                    byte endLoop = rom[ADDR_SFX + j * 68 + 67];
+
+                    file.Write($"{editor.ToString("x2")}{speed.ToString("x2")}{startLoop.ToString("x2")}{endLoop.ToString("x2")}");
+
+                    for (int i = 0; i < 64; i += 2)
                     {
-                        byte left = util.GetHalf(rom[j * 84 + i + ADDR_SFX], false);
-                        byte right = util.GetHalf(rom[j * 84 + i + ADDR_SFX], true);
-                        file.Write($"{right.ToString("x")}{left.ToString("x")}");
+                        byte lo = rom[ADDR_SFX + j * 68 + i];
+                        byte high = rom[ADDR_SFX + j * 68 + i + 1];
+
+                        byte pitch = (byte)(lo & 0b00111111);
+                        byte waveform = (byte)(((lo & 0b11000000) >> 6) | ((high & 0b1) << 2));
+                        byte volume = (byte)((high & 0b00001110) >> 1);
+                        byte effect = (byte)((high & 0b01110000) >> 4);
+
+                        file.Write($"{pitch.ToString("x2")}{waveform.ToString("x")}{volume.ToString("x")}{effect.ToString("x")}");
                     }
                     file.Write("\n");
                 }
@@ -239,7 +252,7 @@
                     rom[ADDR_SFX + index * 68 + 64] = editor;
                     rom[ADDR_SFX + index * 68 + 65] = speed;
                     rom[ADDR_SFX + index * 68 + 66] = startLoop;
-                    rom[ADDR_SFX + index * 68 + 67] = editor;
+                    rom[ADDR_SFX + index * 68 + 67] = endLoop;
 
                     int off = 0;
                     for (int i = 0; i < line.Length - 8; i += 5)

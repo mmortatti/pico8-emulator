@@ -210,9 +210,14 @@
             return string.Format("if {0} then {1} end", ifMatch.Groups[1], ifMatch.Groups[2]);
         }
 
-        public static float NoteToFrequency(int note)
+        public static float NoteToFrequency(float note)
         {
             return (float)(440.0 * Math.Pow(2, (note - 33) / 12.0f));
+        }
+
+        public static float Lerp(float a, float b, float t)
+        {
+            return (b - a) * t + a;
         }
     }
 }

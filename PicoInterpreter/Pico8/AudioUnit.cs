@@ -46,7 +46,7 @@ namespace pico8_interpreter.Pico8
             ConvertBufferCallback(audioBuffer);
         }
 
-        public object Sfx(int n, int? channel = -1, int? offset = null, int? length = null)
+        public object Sfx(int n, int? channel = -1, int? offset = 0, int? length = 32)
         {
             switch (n)
             {
@@ -95,6 +95,8 @@ namespace pico8_interpreter.Pico8
 
                     Oscillator osc = new Oscillator(sampleRate);
                     sfxChannels[channel.Value] = new Sfx(_sfxData, n, ref audioBuffer, ref osc, channel.Value, sampleRate);
+                    sfxChannels[channel.Value].currentNote = offset.Value;
+                    sfxChannels[channel.Value].lastIndex = offset.Value + length.Value - 1;
                     sfxChannels[channel.Value].Start();
                     break;
             }
@@ -473,6 +475,28 @@ namespace pico8_interpreter.Pico8
         private int _channel;
 
         private int _currentNote = 0;
+        public int currentNote
+        {
+            get { return _currentNote; }
+            set
+            {
+                if (value < 0) _currentNote = 0;
+                else if (value >= 32) _currentNote = 31;
+                else _currentNote = value;
+            }
+        }
+
+        private int _lastIndex = 31;
+        public int lastIndex
+        {
+            get { return _lastIndex; }
+            set
+            {
+                if (value < 0) _lastIndex = 0;
+                else if (value >= 32) _lastIndex = 31;
+                else _lastIndex = value;
+            }
+        }
 
         private Oscillator _oscillator;
 
@@ -488,7 +512,7 @@ namespace pico8_interpreter.Pico8
             _audioBuffer = audioBuffer;
             _channel = channel;
 
-            duration = _sfxData[65] / 127.0f;
+            duration = _sfxData[65] / 120.0f;
             startLoop = _sfxData[66];
             endLoop = _sfxData[67];
 
@@ -557,7 +581,7 @@ namespace pico8_interpreter.Pico8
 
         private void QueueNextNotes()
         {
-            if (_currentNote >= notes.Length)
+            if (_currentNote > _lastIndex)
             {
                 return;
             }

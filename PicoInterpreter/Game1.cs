@@ -97,7 +97,7 @@
             rasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
 
             pico8 = new PicoInterpreter<Color, byte>(ref screenColorData, ((r, g, b) => new Color(r, g, b)));
-            pico8.LoadGame("justoneboss_lua.lua", new MoonSharpInterpreter());
+            pico8.LoadGame("test5.lua", new MoonSharpInterpreter());
             pico8.SetBtnPressedCallback(((x) => Keyboard.GetState().IsKeyDown((Keys)x)));
             pico8.SetControllerKeys(0, (int)Keys.Left, (int)Keys.Right, (int)Keys.Up, (int)Keys.Down, (int)Keys.Z, (int)Keys.X);
 

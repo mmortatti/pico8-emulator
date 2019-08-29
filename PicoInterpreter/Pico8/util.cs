@@ -10,6 +10,34 @@
     public static class util
     {
         /// <summary>
+        /// Defines memory sections of PICO-8 RAM.
+        /// </summary>
+        public static int   ADDR_GFX = 0x0,
+                            ADDR_GFX_MAP = 0x1000,
+                            ADDR_MAP = 0x2000,
+                            ADDR_GFX_PROPS = 0x3000,
+                            ADDR_SONG = 0x3100,
+                            ADDR_SFX = 0x3200,
+                            ADDR_USER = 0x4300,
+                            ADDR_CART = 0x5e00,
+                            ADDR_PALETTE_0 = 0x5f00,
+                            ADDR_PALETTE_1 = 0x5f10,
+                            ADDR_CLIP_X0 = 0x5f20,
+                            ADDR_CLIP_Y0 = 0x5f21,
+                            ADDR_CLIP_X1 = 0x5f22,
+                            ADDR_CLIP_Y1 = 0x5f23,
+                            ADDR_DRAW_COL = 0x5f25,
+                            ADDR_CURSOR_X = 0x5f26,
+                            ADDR_CURSOR_Y = 0x5f27,
+                            ADDR_CAMERA_X = 0x5f28,
+                            ADDR_CAMERA_Y = 0x5f2a,
+                            ADDR_FILLP = 0x5f31,
+                            ADDR_LINE_X = 0x5f3c,
+                            ADDR_LINE_Y = 0x5f3e,
+                            ADDR_SCREEN = 0x6000,
+                            ADDR_END = 0x8000;
+
+        /// <summary>
         /// Defines a 2^16 value;
         /// </summary>
         public static readonly int SHIFT_16 = 1 << 16;

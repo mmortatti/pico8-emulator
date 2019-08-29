@@ -69,7 +69,7 @@ namespace pico8_interpreter.Pico8
         public Func<int, int?, bool> Btnp;
         public Action Flip;
         public Func<int?, int?, int?, object> Music;
-        public Func<int?, int?, int?, int?, object> Sfx;
+        public Func<int, int?, int?, int?, object> Sfx;
         public Func<double> Time;
         public Action<object, int?, int?, byte?> Print;
         public Action<object> Printh;
@@ -85,8 +85,8 @@ namespace pico8_interpreter.Pico8
             Flip = pico8.graphics.Flip;
 
             // Music
-            Music = pico8.Music;
-            Sfx = pico8.Sfx;
+            Music = pico8.audio.Music;
+            Sfx = pico8.audio.Sfx;
 
             // Misc
             Time = pico8.Time;

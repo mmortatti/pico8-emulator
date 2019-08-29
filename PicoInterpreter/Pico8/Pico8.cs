@@ -223,7 +223,7 @@
 
             // Music
             interpreter.AddFunction("music", (Func<int?, int?, int?, object>)audio.Music);
-            interpreter.AddFunction("sfx", (Func<int?, int?, int?, int?, object>)audio.Sfx);
+            interpreter.AddFunction("sfx", (Func<int, int?, int?, int?, object>)audio.Sfx);
 
             // Misc
             interpreter.AddFunction("time", (Func<double>)Time);
@@ -565,6 +565,9 @@
             InitAPI(ref loadedGame.interpreter);
 
             memory.LoadCartridgeData(loadedGame.cartridge.rom);
+
+            audio.Init();
+
             loadedGame.interpreter.RunScript(loadedGame.cartridge.gameCode);
 
             timeStart = DateTime.Now;

@@ -145,17 +145,17 @@
 
                     if ((val0 & 0x80) == 0x80)
                     {
-                        flag = 1;
+                        flag |= 1;
                         val0 &= 0x7F;
                     }
-                    else if ((val1 & 0x80) == 0x80)
+                    if ((val1 & 0x80) == 0x80)
                     {
-                        flag = 2;
+                        flag |= 2;
                         val1 &= 0x7F;
                     }
-                    else if ((val2 & 0x80) == 0x80)
+                    if ((val2 & 0x80) == 0x80)
                     {
-                        flag = 4;
+                        flag |= 4;
                         val2 &= 0x7F;
                     }
 
@@ -286,17 +286,19 @@
                     byte val4 = byte.Parse(line.Substring(9, 2), System.Globalization.NumberStyles.HexNumber);
 
                     // 4th byte never has 7th bit set because it's corresponding flag value is never used.
-                    switch (flag)
+                    if ((flag & 0x1) != 0)
                     {
-                        case 1:
-                            val1 |= 0x80;
-                            break;
-                        case 2:
-                            val2 |= 0x80;
-                            break;
-                        case 4:
-                            val3 |= 0x80;
-                            break;
+                        val1 |= 0x80;
+                    }
+
+                    if ((flag & 0x2) != 0)
+                    {
+                        val2 |= 0x80;
+                    }
+
+                    if ((flag & 0x4) != 0)
+                    {
+                        val3 |= 0x80;
                     }
 
                     rom[ADDR_SONG + index + 0] = val1;

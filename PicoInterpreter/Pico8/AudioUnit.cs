@@ -8,9 +8,9 @@ namespace pico8_interpreter.Pico8
 {
     public class AudioUnit<A>
     {
-        public int sampleRate = 44100;
+        public int sampleRate = 48000;
         public int channelCount = 4;
-        public int samplesPerBuffer = 2000;
+        public int samplesPerBuffer = 3000;
         public const int Polyphony = 4;
 
         public float[,] audioBuffer;
@@ -21,49 +21,85 @@ namespace pico8_interpreter.Pico8
 
         private MemoryUnit _memory;
 
-        public Sfx[,] sfxs;
+        public Sfx[] sfxChannels, musicChannels;
+
+        private byte _reservedChannelsMask = 0;
+
+        private MusicPlayer musicPlayer;
 
         public AudioUnit(ref MemoryUnit memory)
         {
             audioBuffer = new float[channelCount, samplesPerBuffer];
 
             _memory = memory;
+        }
 
-            sfxs = new Sfx[channelCount, Polyphony];
+        public void Init()
+        {
+            sfxChannels = new Sfx[channelCount];
+            musicChannels = new Sfx[channelCount];
+            musicPlayer = new MusicPlayer(ref _memory, ref audioBuffer, sampleRate);
         }
 
         public void UpdateAudio()
         {
             ClearBuffer();
             FillBuffer();
+            musicPlayer.Update();
 
             ConvertBufferCallback(audioBuffer);
         }
 
-        public object Sfx(int? n, int? channel = null, int? offset = null, int? length = null)
+        public object Sfx(int n, int? channel = -1, int? offset = null, int? length = null)
         {
-            byte[] _sfx = new byte[68];
-            Buffer.BlockCopy(_memory.ram, ADDR_SFX + 68 * n.Value, _sfx, 0, 68);
+            switch(n)
+            {
+                case -1:
+                    sfxChannels[n] = null;
+                    break;
+                case -2:
+                    if (sfxChannels[n] != null)
+                        sfxChannels[n].loop = false;
+                    break;
+                default:
 
-            sfxs[0, 0] = new Sfx(_sfx, ref audioBuffer, 0, sampleRate);
-            sfxs[0, 0].Start();
+                    if (channel == -1)
+                    {
+                        channel = FindAvailableChannel();
+                        if (channel == null)
+                            return null;
+                    }
+                    else if(isChannelReserved(channel.Value))
+                    {
+                        return null;
+                    }
+
+                    byte[] _sfxData = new byte[68];
+                    Buffer.BlockCopy(_memory.ram, ADDR_SFX + 68 * n, _sfxData, 0, 68);
+
+                    sfxChannels[channel.Value] = new Sfx(_sfxData, n, ref audioBuffer, n, sampleRate);
+                    sfxChannels[channel.Value].Start();
+                    break;
+            }
 
             return null;
         }
 
         public object Music(int? n, int? fade_len, int? channel_mask)
         {
+            musicPlayer.Start(n.Value);
             return null;
         }
 
         public void FillBuffer()
         {
-            foreach (var s in sfxs)
+            for (int i = 0; i < channelCount; i += 1)
             {
-                if (s != null)
+                if (sfxChannels[i] != null && !sfxChannels[i].Update())
                 {
-                    s.Update();
+                    sfxChannels[i] = null;
                 }
+   
             }
         }
 
@@ -76,6 +112,22 @@ namespace pico8_interpreter.Pico8
                     audioBuffer[j, i] = 0;
                 }
             }
+        }
+
+        private int? FindAvailableChannel()
+        {
+            for (int i = 0; i < channelCount; i += 1)
+            {
+                if (sfxChannels[i] == null && !isChannelReserved(i))
+                    return i;
+            }
+
+            return null;
+        }
+
+        private bool isChannelReserved(int channel)
+        {
+            return ((1 << channel) & _reservedChannelsMask) != 0;
         }
     }
 
@@ -166,7 +218,138 @@ namespace pico8_interpreter.Pico8
         }
     }
 
-    public delegate float OscillatorDelegate(float frequency, float time);
+    public class MusicPlayer
+    {
+        public struct ChannelData
+        {
+            public bool isSilent;
+            public byte sfxIndex;
+        }
+        public struct PatternData
+        {
+            public ChannelData[] channels;
+            public bool loopStart;
+            public bool loopEnd;
+            public bool shouldStop;
+        }
+       
+        private PatternData[] patternData;
+
+        private Sfx[] sfxs;
+        private byte[] _ram;
+        private int _patternIndex;
+
+        private float[,] _audioBuffer;
+        private int _sampleRate;
+
+        public bool isPlaying { get; private set; }
+        public MusicPlayer(ref MemoryUnit memory, ref float[,] audioBuffer, int sampleRate)
+        {
+            sfxs = new Sfx[4] { null, null, null, null };
+            isPlaying = false;
+            _ram = memory.ram;
+
+            _audioBuffer = audioBuffer;
+            _sampleRate = sampleRate;
+
+            patternData = new PatternData[64];
+            for(int i = 0; i < patternData.Length; i += 1)
+            {
+                byte[] vals = { _ram[i * 4 + 0 + util.ADDR_SONG],
+                                _ram[i * 4 + 1 + util.ADDR_SONG],
+                                _ram[i * 4 + 2 + util.ADDR_SONG],
+                                _ram[i * 4 + 3 + util.ADDR_SONG] };
+
+                if ((vals[0] & 0x80) == 0x80)
+                {
+                    patternData[i].loopStart = true;
+                }
+                if ((vals[1] & 0x80) == 0x80)
+                {
+                    patternData[i].loopEnd = true;
+                }
+                if ((vals[2] & 0x80) == 0x80)
+                {
+                    patternData[i].shouldStop = true;
+                }
+
+                patternData[i].channels = new ChannelData[4];
+                for (int j = 0; j < 4; j += 1)
+                {
+                    patternData[i].channels[j] = new ChannelData();
+                    if ((vals[j] & 0b01000000) != 0)
+                    {
+                        patternData[i].channels[j].isSilent = true;
+                    }
+                    patternData[i].channels[j].sfxIndex = (byte)(vals[j] & 0b00111111);
+                }
+            }
+        }
+
+        public void Update()
+        {
+            if (!isPlaying || _patternIndex > 63 || _patternIndex < 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < 4; i += 1)
+            {
+                if (sfxs[i] == null)
+                    continue;
+
+                if (!sfxs[i].Update())
+                {
+                    sfxs[i] = null;
+                    continue;
+                }
+            }
+
+            if (isPatternDone())
+            {
+                _patternIndex += 1;
+                SetUpPattern();
+            }
+
+        }
+
+        private bool isPatternDone()
+        {
+            for (int i = 0; i < 4; i += 1)
+            {
+                if (sfxs[i] == null)
+                    continue;
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private void SetUpPattern()
+        {
+            for (int i = 0; i < 4; i += 1)
+            {
+                if (patternData[_patternIndex].channels[i].isSilent)
+                {
+                    sfxs[i] = null;
+                    continue;
+                }
+
+                byte[] _sfxData = new byte[68];
+                Buffer.BlockCopy(_ram, util.ADDR_SFX + 68 * patternData[_patternIndex].channels[i].sfxIndex, _sfxData, 0, 68);
+                sfxs[i] = new Sfx(_sfxData, patternData[_patternIndex].channels[i].sfxIndex, ref _audioBuffer, i, _sampleRate);
+                sfxs[i].Start();
+            }
+        }
+        public void Start(int n) {
+            isPlaying = true;
+            _patternIndex = n;
+
+            SetUpPattern();
+        }
+        public void Stop() { isPlaying = false; }
+    }
 
     public class Sfx
     {
@@ -184,12 +367,14 @@ namespace pico8_interpreter.Pico8
         public byte startLoop;
         public byte endLoop;
 
+        public bool loop = true;
+
         private int _sampleRate;
 
         public bool isAlive { get; private set; }
+        public bool isActive { get; private set; }
+        public int sfxIndex { get; private set; }
 
-        private float _time = 0.0f;
-        private float _noteDuration = 0.0f;
         private float[,] _audioBuffer;
         private int _channel;
 
@@ -199,19 +384,20 @@ namespace pico8_interpreter.Pico8
 
         private Queue<Note> notesToPlay;
 
-        private int audioBufferIndex;
+        public int audioBufferIndex { get; private set; }
 
-        public Sfx(byte[] _sfxData, ref float[,] audioBuffer, int channel, int sampleRate)
+        public Sfx(byte[] _sfxData, int _sfxIndex, ref float[,] audioBuffer, int channel, int sampleRate)
         {
             notes = new P8Note[32];
             _audioBuffer = audioBuffer;
             _channel = channel;
 
-            speed = (float)_sfxData[65] / 127.0f;
+            speed = _sfxData[65] / 127.0f;
             startLoop = _sfxData[66];
             endLoop = _sfxData[67];
 
             _sampleRate = sampleRate;
+            sfxIndex = _sfxIndex;
 
             Console.WriteLine($"header {_sfxData[64]} {_sfxData[65]} {_sfxData[66]} {_sfxData[67]}");
 
@@ -233,34 +419,40 @@ namespace pico8_interpreter.Pico8
             notesToPlay = new Queue<Note>();
 
             audioBufferIndex = 0;
+
+            isActive = true;
         }
 
-        public void Update()
+        public bool Update()
         {
-            if (isAlive)
+            if (!isAlive)
             {
-                audioBufferIndex = 0;
-                int samplesPerBuffer = _audioBuffer.GetLength(1);
-                while (audioBufferIndex < samplesPerBuffer)
+                return false;
+            }
+
+            audioBufferIndex = 0;
+            int samplesPerBuffer = _audioBuffer.GetLength(1);
+            while (audioBufferIndex < samplesPerBuffer)
+            {
+                // Queue next notes that need to be played. In case there are no more notes, stop everything.
+                if (notesToPlay.Count == 0)
                 {
-                    // Queue next notes that need to be played. In case there are no more notes, stop everything.
+                    QueueNextNotes();
                     if (notesToPlay.Count == 0)
                     {
-                        QueueNextNotes();
-                        if (notesToPlay.Count == 0)
-                        {
-                            isAlive = false;
-                            return;
-                        }
+                        isAlive = false;
+                        return false;
                     }
-
-                    Note next = notesToPlay.Peek();
-                    audioBufferIndex = next.Process(audioBufferIndex);
-
-                    if (audioBufferIndex < samplesPerBuffer)
-                        notesToPlay.Dequeue();
                 }
+
+                Note next = notesToPlay.Peek();
+                audioBufferIndex = next.Process(audioBufferIndex, isActive);
+
+                if (audioBufferIndex < samplesPerBuffer)
+                    notesToPlay.Dequeue();
             }
+
+            return true;
         }
 
         private void QueueNextNotes()
@@ -300,7 +492,15 @@ namespace pico8_interpreter.Pico8
                     break;
             }
 
-            _currentNote += 1;
+            // If sfx has loop defined, process it. Otherwise keep incrementing note index.
+            if (loop && startLoop < endLoop && _currentNote == endLoop-1)
+            {
+                _currentNote = startLoop;
+            }
+            else
+            {
+                _currentNote += 1;
+            }
         }
 
         private void ProcessNoteNoEffect(P8Note note)
@@ -342,12 +542,14 @@ namespace pico8_interpreter.Pico8
 
         private void ProcessNoteArpeggioFast(P8Note note)
         {
-
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
+            notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteArpeggioSlow(P8Note note)
         {
-
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
+            notesToPlay.Enqueue(noteToPlay);
         }
 
         public void Start() { isAlive = true; }
@@ -407,38 +609,40 @@ namespace pico8_interpreter.Pico8
             _vibrato = vibrato;
         }
 
-        public int Process(int bufferOffset = 0)
+        public int Process(int bufferOffset = 0, bool writeToBuffer = true)
         {
             int samplesPerBuffer = _audioBuffer.GetLength(1);
             for (int i = bufferOffset; i < samplesPerBuffer; i++)
             {
-                if (_timePassed < _fadeIn)
+                if (writeToBuffer)
                 {
-                    _volume = util.Lerp(0, targetVolume, _timePassed / _fadeIn);
-                }
-                else if (_timePassed > _duration - _fadeOut)
-                {
-                    _volume = util.Lerp(targetVolume, 0, (_timePassed - (_duration - _fadeOut)) / _fadeOut);
-                }
+                    if (_timePassed < _fadeIn)
+                    {
+                        _volume = util.Lerp(0, targetVolume, _timePassed / _fadeIn);
+                    }
+                    else if (_timePassed > _duration - _fadeOut)
+                    {
+                        _volume = util.Lerp(targetVolume, 0, (_timePassed - (_duration - _fadeOut)) / _fadeOut);
+                    }
 
-                if (_timePassed >= _duration)
-                {
-                    return i;
-                }
+                    if (_timePassed >= _duration)
+                    {
+                        return i;
+                    }
 
-                float freq;
+                    float freq;
+                    if (_vibrato)
+                    {
+                        freq = util.Lerp(util.NoteToFrequency(pitch), util.NoteToFrequency(pitch + 0.5f), (float)Math.Sin(_timePassed * 2 * Math.PI * 8));
+                    }
+                    else
+                    {
+                        freq = util.Lerp(util.NoteToFrequency(_pitchFrom), util.NoteToFrequency(pitch), _timePassed / _duration);
+                    }
 
-                if (_vibrato)
-                {
-                    freq = util.Lerp(util.NoteToFrequency(pitch), util.NoteToFrequency(pitch + 0.5f), (float)Math.Sin(_timePassed * 2 * Math.PI * 8));
+                    float sample = _oscillator.waveFuncMap[waveform](freq);
+                    _audioBuffer[_channel, i] += sample * _volume;
                 }
-                else
-                {
-                    freq = util.Lerp(util.NoteToFrequency(_pitchFrom), util.NoteToFrequency(pitch), _timePassed / _duration);
-                }
-
-                float sample = _oscillator.waveFuncMap[waveform](freq);
-                _audioBuffer[_channel, i] += sample * _volume;
 
                 _timePassed += 1.0f / _sampleRate;
             }

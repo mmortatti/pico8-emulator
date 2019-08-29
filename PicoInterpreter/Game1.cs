@@ -49,7 +49,7 @@
         internal Texture2D screenTexture;
 
         internal DynamicSoundEffectInstance soundEffectInstance;
-        internal byte[,] audioBuffers;
+        internal byte[] audioBuffer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Game1"/> class.
@@ -97,37 +97,43 @@
             rasterizerState = new RasterizerState { MultiSampleAntiAlias = true };
 
             pico8 = new PicoInterpreter<Color, byte>(ref screenColorData, ((r, g, b) => new Color(r, g, b)));
-            pico8.LoadGame("test5.lua", new MoonSharpInterpreter());
+            pico8.LoadGame("justoneboss_lua.lua", new MoonSharpInterpreter());
             pico8.SetBtnPressedCallback(((x) => Keyboard.GetState().IsKeyDown((Keys)x)));
             pico8.SetControllerKeys(0, (int)Keys.Left, (int)Keys.Right, (int)Keys.Up, (int)Keys.Down, (int)Keys.Z, (int)Keys.X);
 
             soundEffectInstance = new DynamicSoundEffectInstance(pico8.audio.sampleRate, AudioChannels.Mono);
-            audioBuffers = new byte[pico8.audio.channelCount, pico8.audio.samplesPerBuffer * 2];
+            audioBuffer = new byte[pico8.audio.samplesPerBuffer * 2];
             pico8.audio.ConvertBufferCallback = (from) => {
                 int channels = from.GetLength(0);
                 int samplesPerBuffer = from.GetLength(1);
 
                 for (int i = 0; i < samplesPerBuffer; i += 1)
                 {
+                    float floatSample = 0;
+                    float activeChannels = 0;
                     for (int c = 0; c < channels; c++)
                     {
                         // First clamp the value to the [-1.0..1.0] range
-                        float floatSample = MathHelper.Clamp(from[c, i], -1.0f, 1.0f);
+                        floatSample += from[c, i];
+                        if (from[c, i] != 0) activeChannels += 1;
+                    }
 
-                        // Convert it to the 16 bit [short.MinValue..short.MaxValue] range
-                        short shortSample = (short)(floatSample >= 0.0f ? floatSample * short.MaxValue : floatSample * short.MinValue * -1);
+                    // Use tanh function to avoid clipping and clamp between 1 and -1.
+                    floatSample = (floatSample / activeChannels);
 
-                        // Store the 16 bit sample as two consecutive 8 bit values in the buffer with regard to endian-ness
-                        if (!BitConverter.IsLittleEndian)
-                        {
-                            audioBuffers[c, i * 2] = (byte)(shortSample >> 8);
-                            audioBuffers[c, i * 2 + 1] = (byte)shortSample;
-                        }
-                        else
-                        {
-                            audioBuffers[c, i * 2] = (byte)shortSample;
-                            audioBuffers[c, i * 2 + 1] = (byte)(shortSample >> 8);
-                        }
+                    // Convert it to the 16 bit [short.MinValue..short.MaxValue] range
+                    short shortSample = (short)(floatSample >= 0.0f ? floatSample * short.MaxValue : floatSample * short.MinValue * -1);
+
+                    // Store the 16 bit sample as two consecutive 8 bit values in the buffer with regard to endian-ness
+                    if (!BitConverter.IsLittleEndian)
+                    {
+                        audioBuffer[i * 2] = (byte)(shortSample >> 8);
+                        audioBuffer[i * 2 + 1] = (byte)shortSample;
+                    }
+                    else
+                    {
+                        audioBuffer[i * 2] = (byte)shortSample;
+                        audioBuffer[i * 2 + 1] = (byte)(shortSample >> 8);
                     }
                 }
             };
@@ -158,8 +164,8 @@
             while(soundEffectInstance.PendingBufferCount < 3)
             {
                 pico8.audio.UpdateAudio();
-                byte[] sample = new byte[audioBuffers.GetLength(1)];
-                Buffer.BlockCopy(audioBuffers, 0, sample, 0, sample.Length);
+                byte[] sample = new byte[audioBuffer.Length];
+                Buffer.BlockCopy(audioBuffer, 0, sample, 0, sample.Length);
                 soundEffectInstance.SubmitBuffer(sample);
             }
 

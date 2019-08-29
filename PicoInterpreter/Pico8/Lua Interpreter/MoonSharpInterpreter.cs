@@ -56,7 +56,6 @@
 
         public void RunScript(string script)
         {
-            
             scriptInterpreter.DoString(script);
         }
 

@@ -10,14 +10,11 @@ namespace pico8_interpreter.Pico8
     {
         public int sampleRate = 48000;
         public int channelCount = 4;
-        public int samplesPerBuffer = 3000;
-        public const int Polyphony = 4;
+        public int samplesPerBuffer = 4000;
 
         public float[,] audioBuffer;
 
         public Action<float[,]> ConvertBufferCallback;
-
-        private int ADDR_SFX = 0x3200;
 
         private MemoryUnit _memory;
 
@@ -45,39 +42,59 @@ namespace pico8_interpreter.Pico8
         {
             ClearBuffer();
             FillBuffer();
-            musicPlayer.Update();
 
             ConvertBufferCallback(audioBuffer);
         }
 
         public object Sfx(int n, int? channel = -1, int? offset = null, int? length = null)
         {
-            switch(n)
+            switch (n)
             {
                 case -1:
-                    sfxChannels[n] = null;
+                    if (channel == -1)
+                    {
+                        StopAllChannels();
+                        break;
+                    }
+
+                    if (channel < 0 || channel >= channelCount)
+                        break;
+
+                    sfxChannels[channel.Value] = null;
                     break;
                 case -2:
-                    if (sfxChannels[n] != null)
-                        sfxChannels[n].loop = false;
+                    if (channel.Value < 0 || channel.Value >= channelCount)
+                        break;
+
+                    if (sfxChannels[channel.Value] != null)
+                        sfxChannels[channel.Value].loop = false;
                     break;
                 default:
+
+                    // If sound is already playing, stop it.
+                    int? index = FindSoundOnAChannel(n);
+                    if (index != null)
+                    {
+                        sfxChannels[index.Value] = null;
+                    }
 
                     if (channel == -1)
                     {
                         channel = FindAvailableChannel();
                         if (channel == null)
-                            return null;
+                            break;
                     }
-                    else if(isChannelReserved(channel.Value))
+
+                    if (channel == -2)
                     {
-                        return null;
+                        break;
                     }
 
                     byte[] _sfxData = new byte[68];
-                    Buffer.BlockCopy(_memory.ram, ADDR_SFX + 68 * n, _sfxData, 0, 68);
+                    Buffer.BlockCopy(_memory.ram, util.ADDR_SFX + 68 * n, _sfxData, 0, 68);
 
-                    sfxChannels[channel.Value] = new Sfx(_sfxData, n, ref audioBuffer, n, sampleRate);
+                    Oscillator osc = new Oscillator(sampleRate);
+                    sfxChannels[channel.Value] = new Sfx(_sfxData, n, ref audioBuffer, ref osc, channel.Value, sampleRate);
                     sfxChannels[channel.Value].Start();
                     break;
             }
@@ -99,8 +116,9 @@ namespace pico8_interpreter.Pico8
                 {
                     sfxChannels[i] = null;
                 }
-   
             }
+
+            musicPlayer.Update();
         }
 
         public void ClearBuffer()
@@ -125,9 +143,33 @@ namespace pico8_interpreter.Pico8
             return null;
         }
 
+        private int? FindSoundOnAChannel(int n)
+        {
+            for (int i = 0; i < channelCount; i += 1)
+            {
+                if (sfxChannels[i] != null && sfxChannels[i].sfxIndex == n)
+                    return i;
+            }
+
+            return null;
+        }
+
         private bool isChannelReserved(int channel)
         {
             return ((1 << channel) & _reservedChannelsMask) != 0;
+        }
+
+        private void StopChannel (int index)
+        {
+            sfxChannels[index] = null;
+        }
+
+        private void StopAllChannels()
+        {
+            for (int i = 0; i < sfxChannels.Length; i += 1)
+            {
+                StopChannel(i);
+            }
         }
     }
 
@@ -242,6 +284,9 @@ namespace pico8_interpreter.Pico8
         private float[,] _audioBuffer;
         private int _sampleRate;
 
+        private Sfx _referenceSfx = null;
+        private Oscillator _oscillator;
+
         public bool isPlaying { get; private set; }
         public MusicPlayer(ref MemoryUnit memory, ref float[,] audioBuffer, int sampleRate)
         {
@@ -251,6 +296,8 @@ namespace pico8_interpreter.Pico8
 
             _audioBuffer = audioBuffer;
             _sampleRate = sampleRate;
+
+            _oscillator = new Oscillator(_sampleRate);
 
             patternData = new PatternData[64];
             for(int i = 0; i < patternData.Length; i += 1)
@@ -293,6 +340,49 @@ namespace pico8_interpreter.Pico8
                 return;
             }
 
+            Process();
+
+            if (isPatternDone())
+            {
+                if (patternData[_patternIndex].shouldStop)
+                {
+                    Stop();
+                    return;
+                }
+
+                if(patternData[_patternIndex].loopEnd)
+                {
+                    _patternIndex = FindClosestLoopStart(_patternIndex);
+                }
+                else
+                {
+                    _patternIndex += 1;
+                    if (_patternIndex > 63)
+                    {
+                        Stop();
+                        return;
+                    }
+                }
+
+                SetUpPattern();
+                Process();
+            }
+
+        }
+
+        private int FindClosestLoopStart(int index)
+        {
+            for (int i = index; i >= 0; i -= 1)
+            {
+                if (patternData[i].loopStart)
+                    return i;
+            }
+
+            return 0;
+        }
+
+        private void Process()
+        {
             for (int i = 0; i < 4; i += 1)
             {
                 if (sfxs[i] == null)
@@ -304,30 +394,22 @@ namespace pico8_interpreter.Pico8
                     continue;
                 }
             }
-
-            if (isPatternDone())
-            {
-                _patternIndex += 1;
-                SetUpPattern();
-            }
-
         }
 
         private bool isPatternDone()
         {
-            for (int i = 0; i < 4; i += 1)
-            {
-                if (sfxs[i] == null)
-                    continue;
+            if (_referenceSfx != null && !_referenceSfx.isAlive)
+                return true;
 
-                return false;
-            }
-
-            return true;
+            return false;
         }
 
         private void SetUpPattern()
         {
+            bool areAllLooping = true;
+            Sfx longest = null;
+            Sfx longestNoLoop = null;
+            int audioBufferIndex = _referenceSfx == null ? 0 : _referenceSfx.audioBufferIndex;
             for (int i = 0; i < 4; i += 1)
             {
                 if (patternData[_patternIndex].channels[i].isSilent)
@@ -338,9 +420,21 @@ namespace pico8_interpreter.Pico8
 
                 byte[] _sfxData = new byte[68];
                 Buffer.BlockCopy(_ram, util.ADDR_SFX + 68 * patternData[_patternIndex].channels[i].sfxIndex, _sfxData, 0, 68);
-                sfxs[i] = new Sfx(_sfxData, patternData[_patternIndex].channels[i].sfxIndex, ref _audioBuffer, i, _sampleRate);
+                sfxs[i] = new Sfx(_sfxData, patternData[_patternIndex].channels[i].sfxIndex, ref _audioBuffer, ref _oscillator, i, _sampleRate, audioBufferIndex);
                 sfxs[i].Start();
+
+                if (!sfxs[i].HasLoop())
+                {
+                    areAllLooping = false;
+                    if (longestNoLoop == null || longestNoLoop.duration < sfxs[i].duration)
+                        longestNoLoop = sfxs[i];
+                }
+
+                if (longest == null || longest.duration < sfxs[i].duration)
+                    longest = sfxs[i];
             }
+
+            _referenceSfx = areAllLooping ? longest : longestNoLoop;
         }
         public void Start(int n) {
             isPlaying = true;
@@ -363,7 +457,7 @@ namespace pico8_interpreter.Pico8
         }
 
         public P8Note[] notes;
-        public float speed;
+        public float duration;
         public byte startLoop;
         public byte endLoop;
 
@@ -380,24 +474,28 @@ namespace pico8_interpreter.Pico8
 
         private int _currentNote = 0;
 
-        private Oscillator oscillator;
+        private Oscillator _oscillator;
 
         private Queue<Note> notesToPlay;
 
+        private float _fadeIn;
+
         public int audioBufferIndex { get; private set; }
 
-        public Sfx(byte[] _sfxData, int _sfxIndex, ref float[,] audioBuffer, int channel, int sampleRate)
+        public Sfx(byte[] _sfxData, int _sfxIndex, ref float[,] audioBuffer, ref Oscillator oscillator, int channel, int sampleRate, int audioBufferIndex = 0)
         {
             notes = new P8Note[32];
             _audioBuffer = audioBuffer;
             _channel = channel;
 
-            speed = _sfxData[65] / 127.0f;
+            duration = _sfxData[65] / 127.0f;
             startLoop = _sfxData[66];
             endLoop = _sfxData[67];
 
             _sampleRate = sampleRate;
             sfxIndex = _sfxIndex;
+
+            _oscillator = oscillator;
 
             Console.WriteLine($"header {_sfxData[64]} {_sfxData[65]} {_sfxData[66]} {_sfxData[67]}");
 
@@ -418,9 +516,11 @@ namespace pico8_interpreter.Pico8
             oscillator = new Oscillator(sampleRate);
             notesToPlay = new Queue<Note>();
 
-            audioBufferIndex = 0;
+            this.audioBufferIndex = audioBufferIndex;
 
             isActive = true;
+
+            _fadeIn = 0.05f / duration;
         }
 
         public bool Update()
@@ -430,7 +530,6 @@ namespace pico8_interpreter.Pico8
                 return false;
             }
 
-            audioBufferIndex = 0;
             int samplesPerBuffer = _audioBuffer.GetLength(1);
             while (audioBufferIndex < samplesPerBuffer)
             {
@@ -441,7 +540,7 @@ namespace pico8_interpreter.Pico8
                     if (notesToPlay.Count == 0)
                     {
                         isAlive = false;
-                        return false;
+                        break;
                     }
                 }
 
@@ -452,7 +551,8 @@ namespace pico8_interpreter.Pico8
                     notesToPlay.Dequeue();
             }
 
-            return true;
+            audioBufferIndex = audioBufferIndex == samplesPerBuffer ? 0 : audioBufferIndex;
+            return isAlive;
         }
 
         private void QueueNextNotes()
@@ -468,27 +568,38 @@ namespace pico8_interpreter.Pico8
             {
                 case 0:
                     ProcessNoteNoEffect(nextNote);
+                    _fadeIn = 0;
                     break;
                 case 1:
                     ProcessNoteSlide(nextNote);
+                    _fadeIn = 0;
                     break;
                 case 2:
                     ProcessNoteVibrato(nextNote);
+                    _fadeIn = 0;
                     break;
                 case 3:
                     ProcessNoteDrop(nextNote);
+                    _fadeIn = 0;
                     break;
                 case 4:
                     ProcessNoteFadeIn(nextNote);
+                    _fadeIn = 0;
                     break;
                 case 5:
                     ProcessNoteFadeOut(nextNote);
+                    _fadeIn = 1.0f / duration;
                     break;
                 case 6:
                     ProcessNoteArpeggioFast(nextNote);
+                    _fadeIn = 0;
                     break;
                 case 7:
                     ProcessNoteArpeggioSlow(nextNote);
+                    _fadeIn = 0;
+                    break;
+                default:
+                    _fadeIn = 0.5f / duration;
                     break;
             }
 
@@ -503,52 +614,54 @@ namespace pico8_interpreter.Pico8
             }
         }
 
+        public bool HasLoop() { return startLoop < endLoop; }
+
         private void ProcessNoteNoEffect(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, _fadeIn, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteSlide(P8Note note)
         {
             int pitchFrom = _currentNote == 0 ? 32 : notes[_currentNote - 1].pitch;
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, note.pitch, pitchFrom, 0, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, pitchFrom, _fadeIn, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteVibrato(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, note.pitch, note.pitch, 0, 0, true);
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0, true);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteDrop(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, 0, note.pitch, 0, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, 0, note.pitch, 0, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteFadeIn(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, note.pitch, note.pitch, 95, 5);
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 95, 5);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteFadeOut(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, note.pitch, note.pitch, 5, 95);
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 95);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteArpeggioFast(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteArpeggioSlow(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref oscillator, speed, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
@@ -623,6 +736,10 @@ namespace pico8_interpreter.Pico8
                     else if (_timePassed > _duration - _fadeOut)
                     {
                         _volume = util.Lerp(targetVolume, 0, (_timePassed - (_duration - _fadeOut)) / _fadeOut);
+                    }
+                    else
+                    {
+                        _volume = targetVolume;
                     }
 
                     if (_timePassed >= _duration)

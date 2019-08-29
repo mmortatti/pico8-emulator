@@ -7,8 +7,7 @@ palt(3, true)
 map(0, 1, 0, 0, 16, 16)
 
 --music(0, 1000, 0)
-sfx(1, 0)
-music(0, 0, 1+2+4+8)
+music(0, 0)
 t = 0
 print(peek(0x3200 + 64))
 print(peek(0x3200 + 65))

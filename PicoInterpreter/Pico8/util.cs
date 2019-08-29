@@ -120,6 +120,7 @@
             // Matches <var> <op>= <exp> type expressions, like "a += b".
             picoCode = Regex.Replace(picoCode, @"([a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[.*\])?)\s*([+\-*\/%])=\s*(.*)$", ReplaceUnaryShorthand, RegexOptions.Multiline);
 
+            Console.WriteLine(picoCode);
             return picoCode;
         }
 
@@ -144,7 +145,7 @@
                                             RegexOptions.Multiline);
 
 
-            var terms = Regex.Matches(fixedExp, @"(?:\-?(?:0x)?[0-9.A-Fa-f]+)|(?:\-?[a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[[^\]]\])*)");
+            var terms = Regex.Matches(fixedExp, @"(?:\-?[0-9.]+)|(?:\-?(?:0x)[0-9.A-Fa-f]+)|(?:\-?[a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[[^\]]\])*)");
             if (terms.Count <= 0) return unaryMatch.ToString();
 
             int currentChar = 0;
@@ -183,10 +184,10 @@
                         currentChar += 1;
                         expectTerm = true;
                     }
-                    else if (fixedExp[currentChar] == '(')
+                    else if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\(|\[|{"))
                     {
                         Stack<char> st = new Stack<char>();
-                        st.Push('(');
+                        st.Push(fixedExp[currentChar]);
                         while (st.Count > 0)
                         {
                             if (currentChar >= fixedExp.Length)
@@ -194,11 +195,11 @@
                                 break;
                             }
 
-                            if (fixedExp[currentChar] == ')')
+                            if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\)|\]|}"))
                             {
                                 st.Pop();
                             }
-                            else if (fixedExp[currentChar] == '(')
+                            else if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\(|\[|{"))
                             {
                                 st.Push(fixedExp[currentChar]);
                             }
@@ -216,6 +217,9 @@
                 }
                 else
                 {
+                    if (terms[currentTermIndex].Value.StartsWith("-"))
+                        expectTerm = true;
+
                     if (!expectTerm)
                     {
                         break;

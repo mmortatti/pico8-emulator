@@ -403,7 +403,7 @@
             Trace.Assert(id.Length <= 64, "cart data id too long");
             Trace.Assert(id.Length != 0, "empty cart data id");
 
-            Trace.Assert(Regex.IsMatch(id, "^[a-zA-Z0-9 ]*$"), "cart data id: bad char");
+            Trace.Assert(Regex.IsMatch(id, "^[a-zA-Z0-9_]*$"), "cart data id: bad char");
 
             var fileName = cartdataPath + id;
             if (File.Exists(fileName))

@@ -1,4 +1,4 @@
-pico-8 cartridge -- http://www.pico-8.com
+pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
 --just one boss
@@ -24,7 +24,7 @@ checking out the github repo,
 which has the original cart,
 tabs and all:
 
-https:--github.com/bridgs/just-one-boss
+https://github.com/bridgs/just-one-boss
 
 thanks for playing!
 ]]
@@ -60,7 +60,7 @@ pal(1,self.parent.light_color)
 self:draw_sprite(7,10,100,9,15,12)
 end,
 function(self)
-self.x=self.x+2*cos(self.frames_alive/50)
+self.x+=2*cos(self.frames_alive/50)
 end,
 vy=1
 },
@@ -69,7 +69,7 @@ function(self)
 self:draw_sprite(7,7,91,45,14,12,self.vx>0)
 end,
 function(self)
-self.vy=self.vy+0.1
+self.vy+=0.1
 end
 },
 {
@@ -79,7 +79,7 @@ self:draw_curtain(125,-1)
 end,
 function(self)
 self.amount_closed=62*ease_out_in(self.default_counter/100)
-if self.anim~="open" then
+if self.anim!="open" then
 self.amount_closed=62-self.amount_closed
 end
 end,
@@ -94,7 +94,6 @@ end
 end,
 set_anim=function(self,anim)
 self.anim,self.default_counter=anim,100
-return nil
 end
 },
 {
@@ -253,9 +252,9 @@ pal(17-c,self.secondary_color)
 sx=44
 end
 if facing>1 then
-dy=dy+13-5*facing
+dy+=13-5*facing
 else
-dx=dx+4-facing*8
+dx+=4-facing*8
 end
 if self.teeter_frames<3 and self.default_counter<3 then
 sx=55
@@ -286,13 +285,13 @@ self.vx,self.vy=0,0
 self:apply_step()
 self:apply_velocity()
 local col,row,occupant=self:col(),self:row(),get_tile_occupant(self)
-if self.prev_col~=col or self.prev_row~=row then
-if col~=mid(1,col,8) or row~=mid(1,row,5) then
+if self.prev_col!=col or self.prev_row!=row then
+if col!=mid(1,col,8) or row!=mid(1,row,5) then
 sfx(19,3)
 self:undo_step()
 self.teeter_frames=11
 end
-if occupant or (player_reflection and (self.prev_col<5)~=(col<5)) then
+if occupant or (player_reflection and (self.prev_col<5)!=(col<5)) then
 if player_reflection then
 player_reflection:copy_player()
 if get_tile_occupant(player_reflection) then
@@ -355,9 +354,9 @@ apply_step=function(self)
 local dir,dist=self.step_dir,self.step_frames
 if dir then
 if dir>1 then
-self.vy=self.vy+(2*dir-5)*ternary(dist>2,dist-1,dist)
+self.vy+=(2*dir-5)*ternary(dist>2,dist-1,dist)
 else
-self.vx=self.vx+2*dir*dist-dist
+self.vx+=2*dir*dist-dist
 end
 if decrement_counter_prop(self,"step_frames") then
 self.step_dir=nil
@@ -436,7 +435,7 @@ end,
 function(self)
 decrement_counter_prop(self,"rainbow_frames")
 if self.default_counter>0 then
-self.health=self.health-1
+self.health-=1
 end
 end,
 health=0,
@@ -448,7 +447,7 @@ if f2==10 then
 sfx(8,3)
 end
 if f2<=10 then
-f2=f2+3
+f2+=3
 rect(x-f2-1,y-f2,x+f2+1,y+f2,ternary(f<4,5,6))
 end
 end,
@@ -474,7 +473,7 @@ on_hurt=function(self)
 freeze_and_shake_screen(2,2)
 self.hurtbox_channel,self.frames_to_death,score_mult=0,6,min(score_mult+1,8)
 sfx(9,3)
-score=score+score_mult
+score+=score_mult
 spawn_entity(29,self.x,self.y-7,{points=score_mult})
 local health_change=ternary(boss_phase==0,12,6)
 local particles=spawn_particle_burst(self,0,ternary(boss_phase>=5,15,25),16,10)
@@ -534,7 +533,7 @@ is_paused=true
 end,
 75,
 function()
-score=score+max(0,380-timer_seconds)
+score+=max(0,380-timer_seconds)
 dset(score_data_index,max(score,dget(score_data_index)))
 if timer_seconds<=dget(time_data_index) or dget(time_data_index)==0 then
 dset(time_data_index,timer_seconds)
@@ -566,7 +565,7 @@ boss:promise_sequence(
 "phase_change",
 spawn_magic_tile,
 function()
-boss_phase=boss_phase+1
+boss_phase+=1
 end,
 "decide_next_action")
 end
@@ -584,7 +583,7 @@ nil,
 function(self)
 local prev_col,prev_row=self:col(),self:row()
 self:copy_player()
-if (prev_col~=self:col() or prev_row~=self:row()) and get_tile_occupant(self) then
+if (prev_col!=self:col() or prev_row!=self:row()) and get_tile_occupant(self) then
 get_tile_occupant(self):get_bumped()
 if get_tile_occupant(player) then
 get_tile_occupant(player):get_bumped()
@@ -683,9 +682,9 @@ function(self,x,y)
 line(x,y,self.prev_x,self.prev_y,ternary(self.color==16,rainbow_color,self.color))
 end,
 function(self)
-self.vy=self.vy+self.gravity
-self.vx=self.vx*self.friction
-self.vy=self.vy*self.friction
+self.vy+=self.gravity
+self.vx*=self.friction
+self.vy*=self.friction
 self.prev_x,self.prev_y=self.x,self.y
 end,
 friction=1,
@@ -706,7 +705,7 @@ end
 if self.visible or boss_health.rainbow_frames>0 then
 if boss_health.rainbow_frames>0 then
 color_wash(rainbow_color)
-if expression>0 and expression~=5 and boss_phase>0 then
+if expression>0 and expression!=5 and boss_phase>0 then
 pal(13,5)
 end
 expression=8
@@ -731,7 +730,7 @@ function(self)
 local x,y=self.x,self.y
 calc_idle_mult(self,self.frames_alive,2)
 if boss_health.rainbow_frames>12 then
-self.draw_offset_x=self.draw_offset_x+scene_frame%2*2-1
+self.draw_offset_x+=scene_frame%2*2-1
 end
 end,
 x=40,
@@ -770,7 +769,7 @@ self:promise_sequence(
 function()
 spawn_magic_tile(130)
 scene_frame,player_health.visible=0,true
-boss_phase=boss_phase+1
+boss_phase+=1
 end,
 "decide_next_action")
 end,
@@ -967,7 +966,7 @@ elseif boss_phase==2 then
 player_reflection=spawn_entity(16)
 elseif boss_phase==3 and not hard_mode then
 boss_reflection=spawn_entity(23)
-self.home_x=self.home_x+20
+self.home_x+=20
 end
 return self:return_to_ready_position()
 elseif boss_phase==0 then
@@ -1160,7 +1159,7 @@ return ternary((n+({1,2,3,5,7,9,10,11})[conjure_flowers_counter])%m>0,1,0)
 end
 for i=0,39 do
 if i==n then
-n=n+mid(1,do_a_math(2)+do_a_math(3)+do_a_math(5),3)
+n+=mid(1,do_a_math(2)+do_a_math(3)+do_a_math(5),3)
 if not self.is_reflection then
 add(locations,{x=i%8*10+5,y=8*flr(i/8)+4})
 end
@@ -1224,7 +1223,7 @@ end,
 function()
 if upgraded_version then
 boss_reflection=spawn_entity(23)
-self.home_x=self.home_x+20
+self.home_x+=20
 else
 player_reflection=spawn_entity(16)
 end
@@ -1289,7 +1288,7 @@ local dir=2
 if col>5 or (rnd()<0.5 and col>1) then
 dir=-2
 end
-col=col+dir
+col+=dir
 self:move(10*dir,0,40,linear,nil,true)
 end
 end,
@@ -1301,7 +1300,7 @@ spawn_entity(23):promise():and_then_repeat(num_reflections,
 "shoot_laser")
 :and_then(
 "die")
-num_reflections=num_reflections-1
+num_reflections-=1
 end
 end)
 end)
@@ -1418,7 +1417,7 @@ pose=3,
 dir=-1,
 idle_mult=0,
 throw_cards=function(self)
-local is_first=self.is_right_hand~=self.is_reflection
+local is_first=self.is_right_hand!=self.is_reflection
 local dir,promise=self.dir,self:promise_sequence(
 ternary(is_first,0,ternary_hard_mode(13,19)),
 function()
@@ -1508,7 +1507,7 @@ hurtbox_channel=2,
 on_hurt=function(self)
 sfx(18,0)
 if player_health.hearts<4 then
-player_health.hearts=player_health.hearts+1
+player_health.hearts+=1
 player_health.anim,player_health.default_counter="gain",10
 end
 spawn_particle_burst(self,0,6,8,4)
@@ -1535,7 +1534,7 @@ vy=-0.5
 
 -->8
 function _init()
-music(37, null, null)
+music(37)
 starting_phase,title_screen,curtains=max(starting_phase,ternary(dget(0)>0,1,0)),spawn_entity(6),spawn_entity(4)
 entities={title_screen,curtains}
 if skip_title_screen then
@@ -1586,7 +1585,7 @@ local i,j
 for i=1,min(#entities,num_entities) do
 for j=1,min(#entities,num_entities) do
 local entity,entity2=entities[i],entities[j]
-if i~=j and band(entity.hitbox_channel,entity2.hurtbox_channel)>0 and entity:is_hitting(entity2) and entity2.invincibility_frames<=0 then
+if i!=j and band(entity.hitbox_channel,entity2.hurtbox_channel)>0 and entity:is_hitting(entity2) and entity2.invincibility_frames<=0 then
 entity2:on_hurt(entity)
 end
 end
@@ -1598,7 +1597,7 @@ for i=1,#entities do
 local j=i
 while j>1 and is_rendered_on_top_of(entities[j-1],entities[j]) do
 entities[j],entities[j-1]=entities[j-1],entities[j]
-j=j-1
+j-=1
 end
 end
 end
@@ -1705,27 +1704,27 @@ end,
 apply_velocity=function(self)
 local move=self.movement
 if move then
-move.frames=move.frames+1
+move.frames+=1
 local t=move.easing(move.frames/move.duration)
 local i
 self.vx,self.vy=-self.x,-self.y
 for i=0,3 do
 local m=ternary(i%3>0,3,1)*t^i*(1-t)^(3-i)
-self.vx=self.vx+m*move.bezier[2*i+1]
-self.vy=self.vy+m*move.bezier[2*i+2]
+self.vx+=m*move.bezier[2*i+1]
+self.vy+=m*move.bezier[2*i+2]
 end
 if move.frames>=move.duration then
 self.x,self.y,self.vx,self.vy,self.movement=move.final_x,move.final_y,0,0
 end
 end
-self.x=self.x+self.vx
-self.y=self.y+self.vy
+self.x+=self.vx
+self.y+=self.vy
 end,
 move=function(self,x,y,dur,easing,anchors,is_relative)
 local start_x,start_y,end_x,end_y=self.x,self.y,x,y
 if is_relative then
-end_x=end_x+start_x
-end_y=end_y+start_y
+end_x+=start_x
+end_y+=start_y
 end
 local dx,dy=end_x-start_x,end_y-start_y
 anchors=anchors or {dx/4,dy/4,-dx/4,-dy/4}
@@ -1743,7 +1742,7 @@ end_x,end_y}
 return dur-1
 end,
 cancel_move=function(self)
-self.vx,self.vy,self.movement=0,0
+self.vx,self,vy,self.movement=0,0
 end
 }
 end
@@ -2317,7 +2316,7 @@ __map__
 0000abfbfcfdfefafbfcfdfeff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000bcbdbdbdbdbdbdbdbdbdbd00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
-01120000071300712107111071200b1300b1210b1110b1200c1300c1210c1110c1200d1300d1210d1110d1200e1300e1210e1110e1200d1300d1210d1110d1200c1300c1210c1110c1200b1300b1210b1110b120
+01120000071300712007110071200b1300b1200b1100b1200c1300c1200c1100c1200d1300d1200d1100d1200e1300e1200e1100e1200d1300d1200d1100d1200c1300c1200c1100c1200b1300b1200b1100b120
 011200001f5301f5211f5110000000000000001f5301f5311f5211f5211f51100000000000000000000000001f5301f5211f5110000000000000001f5301f5311f5211f5211f5113000000000000000000000000
 0112000000000000000000026520245302452124521225202453024531245211d5301d5311d5211d5211d5111f5301f5211f5110050000500005001f5301f5311f5211f5211f5113050000500005000000000000
 011200001d2301f2211f2211f2211f2221f2221f2221f2211f2110000000000000001a2301a2211a2211a2111d2301f2211f2211f2211f2221f2221f2211f2211f21100000000000000000000000000000000000

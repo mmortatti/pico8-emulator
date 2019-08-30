@@ -14,7 +14,11 @@ Firstly, you will need to create a new Pico8 object
 Pico8 pico8 = new Pico8()
 ```
 
-Since this class is platform independent, it is important to set a few things so that it can process input and screen color values. Firstly, let's add functionality to allow for input processing:
+Since this class does not depend on any external libraries other than LUA interpreters, it needs to know how to process input, convert screen color data and convert audio buffer data to the desired format. Let's start breaking these down.
+
+### Input Processing
+
+To tell the PICO-8 Emulator how to process input, we need to do something similar to the code below:
 
 ```c#
 pico8.SetBtnPressedCallback(((x) => Keyboard.GetState().IsKeyDown((Keys)x)));
@@ -22,7 +26,7 @@ pico8.SetControllerKeys(0, (int)Keys.Left, (int)Keys.Right, (int)Keys.Up, (int)K
 ```
 
 In this case, I am using the MonoGame API to read button input. In the first line I add a simple lambda function that takes an integer value representing the key that was pressed and call a IsKeyDown function that takes that value and returns whether that key is down or not.
-After that, I set all the integer values that represent all the PICO-8 keys: Left, Rignt, Up, Down, Z and X.
+After that, I set all the integer values that represent all the PICO-8 keys (Left, Rignt, Up, Down, Z and X) to the corresponding integer values .
 
 Now we need to tell the class how to interpret the PICO-8 screen color values and draw it to the screen. This process is done by passing an array of color values to the Flip function and a lambda function that taks rgb integer values and returns the corresponding color value.
 

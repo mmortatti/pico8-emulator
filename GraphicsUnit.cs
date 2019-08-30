@@ -1048,11 +1048,9 @@
         /// <param name="memory">The <see cref="MemoryUnit"/> reference</param>
         /// <param name="screenColorData">The screenColorData reference</param>
         /// <param name="rgbToColor">The rgbToColor function to use</param>
-        public GraphicsUnit(ref MemoryUnit memory, ref G[] screenColorData, Func<int, int, int, G> rgbToColor)
+        public GraphicsUnit(ref MemoryUnit memory)
         {
             this.memory = memory;
-            this.screenColorData = screenColorData;
-            this.rgbToColor = rgbToColor;
 
             memory.DrawColor = 6;
 

@@ -10,7 +10,7 @@
     /// Defines the <see cref="PicoInterpreter{G}" />
     /// </summary>
     /// <typeparam name="G"></typeparam>
-    public class Pico8<G, A>
+    public class Pico8<G>
     {
         /// <summary>
         /// Defines a random object to use in PICO-8 random functions.
@@ -56,7 +56,44 @@
         /// <summary>
         /// Defines the audio unit.
         /// </summary>
-        public AudioUnit<A> audio;
+        public AudioUnit audio;
+
+        public Action<float[,]> ConvertBufferToFormat
+        {
+            get
+            {
+                return audio.ConvertBufferToFormat;
+            }
+            set
+            {
+                audio.ConvertBufferToFormat = value;
+            }
+        }
+
+        public G[] screenColorData
+        {
+            get
+            {
+                return graphics.screenColorData;
+            }
+            set
+            {
+                graphics.screenColorData = value;
+            }
+        }
+
+        public Func<int, int, int, G> rgbToColor
+        {
+            get
+            {
+                return graphics.rgbToColor;
+            }
+            set
+            {
+                graphics.rgbToColor = value;
+
+            }
+        }
 
         /// <summary>
         /// Defines the <see cref="Game" />
@@ -159,14 +196,14 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="PicoInterpreter{G}"/> class.
         /// </summary>
-        /// <param name="screenData">The screen color data reference.</param>
+        /// <param name="screenColorData">The screen color data reference.</param>
         /// <param name="rgbToColor">Function to convert RBG calues to an arbitrary color value.</param>
-        public Pico8(ref G[] screenData, Func<int, int, int, G> rgbToColor)
+        public Pico8()
         {
             random = new Random();
             memory = new MemoryUnit();
-            graphics = new GraphicsUnit<G>(ref memory, ref screenData, rgbToColor);
-            audio = new AudioUnit<A>(ref memory);
+            graphics = new GraphicsUnit<G>(ref memory);
+            audio = new AudioUnit(ref memory);
 
             // Initialie controller variables
             BtnPressedCallbacks = new List<Func<int, bool>>();
@@ -642,6 +679,17 @@
         /// <param name="interpreter">The interpreter to use.<see cref="ILuaInterpreter"/></param>
         public void LoadGame(string path, ILuaInterpreter interpreter)
         {
+            // Verify if all conditions to run a game are met.
+            if (graphics.screenColorData == null)
+                throw new ArgumentNullException("Pico8 must have a reference to the screenColorData array to fill it with pico8's screen data.");
+            if (graphics.screenColorData.Length != 128 * 128)
+                throw new ArgumentException($"screenColorData array must be of length 16.384 (128 * 128), but is of length {graphics.screenColorData.Length}.");
+            if (audio.ConvertBufferToFormat == null)
+                throw new ArgumentNullException("Pico8 must have a way to convert audio buffer values to the desired format. " +
+                                                "Please provide a reference to a function to do that by setting <p8 instance>.ConvertBufferToFormat.");
+            if (BtnPressedCallbacks.Count == 0)
+                throw new ArgumentException("There is no button callback set. Please set it by calling <p8 instance>.SetBtnPressedCallback(<callback function>).");
+
             loadedGame = new Game();
 
             loadedGame.path = path;

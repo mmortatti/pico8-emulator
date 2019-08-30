@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pico8_Emulator
 {
-    public class AudioUnit<A>
+    public class AudioUnit
     {
         public int sampleRate = 48000;
         public int channelCount = 4;
@@ -14,7 +14,7 @@ namespace Pico8_Emulator
 
         public float[,] audioBuffer;
 
-        public Action<float[,]> ConvertBufferCallback;
+        public Action<float[,]> ConvertBufferToFormat;
 
         private MemoryUnit _memory;
 
@@ -43,7 +43,7 @@ namespace Pico8_Emulator
             ClearBuffer();
             FillBuffer();
 
-            ConvertBufferCallback(audioBuffer);
+            ConvertBufferToFormat(audioBuffer);
         }
 
         public object Sfx(int n, int? channel = -1, int? offset = 0, int? length = 32)

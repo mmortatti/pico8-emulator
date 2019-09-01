@@ -12,6 +12,8 @@
     /// <typeparam name="G"></typeparam>
     public class Pico8<G>
     {
+        private const int MAX_PLAYERS = 8;
+
         /// <summary>
         /// Defines a random object to use in PICO-8 random functions.
         /// </summary>
@@ -22,26 +24,18 @@
         /// </summary>
         private DateTime timeStart;
 
-        /// <summary>
-        /// Defines a list of functions that are used to know if a specific button was pressed or not.
-        /// </summary>
-        private List<Func<int, bool>> BtnPressedCallbacks;
-
-        // First Players keys
-        /// <summary>
-        /// Defines the BtnLeft, BtnRight, BtnUp, BtnDown, BtnA, BtnB
-        /// </summary>
-        private int[] BtnLeft, BtnRight, BtnUp, BtnDown, BtnA, BtnB;
 
         /// <summary>
-        /// Defines the BtnLeftLast, BtnRightLast, BtnUpLast, BtnDownLast, BtnALast, BtnBLast
+        /// Defines an array to hold the last frame's values for down buttons.
         /// </summary>
-        private bool[] BtnLeftLast, BtnRightLast, BtnUpLast, BtnDownLast, BtnALast, BtnBLast;
+        private bool[,] BtnLast;
 
         /// <summary>
-        /// Defines the BtnLeftCurrent, BtnRightCurrent, BtnUpCurrent, BtnDownCurrent, BtnACurrent, BtnBCurrent
+        /// Defines an array to hold the current frame's values for down buttons.
         /// </summary>
-        private bool[] BtnLeftCurrent, BtnRightCurrent, BtnUpCurrent, BtnDownCurrent, BtnACurrent, BtnBCurrent;
+        private bool[,] BtnCurrent;
+
+        private List<Func<bool>>[,] _isDownFunctions;
 
         /// <summary>
         /// Defines the memory unit
@@ -205,37 +199,15 @@
             graphics = new GraphicsUnit<G>(ref memory);
             audio = new AudioUnit(ref memory);
 
-            // Initialie controller variables
-            BtnPressedCallbacks = new List<Func<int, bool>>();
-            BtnLeft = new int[8];
-            BtnRight = new int[8];
-            BtnUp = new int[8];
-            BtnDown = new int[8];
-            BtnA = new int[8];
-            BtnB = new int[8];
-
-            BtnLeftLast = new bool[8];
-            BtnRightLast = new bool[8];
-            BtnUpLast = new bool[8];
-            BtnDownLast = new bool[8];
-            BtnALast = new bool[8];
-            BtnBLast = new bool[8];
-
-            BtnLeftCurrent = new bool[8];
-            BtnRightCurrent = new bool[8];
-            BtnUpCurrent = new bool[8];
-            BtnDownCurrent = new bool[8];
-            BtnACurrent = new bool[8];
-            BtnBCurrent = new bool[8];
-
-            for (int i = 0; i < 8; i++)
+            BtnLast = new bool[6, 8];
+            BtnCurrent = new bool[6, 8];
+            _isDownFunctions = new List<Func<bool>>[6, 8];
+            for (int i = 0; i < _isDownFunctions.GetLength(0); i += 1)
             {
-                BtnLeft[i] = -1;
-                BtnRight[i] = -1;
-                BtnUp[i] = -1;
-                BtnDown[i] = -1;
-                BtnA[i] = -1;
-                BtnB[i] = -1;
+                for(int j = 0; j < _isDownFunctions.GetLength(1); j += 1)
+                {
+                    _isDownFunctions[i, j] = new List<Func<bool>>();
+                }
             }
 
             (new FileInfo("cartdata/")).Directory.Create();
@@ -382,7 +354,7 @@
 
             // Controls
             interpreter.AddFunction("btn", (Func<int?, int?, object>)Btn);
-            interpreter.AddFunction("btnp", (Func<int, int?, bool>)Btnp);
+            interpreter.AddFunction("btnp", (Func<int?, int?, object>)Btnp);
 
             interpreter.AddFunction("flip", Flip);
 
@@ -687,8 +659,6 @@
             if (audio.ConvertBufferToFormat == null)
                 throw new ArgumentNullException("Pico8 must have a way to convert audio buffer values to the desired format. " +
                                                 "Please provide a reference to a function to do that by setting <p8 instance>.ConvertBufferToFormat.");
-            if (BtnPressedCallbacks.Count == 0)
-                throw new ArgumentException("There is no button callback set. Please set it by calling <p8 instance>.SetBtnPressedCallback(<callback function>).");
 
             loadedGame = new Game();
 
@@ -745,38 +715,31 @@
         ///
         /// If no parameters supplied, returns a bitfield of all 12 button states for player 0 & 1
         ///	 P0: bits 0..5  P1: bits 8..13
-        ///
-        /// Default keyboard mappings to player buttons:
-        ///	player 0: cursors, Z,X / C,V / N,M
-        ///    player 1: ESDF, LSHIFT,A / TAB,Q,E
         /// </summary>
         /// <param name="i">The index of the button</param>
         /// <param name="p">The player index.</param>
         /// <returns>The button state value.</returns>
         public object Btn(int? i = null, int? p = null)
         {
+            if (i == null)
+            {
+                int bitMask = 0;
+                for (int k = 0; k < BtnCurrent.GetLength(0); k += 1)
+                {
+                    for (int j = 0; j < 2; j += 1)
+                    {
+                        bitMask |= ((BtnCurrent[k, j] ? 1 : 0) << (6 * j + k));
+                    }
+                }
+                return bitMask;
+            }
+
             if (!p.HasValue)
             {
                 p = 0;
             }
 
-            switch (i.Value)
-            {
-                case 0:
-                    return BtnLeftCurrent[p.Value];
-                case 1:
-                    return BtnRightCurrent[p.Value];
-                case 2:
-                    return BtnUpCurrent[p.Value];
-                case 3:
-                    return BtnDownCurrent[p.Value];
-                case 4:
-                    return BtnACurrent[p.Value];
-                case 5:
-                    return BtnBCurrent[p.Value];
-            }
-
-            return false;
+            return BtnCurrent[i.GetValueOrDefault(), p.GetValueOrDefault()];
         }
 
         /// <summary>
@@ -789,31 +752,27 @@
         /// <param name="i">The index of the button</param>
         /// <param name="p">The player index.</param>
         /// <returns>The button state value.</returns>
-        public bool Btnp(int i, int? p = null)
+        public object Btnp(int? i = null, int? p = null)
         {
+            if (i == null)
+            {
+                int bitMask = 0;
+                for (int k = 0; k < BtnCurrent.GetLength(0); k += 1)
+                {
+                    for (int j = 0; j < 2; j += 1)
+                    {
+                        bitMask |= ((BtnCurrent[k, j] && BtnLast[k, j] ? 1 : 0) << (6 * j + k));
+                    }
+                }
+                return bitMask;
+            }
+
             if (!p.HasValue)
             {
                 p = 0;
             }
 
-            int pi = p.Value;
-            switch (i)
-            {
-                case 0:
-                    return BtnLeftCurrent[pi] && !BtnLeftLast[pi];
-                case 1:
-                    return BtnRightCurrent[pi] && !BtnRightLast[pi];
-                case 2:
-                    return BtnUpCurrent[pi] && !BtnUpLast[pi];
-                case 3:
-                    return BtnDownCurrent[pi] && !BtnDownLast[pi];
-                case 4:
-                    return BtnACurrent[pi] && !BtnALast[pi];
-                case 5:
-                    return BtnBCurrent[pi] && !BtnBLast[pi];
-            }
-
-            return false;
+            return BtnCurrent[i.GetValueOrDefault(), p.GetValueOrDefault()] && BtnLast[i.GetValueOrDefault(), p.GetValueOrDefault()];
         }
 
         /// <summary>
@@ -821,53 +780,78 @@
         /// </summary>
         private void UpdateControllerState()
         {
-            foreach (var f in BtnPressedCallbacks)
+            for(int i = 0; i < 6; i += 1)
             {
-                for (int i = 0; i < 8; i++)
+                for (int j = 0; j < MAX_PLAYERS; j += 1)
                 {
-                    BtnLeftLast[i] = BtnLeftCurrent[i];
-                    BtnRightLast[i] = BtnRightCurrent[i];
-                    BtnUpLast[i] = BtnUpCurrent[i];
-                    BtnDownLast[i] = BtnDownCurrent[i];
-                    BtnALast[i] = BtnACurrent[i];
-                    BtnBLast[i] = BtnBCurrent[i];
-
-
-                    BtnLeftCurrent[i] = f(BtnLeft[i]);
-                    BtnRightCurrent[i] = f(BtnRight[i]);
-                    BtnUpCurrent[i] = f(BtnUp[i]);
-                    BtnDownCurrent[i] = f(BtnDown[i]);
-                    BtnACurrent[i] = f(BtnA[i]);
-                    BtnBCurrent[i] = f(BtnB[i]);
+                    BtnLast[i, j] = BtnCurrent[i, j];
+                    BtnCurrent[i, j] = false;
+                    foreach (var f in _isDownFunctions[i, j])
+                    {
+                        BtnCurrent[i,j] |= f();
+                    }
                 }
             }
         }
 
-        public void SetBtnPressedCallback(Func<int, bool> callback)
+        /// <summary>
+        /// Adds a function to be called to get the current state of the Left button.
+        /// </summary>
+        /// <param name="func"> The function to call to get button info. </param>
+        /// <param name="playerIndex"> The player that you want to assign the button to. </param>
+        public void AddLeftButtonDownFunction(Func<bool> func, int playerIndex)
         {
-            BtnPressedCallbacks.Add(callback);
+            _isDownFunctions[0, playerIndex].Add(func);
         }
 
         /// <summary>
-        /// Sets controller key values. Used to call BtnPressedCallbacks so that it know the indexes of each button.
+        /// Adds a function to be called to get the current state of the Right button.
         /// </summary>
-        /// <param name="index">The player index</param>
-        /// <param name="Left">The Left button index</param>
-        /// <param name="Right">The Right button index</param>
-        /// <param name="Up">The Up button index</param>
-        /// <param name="Down">The Down button index</param>
-        /// <param name="A">The A button index</param>
-        /// <param name="B">The B button index</param>
-        public void SetControllerKeys(int index, int Left, int Right, int Up, int Down, int A, int B)
+        /// <param name="func"> The function to call to get button info. </param>
+        /// <param name="playerIndex"> The player that you want to assign the button to. </param>
+        public void AddRightButtonDownFunction(Func<bool> func, int playerIndex)
         {
-            Trace.Assert(index >= 0 && index <= 7);
+            _isDownFunctions[1, playerIndex].Add(func);
+        }
 
-            BtnLeft[index] = Left;
-            BtnRight[index] = Right;
-            BtnUp[index] = Up;
-            BtnDown[index] = Down;
-            BtnA[index] = A;
-            BtnB[index] = B;
+        /// <summary>
+        /// Adds a function to be called to get the current state of the Up button.
+        /// </summary>
+        /// <param name="func"> The function to call to get button info. </param>
+        /// <param name="playerIndex"> The player that you want to assign the button to. </param>
+        public void AddUpButtonDownFunction(Func<bool> func, int playerIndex)
+        {
+            _isDownFunctions[2, playerIndex].Add(func);
+        }
+
+        /// <summary>
+        /// Adds a function to be called to get the current state of the Down button.
+        /// </summary>
+        /// <param name="func"> The function to call to get button info. </param>
+        /// <param name="playerIndex"> The player that you want to assign the button to. </param>
+        public void AddDownButtonDownFunction(Func<bool> func, int playerIndex)
+        {
+            _isDownFunctions[3, playerIndex].Add(func);
+        }
+
+        /// <summary>
+        /// Adds a function to be called to get the current state of the O button.
+        /// </summary>
+        /// <param name="func"> The function to call to get button info. </param>
+        /// <param name="playerIndex"> The player that you want to assign the button to. </param>
+        public void AddOButtonDownFunction(Func<bool> func, int playerIndex)
+        {
+            _isDownFunctions[4, playerIndex].Add(func);
+        }
+
+        /// <summary>
+        /// Adds a function to be called to get the current state of the X button.
+        /// </summary>
+        /// <param name="func"> The function to call to get button info. </param>
+        /// <param name="playerIndex"> The player that you want to assign the button to. </param>
+        public void AddXButtonDownFunction(Func<bool> func, int playerIndex)
+        {
+            _isDownFunctions[5, playerIndex].Add(func);
         }
     }
 }

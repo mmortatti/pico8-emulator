@@ -51,6 +51,10 @@ In the first line, we create an array of size 128 * 128 to represent the color v
 
 The 'screenColorData' array that you gave to the class will be used to set each pixel of the 128*128 screen. That happens in the `pico8.Draw()` function, so after calling it you can read the array and use it to draw to your screen.
 
+### Audio Processing
+
+For audio, the Pico8 class 
+
 ### Loading a Cartridge
 
 To actually run a game you will need to load a .p8 lua file (not the cartridge, but the actual file with the code, gfx, map, sfx and music values).

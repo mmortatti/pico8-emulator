@@ -452,6 +452,16 @@
         }
 
         /// <summary>
+        /// Returns whether or not that color was set to transparent.
+        /// </summary>
+        /// <param name="col"> The color to check. </param>
+        /// <returns>If the color is set to transparent or not.</returns>
+        public bool IsTransparent(int col)
+        {
+            return (ram[ADDR_PALETTE_0 + col] & 0x10) != 0;
+        }
+
+        /// <summary>
         /// Reset transparency for a given color.
         /// </summary>
         /// <param name="col">The color value to reset transparency of.</param>

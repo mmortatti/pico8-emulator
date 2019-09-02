@@ -51,6 +51,43 @@ In the first line, we create an array of size 128 * 128 to represent the color v
 
 The 'screenColorData' array that you gave to the class will be used to set each pixel of the 128*128 screen. That happens in the `pico8.Draw()` function, so after calling it you can read the array and use it to draw to your screen.
 
+### Audio Processing
+
+The Pico8 class has a 'RequestAudioBuffer' method that gives you the next values that needs to be played. Unfortunately, each sound API will use a different format when dealing with audio buffers, so you might need to format the returned values to your needs. The method will return a buffer of float values between -1.0 and 1.0 that represents everything that is being played by Pico8 as a single channel (Mono) output.
+
+```c#
+while(soundEffectInstance.PendingBufferCount < 3)
+{
+    float[] p8Buffer = pico8.audio.RequestBuffer();
+    int samplesPerBuffer = p8Buffer.Length;
+    
+    byte[] audioBuffer = new byte[samplesPerBuffer * 2];
+
+    for (int i = 0; i < samplesPerBuffer; i += 1)
+    {
+        float floatSample = p8Buffer[i];
+
+        // Convert it to the 16 bit [short.MinValue..short.MaxValue] range
+        short shortSample = (short)(floatSample >= 0.0f ? floatSample * short.MaxValue : floatSample * short.MinValue * -1);
+
+        // Store the 16 bit sample as two consecutive 8 bit values in the buffer with regard to endian-ness
+        if (!BitConverter.IsLittleEndian)
+        {
+            audioBuffer[i * 2] = (byte)(shortSample >> 8);
+            audioBuffer[i * 2 + 1] = (byte)shortSample;
+        }
+        else
+        {
+            audioBuffer[i * 2] = (byte)shortSample;
+            audioBuffer[i * 2 + 1] = (byte)(shortSample >> 8);
+        }
+    }
+    soundEffectInstance.SubmitBuffer(audioBuffer);
+}
+```
+
+The code above show an example of usage by Monogame's 'DynamicSoundEffectInstance' audio class. It takes as input a byte array where each two bytes corresponds to one audio value. Because of that, we need to change the format of the float array with a -1 to 1 range to a byte array that is twice the size and can be of range short.MinValue to short.MaxValue.
+
 ### Loading a Cartridge
 
 To actually run a game you will need to load a .p8 lua file (not the cartridge, but the actual file with the code, gfx, map, sfx and music values).
@@ -67,4 +104,14 @@ This function will load the game into the PICO-8 ram, initialize the API and run
 pico8.Update();
 
 pico8.Draw();
+```
+
+It is also important to note that after `pico8.Draw()` you need to use your `screenColorData` array to draw to the screen. In Monogame, you do that by doing the following:
+
+```c#
+Texture2D screenTexture = new Texture2D((GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
+// Copy color data to the texture.
+screenTexture.SetData(screenColorData);
+// Draw texture to the screen.
+spriteBatch.Draw(screenTexture, new Rectangle(0, 0, 128, 128), Color.White);
 ```

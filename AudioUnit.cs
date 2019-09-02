@@ -12,9 +12,8 @@ namespace Pico8_Emulator
         public int channelCount = 4;
         public int samplesPerBuffer = 4000;
 
-        public float[,] audioBuffer;
-
-        public Action<float[,]> ConvertBufferToFormat;
+        private float[] audioBuffer;
+        public float[] externalAudioBuffer;
 
         private MemoryUnit _memory;
 
@@ -26,7 +25,8 @@ namespace Pico8_Emulator
 
         public AudioUnit(ref MemoryUnit memory)
         {
-            audioBuffer = new float[channelCount, samplesPerBuffer];
+            audioBuffer = new float[samplesPerBuffer];
+            externalAudioBuffer = new float[samplesPerBuffer];
 
             _memory = memory;
         }
@@ -38,12 +38,14 @@ namespace Pico8_Emulator
             musicPlayer = new MusicPlayer(ref _memory, ref audioBuffer, sampleRate);
         }
 
-        public void UpdateAudio()
+        public float[] RequestBuffer()
         {
             ClearBuffer();
             FillBuffer();
+            CompressBuffer();
 
-            ConvertBufferToFormat(audioBuffer);
+            Buffer.BlockCopy(audioBuffer, 0, externalAudioBuffer, 0, sizeof(float) * samplesPerBuffer);
+            return externalAudioBuffer;
         }
 
         public object Sfx(int n, int? channel = -1, int? offset = 0, int? length = 32)
@@ -125,12 +127,17 @@ namespace Pico8_Emulator
 
         public void ClearBuffer()
         {
-            for (int j = 0; j < channelCount; j += 1)
+            for (int i = 0; i < samplesPerBuffer; i++)
             {
-                for (int i = 0; i < samplesPerBuffer; i++)
-                {
-                    audioBuffer[j, i] = 0;
-                }
+                audioBuffer[i] = 0;
+            }
+        }
+
+        public void CompressBuffer()
+        {
+            for (int i = 0; i < samplesPerBuffer; i++)
+            {
+                audioBuffer[i] = (float)Math.Tanh(audioBuffer[i]);
             }
         }
 
@@ -283,14 +290,14 @@ namespace Pico8_Emulator
         private byte[] _ram;
         private int _patternIndex;
 
-        private float[,] _audioBuffer;
+        private float[] _audioBuffer;
         private int _sampleRate;
 
         private Sfx _referenceSfx = null;
         private Oscillator _oscillator;
 
         public bool isPlaying { get; private set; }
-        public MusicPlayer(ref MemoryUnit memory, ref float[,] audioBuffer, int sampleRate)
+        public MusicPlayer(ref MemoryUnit memory, ref float[] audioBuffer, int sampleRate)
         {
             sfxs = new Sfx[4] { null, null, null, null };
             isPlaying = false;
@@ -422,7 +429,7 @@ namespace Pico8_Emulator
 
                 byte[] _sfxData = new byte[68];
                 Buffer.BlockCopy(_ram, util.ADDR_SFX + 68 * patternData[_patternIndex].channels[i].sfxIndex, _sfxData, 0, 68);
-                sfxs[i] = new Sfx(_sfxData, patternData[_patternIndex].channels[i].sfxIndex, ref _audioBuffer, ref _oscillator, i, _sampleRate, audioBufferIndex);
+                sfxs[i] = new Sfx(_sfxData, patternData[_patternIndex].channels[i].sfxIndex, ref _audioBuffer, ref _oscillator, _sampleRate, audioBufferIndex);
                 sfxs[i].Start();
 
                 if (!sfxs[i].HasLoop())
@@ -471,8 +478,7 @@ namespace Pico8_Emulator
         public bool isActive { get; private set; }
         public int sfxIndex { get; private set; }
 
-        private float[,] _audioBuffer;
-        private int _channel;
+        private float[] _audioBuffer;
 
         private int _currentNote = 0;
         public int currentNote
@@ -506,11 +512,10 @@ namespace Pico8_Emulator
 
         public int audioBufferIndex { get; private set; }
 
-        public Sfx(byte[] _sfxData, int _sfxIndex, ref float[,] audioBuffer, ref Oscillator oscillator, int channel, int sampleRate, int audioBufferIndex = 0)
+        public Sfx(byte[] _sfxData, int _sfxIndex, ref float[] audioBuffer, ref Oscillator oscillator, int sampleRate, int audioBufferIndex = 0)
         {
             notes = new P8Note[32];
             _audioBuffer = audioBuffer;
-            _channel = channel;
 
             duration = _sfxData[65] / 120.0f;
             startLoop = _sfxData[66];
@@ -554,7 +559,7 @@ namespace Pico8_Emulator
                 return false;
             }
 
-            int samplesPerBuffer = _audioBuffer.GetLength(1);
+            int samplesPerBuffer = _audioBuffer.Length;
             while (audioBufferIndex < samplesPerBuffer)
             {
                 // Queue next notes that need to be played. In case there are no more notes, stop everything.
@@ -642,50 +647,50 @@ namespace Pico8_Emulator
 
         private void ProcessNoteNoEffect(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, _fadeIn, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, _fadeIn, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteSlide(P8Note note)
         {
             int pitchFrom = _currentNote == 0 ? 32 : notes[_currentNote - 1].pitch;
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, pitchFrom, _fadeIn, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, pitchFrom, _fadeIn, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteVibrato(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0, true);
+            Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0, true);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteDrop(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, 0, note.pitch, 0, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, 0, note.pitch, 0, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteFadeIn(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 95, 5);
+            Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 95, 5);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteFadeOut(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 95);
+            Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 95);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteArpeggioFast(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
         private void ProcessNoteArpeggioSlow(P8Note note)
         {
-            Note noteToPlay = new Note(ref _audioBuffer, _channel, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
+            Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
@@ -695,8 +700,7 @@ namespace Pico8_Emulator
 
     public class Note
     {
-        private float[,] _audioBuffer;
-        private int _channel;
+        private float[] _audioBuffer;
         private float _duration;
         private float _fadeIn;
         private float _fadeOut;
@@ -717,10 +721,9 @@ namespace Pico8_Emulator
 
         private int _pitchFrom;
 
-        public Note(ref float[,] audioBuffer, int channel, int sampleRate, ref Oscillator oscillator, float duration, byte volume, byte waveform, byte pitch, int pitchFrom = -1, float fadeIn = 1, float fadeOut = 1, bool vibrato = false)
+        public Note(ref float[] audioBuffer, int sampleRate, ref Oscillator oscillator, float duration, byte volume, byte waveform, byte pitch, int pitchFrom = -1, float fadeIn = 1, float fadeOut = 1, bool vibrato = false)
         {
             _audioBuffer = audioBuffer;
-            _channel = channel;
 
             _duration = duration;
             _sampleRate = sampleRate;
@@ -748,7 +751,7 @@ namespace Pico8_Emulator
 
         public int Process(int bufferOffset = 0, bool writeToBuffer = true)
         {
-            int samplesPerBuffer = _audioBuffer.GetLength(1);
+            int samplesPerBuffer = _audioBuffer.Length;
             for (int i = bufferOffset; i < samplesPerBuffer; i++)
             {
                 if (writeToBuffer)
@@ -782,7 +785,7 @@ namespace Pico8_Emulator
                     }
 
                     float sample = _oscillator.waveFuncMap[waveform](freq);
-                    _audioBuffer[_channel, i] += sample * _volume;
+                    _audioBuffer[i] += sample * _volume;
                 }
 
                 _timePassed += 1.0f / _sampleRate;

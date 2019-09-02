@@ -52,18 +52,6 @@
         /// </summary>
         public AudioUnit audio;
 
-        public Action<float[,]> ConvertBufferToFormat
-        {
-            get
-            {
-                return audio.ConvertBufferToFormat;
-            }
-            set
-            {
-                audio.ConvertBufferToFormat = value;
-            }
-        }
-
         public G[] screenColorData
         {
             get
@@ -656,9 +644,6 @@
                 throw new ArgumentNullException("Pico8 must have a reference to the screenColorData array to fill it with pico8's screen data.");
             if (graphics.screenColorData.Length != 128 * 128)
                 throw new ArgumentException($"screenColorData array must be of length 16.384 (128 * 128), but is of length {graphics.screenColorData.Length}.");
-            if (audio.ConvertBufferToFormat == null)
-                throw new ArgumentNullException("Pico8 must have a way to convert audio buffer values to the desired format. " +
-                                                "Please provide a reference to a function to do that by setting <p8 instance>.ConvertBufferToFormat.");
 
             loadedGame = new Game();
 

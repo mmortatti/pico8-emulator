@@ -11,46 +11,49 @@ In the folder PicoInterpreter/Pico8 you will find a Pico8.cs file. There, the PI
 Firstly, you will need to create a new Pico8 object
 
 ```c#
-Pico8 pico8 = new Pico8()
+Pico8 pico8 = new Pico8<Color>()
 ```
 
-Since this class does not depend on any external libraries other than LUA interpreters, it needs to know how to process input, convert screen color data and convert audio buffer data to the desired format. Let's start breaking these down.
+Since this class does not depend on any external libraries other than LUA interpreters, it needs to know how to process input, convert screen color data and convert audio buffer data to the desired format. That's why we have a 'Color' data structure given to the classes constructor, so that way it can know about which data structure you choose the define a color value as.
+
+Let's start breaking these down.
 
 ### Input Processing
 
 To tell the PICO-8 Emulator how to process input, we need to do something similar to the code below:
 
 ```c#
-pico8.SetBtnPressedCallback(((x) => Keyboard.GetState().IsKeyDown((Keys)x)));
-pico8.SetControllerKeys(0, (int)Keys.Left, (int)Keys.Right, (int)Keys.Up, (int)Keys.Down, (int)Keys.Z, (int)Keys.X);
+pico8.AddLeftButtonDownFunction(() => { return Keyboard.GetState().IsKeyDown(Keys.Left); }, 0);
+pico8.AddDownButtonDownFunction(() => { return Keyboard.GetState().IsKeyDown(Keys.Down); }, 0);
+pico8.AddUpButtonDownFunction(() => { return Keyboard.GetState().IsKeyDown(Keys.Up); }, 0);
+pico8.AddRightButtonDownFunction(() => { return Keyboard.GetState().IsKeyDown(Keys.Right); }, 0);
+pico8.AddOButtonDownFunction(() => { return Keyboard.GetState().IsKeyDown(Keys.Z); }, 0);
+pico8.AddXButtonDownFunction(() => { return Keyboard.GetState().IsKeyDown(Keys.X); }, 0);
 ```
 
-In this case, I am using the MonoGame API to read button input. In the first line I add a simple lambda function that takes an integer value representing the key that was pressed and call a IsKeyDown function that takes that value and returns whether that key is down or not.
-After that, I set all the integer values that represent all the PICO-8 keys (Left, Rignt, Up, Down, Z and X) to the corresponding integer values .
+In this case, I am using the MonoGame API to read button input. What you need to do is to provide functions that return whether or not a button is down or not for each of PICO-8s buttons (left, right, up, down, O, Z). You also need to provide the player index that you want to assign that function to. Keep in mind that you can add multiple functions for the same button, so you can add a keyboard button and a gamepad button at the same time.
 
-Now we need to tell the class how to interpret the PICO-8 screen color values and draw it to the screen. This process is done by passing an array of color values to the Flip function and a lambda function that taks rgb integer values and returns the corresponding color value.
+### Screen Data
+
+Now we need to tell the class how to interpret the PICO-8 screen color values and draw it to the screen. This process is done by setting an array of color values named 'screenColorData' to the PICO-8 class and a function that takes rgb integer values and returns the corresponding color value called 'rgbToColor'. You can see below how that can be done:
 
 ```c#
+// Screen Color Data of size 128 * 128, which is PICO-8s screen size.
 Color[] screenColorData = new Color[128 * 128];
 
-function Draw()
-{
-  // (...)
-  
-  pico8.graphics.Flip(ref screenColorData, ((r, g, b) => new Color(r, g, b))) ;
-
-  screenTexture.SetData(screenColorData);
-  spriteBatch.Draw(screenTexture, new Rectangle(0, 0, 128, 128), Color.White);
-  
-  // (...)
-}
+// Give the class instance the array and a function that can take rgb values
+// and interpret it as your choice of data structure.
+pico8.screenColorData = screenColorData;
+pico8.rgbToColor = (r, g, b) => new Color(r, g, b);
 ```
 
 In the first line, we create an array of size 128 * 128 to represent the color values of the screen. It is then passed to the Flip function so that the class can write screen color data onto it. The lambda takes the rgb value and returns a new Color object (that is specific to Monogame, change it to the equivalent in whatever you are using).
 
-Finally, we set the texture with the color data and write it to the screen. Again, this is Monogame specific and needs to be changed to your draw-to-the-screen equivalent.
+The 'screenColorData' array that you gave to the class will be used to set each pixel of the 128*128 screen. That happens in the `pico8.Draw()` function, so after calling it you can read the array and use it to draw to your screen.
 
-Now, to actually run a game you will need to load a .p8 lua file (not the cartridge, but the actual file with the code, gfx, map, sfx and music values).
+### Loading a Cartridge
+
+To actually run a game you will need to load a .p8 lua file (not the cartridge, but the actual file with the code, gfx, map, sfx and music values).
 
 ```c#
 pico8.LoadGame("game.lua", new MoonSharpInterpreter());
@@ -65,5 +68,3 @@ pico8.Update();
 
 pico8.Draw();
 ```
-
-REMEMBER: you should call Flip() AFTER calling Draw()!

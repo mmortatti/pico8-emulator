@@ -1482,19 +1482,25 @@
         {
             x -= memory.cameraX;
             y -= memory.cameraY;
-            if (col.HasValue)
+            if (!col.HasValue)
             {
-                memory.DrawColor = col.Value;
+                col = memory.DrawColor;
             }
 
             int f = memory.getFillPBit(x, y);
             if (f == 0)
             {
-                memory.WritePixel(x, y, memory.GetDrawColor(memory.DrawColor & 0x0f));
+                memory.WritePixel(x, y, memory.GetDrawColor(col.Value & 0x0f));
             }
             else if (!memory.fillpTransparent)
             {
-                memory.WritePixel(x, y, (memory.GetDrawColor(memory.DrawColor >> 4)));
+                memory.WritePixel(x, y, (memory.GetDrawColor(col.Value >> 4)));
+            }
+
+            // We only want to set the default color if the color given is not transparent.
+            if (!memory.IsTransparent(col.Value))
+            {
+                memory.DrawColor = col.Value;
             }
 
             return null;

@@ -116,7 +116,7 @@
             // Matches if statements with conditions sorrounded by parenthesis, followed by anything but
             // nothing, only whitespaces or 'then' statement. Example:
             // "if (a ~= b) a=b" => "if (a ~= b) then a=b end"
-            picoCode = Regex.Replace(picoCode, @"[iI][fF]\s*(\((?!(?:.*then)).*\))((?!(?:\s*$)|(?:.*then)|(?:.*and)|(?:.*or)).+)$", ReplaceIfShorthand, RegexOptions.Multiline);
+            picoCode = Regex.Replace(picoCode, @"[iI][fF]\s*(\(.*)$", ReplaceIfShorthand, RegexOptions.Multiline);
             // Matches <var> <op>= <exp> type expressions, like "a += b".
             picoCode = Regex.Replace(picoCode, @"([a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[.*\])?)\s*([+\-*\/%])=\s*(.*)$", ReplaceUnaryShorthand, RegexOptions.Multiline);
 
@@ -145,7 +145,7 @@
                                             RegexOptions.Multiline);
 
 
-            var terms = Regex.Matches(fixedExp, @"(?:\-?[0-9.]+)|(?:\-?(?:0x)[0-9.A-Fa-f]+)|(?:\-?[a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[[^\]]\])*)");
+            var terms = Regex.Matches(fixedExp, @"(?:\-?[0-9.]+)|(?:\-?(?:0x)[0-9.A-Fa-f]+)|(?:\-?[a-zA-Z_\]\[](?:[a-zA-Z0-9_\[\]]|(?:\.\s*))*(?:\[[^\]]\])*)");
             if (terms.Count <= 0) return unaryMatch.ToString();
 
             int currentChar = 0;
@@ -188,6 +188,7 @@
                     {
                         Stack<char> st = new Stack<char>();
                         st.Push(fixedExp[currentChar]);
+                        currentChar += 1;
                         while (st.Count > 0)
                         {
                             if (currentChar >= fixedExp.Length)
@@ -207,7 +208,7 @@
                             currentChar += 1;
                         }
 
-                        while (currentTermIndex < terms.Count && terms[currentTermIndex].Index <= currentChar)
+                        while (currentTermIndex < terms.Count && terms[currentTermIndex].Index < currentChar)
                         {
                             currentTermIndex += 1;
                         }
@@ -239,7 +240,38 @@
 
         private static string ReplaceIfShorthand(Match ifMatch)
         {
-            return string.Format("if {0} then {1} end", ifMatch.Groups[1], ifMatch.Groups[2]);
+            string ifLine = ifMatch.Groups[1].ToString();
+
+            // Remove the parenthesis from string.
+            Stack<char> st = new Stack<char>();
+            st.Push(ifLine[0]);
+            int currentChar = 1;
+            while (st.Count > 0)
+            {
+                if (currentChar >= ifLine.Length)
+                {
+                    break;
+                }
+
+                if (Regex.IsMatch(ifLine[currentChar].ToString(), @"\)|\]|}"))
+                {
+                    st.Pop();
+                }
+                else if (Regex.IsMatch(ifLine[currentChar].ToString(), @"\(|\[|{"))
+                {
+                    st.Push(ifLine[currentChar]);
+                }
+
+                currentChar += 1;
+            }
+
+            string expression = ifLine.Substring(currentChar);
+            string condition = ifLine.Substring(0, currentChar);
+
+            if (!Regex.IsMatch(expression, @"(?:(?!(?:\s*$)|(?:\s*then)|(?:\s*and.*)|(?:\s*or.*)|(?:\s*not.*)))^.*$"))
+                return ifMatch.Groups[0].ToString();
+
+            return string.Format("if {0} then {1} end", condition, expression);
         }
 
         public static float NoteToFrequency(float note)

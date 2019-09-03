@@ -127,7 +127,7 @@ namespace Pico8_Emulator
             return null;
         }
 
-        public object Music(int? n, int? fade_len, int? channel_mask)
+        public object Music(int? n, int? fade_len = null, int? channel_mask = null)
         {
             musicPlayer.Start(n.Value);
             return null;

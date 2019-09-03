@@ -1212,7 +1212,6 @@
             string prtStr = s.ToString();
             foreach(char l in prtStr)
             {
-                Console.Write(l);
                 if (l == '\n')
                 {
                     y += 6;
@@ -1238,7 +1237,6 @@
                     x += digit.GetLength(1) + 1;
                 }
             }
-            Console.WriteLine();
         }
 
         /// <summary>

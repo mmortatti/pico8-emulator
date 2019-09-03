@@ -117,7 +117,7 @@ namespace Pico8_Emulator
                     Buffer.BlockCopy(_memory.ram, util.ADDR_SFX + 68 * n, _sfxData, 0, 68);
 
                     Oscillator osc = new Oscillator(sampleRate);
-                    sfxChannels[channel.Value] = new Sfx(_sfxData, n, ref audioBuffer, ref osc, channel.Value, sampleRate);
+                    sfxChannels[channel.Value] = new Sfx(_sfxData, n, ref audioBuffer, ref osc, sampleRate);
                     sfxChannels[channel.Value].currentNote = offset.Value;
                     sfxChannels[channel.Value].lastIndex = offset.Value + length.Value - 1;
                     sfxChannels[channel.Value].Start();
@@ -127,7 +127,7 @@ namespace Pico8_Emulator
             return null;
         }
 
-        public object Music(int? n, int? fade_len, int? channel_mask)
+        public object Music(int? n, int? fade_len = null, int? channel_mask = null)
         {
             musicPlayer.Start(n.Value);
             return null;

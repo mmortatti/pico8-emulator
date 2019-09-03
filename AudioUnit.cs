@@ -18,8 +18,8 @@ namespace Pico8_Emulator
             }
             set
             {
-                audioBuffer.Capacity = value;
                 audioBuffer.Clear();
+                audioBuffer.Capacity = value;
                 while (audioBuffer.Count < audioBuffer.Capacity)
                     audioBuffer.Add(0);
             }
@@ -58,6 +58,7 @@ namespace Pico8_Emulator
             if (requestedSize != -1 && requestedSize != samplesPerBuffer)
             {
                 samplesPerBuffer = requestedSize;
+                externalAudioBuffer = new float[samplesPerBuffer];
             }
 
             ClearBuffer();

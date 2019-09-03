@@ -1179,6 +1179,15 @@
             dictionary.Add((char)153, f_vertical_lines);
         }
 
+        /// <summary>
+        /// Print a string
+		/// If only str is supplied, and the cursor reaches the end of the screen,
+		/// a carriage return and vertical scroll is automatically applied.
+        /// </summary>
+        /// <param name="s">The string or value to print.</param>
+        /// <param name="x">The x position to start the print</param>
+        /// <param name="y">The y position to start the print</param>
+        /// <param name="c">The color of the letters</param>
         public void Print(object s, int? x = null, int? y = null, byte? c = null)
         {
             if (x.HasValue)

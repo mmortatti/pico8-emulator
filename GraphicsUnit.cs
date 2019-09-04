@@ -1025,7 +1025,43 @@
             // Pink
             { 255, 119, 168 },
             // Peach
-            { 255, 204, 170 } };
+            { 255, 204, 170 },
+
+            // Alternative Palette:
+
+            { 42, 24, 22 },
+
+            { 17, 29, 53 },
+
+            { 66, 33, 54 },
+
+            { 15, 84, 91 },
+
+            { 116, 47, 40 },
+
+            { 72, 50, 63 },
+
+            { 162, 136, 121 },
+
+            { 242, 239, 124 },
+
+            { 190, 17, 80 },
+
+            { 255, 109, 36 },
+
+            { 169, 231, 46 },
+
+            { 0, 181, 68 },
+
+            { 6, 89, 181 },
+
+            { 117, 70, 102 },
+
+            { 255, 110, 89 },
+
+            { 255, 157, 128 }
+
+        };
 
         /// <summary>
         /// Reference to PICO-8s memory unit.
@@ -1291,12 +1327,19 @@
                 byte left = (byte)(val & 0x0f);
                 byte right = (byte)(val >> 4);
 
-                int rl = pico8Palette[memory.GetScreenColor(left), 0],
-                    gl = pico8Palette[memory.GetScreenColor(left), 1],
-                    bl = pico8Palette[memory.GetScreenColor(left), 2];
-                int rr = pico8Palette[memory.GetScreenColor(right), 0],
-                    gr = pico8Palette[memory.GetScreenColor(right), 1],
-                    br = pico8Palette[memory.GetScreenColor(right), 2];
+                byte lc = (byte)memory.GetScreenColor(left);
+                byte rc = (byte)memory.GetScreenColor(right);
+
+                // Convert color if alternative palette bit is set.
+                lc = (byte)((lc & 0b10000000) != 0 ? (lc & 0b00001111) + 16 : (lc & 0b00001111));
+                rc = (byte)((rc & 0b10000000) != 0 ? (rc & 0b00001111) + 16 : (rc & 0b00001111));
+
+                int rl = pico8Palette[lc, 0],
+                    gl = pico8Palette[lc, 1],
+                    bl = pico8Palette[lc, 2];
+                int rr = pico8Palette[rc, 0],
+                    gr = pico8Palette[rc, 1],
+                    br = pico8Palette[rc, 2];
                 screenColorData[i * 2] = rgbToColor(rl, gl, bl);
                 screenColorData[i * 2 + 1] = rgbToColor(rr, gr, br);
             }
@@ -1460,22 +1503,24 @@
         {
             x -= memory.cameraX;
             y -= memory.cameraY;
-            if (col.HasValue)
+            if (!col.HasValue)
             {
-                memory.DrawColor = col.Value;
+                col = memory.DrawColor;
             }
 
             int f = memory.getFillPBit(x, y);
             if (f == 0)
             {
                 // Do not consider transparency bit for this operation.
-                memory.WritePixel(x, y, (byte)(memory.GetDrawColor(memory.DrawColor & 0x0f) & 0x0f));
+                memory.WritePixel(x, y, (byte)(memory.GetDrawColor(col.Value & 0x0f) & 0x0f));
             }
             else if (!memory.fillpTransparent)
             {
                 // Do not consider transparency bit for this operation.
-                memory.WritePixel(x, y, (byte)(memory.GetDrawColor(memory.DrawColor >> 4) & 0x0f));
+                memory.WritePixel(x, y, (byte)(memory.GetDrawColor(col.Value >> 4) & 0x0f));
             }
+
+            memory.DrawColor = (byte)(col.Value & 0x0f);
 
             return null;
         }
@@ -1509,7 +1554,7 @@
             // We only want to set the default color if the color given is not transparent.
             if (!memory.IsTransparent(col.Value))
             {
-                memory.DrawColor = col.Value;
+                memory.DrawColor = (byte)(col.Value & 0x0f);
             }
 
             return null;

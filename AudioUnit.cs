@@ -1,15 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Pico8_Emulator
+﻿namespace Pico8_Emulator
 {
+    using System;
+    using System.Collections.Generic;
+
+    /// <summary>
+    /// Defines the PICO-8s AudioUnit<see cref="AudioUnit" />
+    /// </summary>
     public class AudioUnit
     {
+        /// <summary>
+        /// How many samples per second is retrieved.
+        /// </summary>
         public int sampleRate = 48000;
+
+        /// <summary>
+        /// Defines the channelCount. Used for sfx and music playing.
+        /// </summary>
         public int channelCount = 4;
+
+        /// <summary>
+        /// Gets or sets the samplesPerBuffer, i.e. the size of the requested audio buffer.
+        /// </summary>
         public int samplesPerBuffer
         {
             get
@@ -25,17 +36,35 @@ namespace Pico8_Emulator
             }
         }
 
+        /// <summary>
+        /// Defines the audioBuffer, i.e. collection of audio values between -1.0 and 1.0
+        /// </summary>
         private List<float> audioBuffer;
+
+        /// <summary>
+        /// Array to return to RequestBuffer() caller.
+        /// </summary>
         public float[] externalAudioBuffer;
 
+        /// <summary>
+        /// Reference to the memory unit so we can retrieve sfx information.
+        /// </summary>
         private MemoryUnit _memory;
 
+        /// <summary>
+        /// sfx and music channel definition.
+        /// </summary>
         public Sfx[] sfxChannels, musicChannels;
 
-        private byte _reservedChannelsMask = 0;
-
+        /// <summary>
+        /// Object to process music playing.
+        /// </summary>
         private MusicPlayer musicPlayer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AudioUnit"/> class.
+        /// </summary>
+        /// <param name="memory">memory unit reference<see cref="MemoryUnit"/></param>
         public AudioUnit(ref MemoryUnit memory)
         {
             audioBuffer = new List<float>();
@@ -45,6 +74,9 @@ namespace Pico8_Emulator
             _memory = memory;
         }
 
+        /// <summary>
+        /// Initializes audio unit.
+        /// </summary>
         public void Init()
         {
             sfxChannels = new Sfx[channelCount];
@@ -52,6 +84,11 @@ namespace Pico8_Emulator
             musicPlayer = new MusicPlayer(ref _memory, ref audioBuffer, sampleRate);
         }
 
+        /// <summary>
+        /// Requests next values for audio playing
+        /// </summary>
+        /// <param name="requestedSize">The size of the buffer to return<see cref="int"/></param>
+        /// <returns>The final buffer<see cref="float[]"/></returns>
         public float[] RequestBuffer(int requestedSize = -1)
         {
             // Set the correct size that we want to extract.
@@ -69,6 +106,21 @@ namespace Pico8_Emulator
             return externalAudioBuffer;
         }
 
+        /// <summary>
+        /// play sfx n on channel (0..3) from note offset (0..31) for length notes
+		/// n -1 to stop sound on that channel
+        /// n -2 to release sound on that channel from looping
+        /// Any music playing on the channel will be halted
+        /// offset in number of notes(0..31)
+
+        /// channel -1 (default) to automatically choose a channel that is not being used
+        /// channel -2 to stop the sound from playing on any channel
+        /// </summary>
+        /// <param name="n">The sfx number<see cref="int"/></param>
+        /// <param name="channel">The channel to play the sfx in<see cref="int?"/></param>
+        /// <param name="offset">The offset note to start playing from<see cref="int?"/></param>
+        /// <param name="length">The length of the sfx to play<see cref="int?"/></param>
+        /// <returns>The <see cref="object"/></returns>
         public object Sfx(int n, int? channel = -1, int? offset = 0, int? length = 32)
         {
             switch (n)
@@ -127,12 +179,24 @@ namespace Pico8_Emulator
             return null;
         }
 
+        /// <summary>
+        /// play music starting from pattern n (0..63)
+		/// n -1 to stop music
+        /// fade_len in ms(default: 0)
+        /// </summary>
+        /// <param name="n">The number of the music pattern to start playing<see cref="int?"/></param>
+        /// <param name="fade_len">The length of the fade in effect in milliseconds<see cref="int?"/></param>
+        /// <param name="channel_mask">The bitmask for reserving music channels. Not used since music and sfx are played on different channels.<see cref="int?"/></param>
+        /// <returns>The <see cref="object"/></returns>
         public object Music(int? n, int? fade_len = null, int? channel_mask = null)
         {
             musicPlayer.Start(n.Value);
             return null;
         }
 
+        /// <summary>
+        /// Fills sfx and music buffer with new values.
+        /// </summary>
         public void FillBuffer()
         {
             for (int i = 0; i < channelCount; i += 1)
@@ -146,6 +210,9 @@ namespace Pico8_Emulator
             musicPlayer.Update();
         }
 
+        /// <summary>
+        /// Sets all buffer values to zero.
+        /// </summary>
         public void ClearBuffer()
         {
             for (int i = 0; i < samplesPerBuffer; i++)
@@ -154,6 +221,9 @@ namespace Pico8_Emulator
             }
         }
 
+        /// <summary>
+        /// Compresses buffer values so that it stays between the range [-1, 1]
+        /// </summary>
         public void CompressBuffer()
         {
             for (int i = 0; i < samplesPerBuffer; i++)
@@ -162,17 +232,26 @@ namespace Pico8_Emulator
             }
         }
 
+        /// <summary>
+        /// Finds the first available channel to play
+        /// </summary>
+        /// <returns>The index of the first available channel<see cref="int?"/></returns>
         private int? FindAvailableChannel()
         {
             for (int i = 0; i < channelCount; i += 1)
             {
-                if (sfxChannels[i] == null && !isChannelReserved(i))
+                if (sfxChannels[i] == null)
                     return i;
             }
 
             return null;
         }
 
+        /// <summary>
+        /// Finds a specific sound index on a channel.
+        /// </summary>
+        /// <param name="n">The sound index<see cref="int"/></param>
+        /// <returns>The channel index where the sound is playing in. Null if it is not playing on any channels<see cref="int?"/></returns>
         private int? FindSoundOnAChannel(int n)
         {
             for (int i = 0; i < channelCount; i += 1)
@@ -184,16 +263,18 @@ namespace Pico8_Emulator
             return null;
         }
 
-        private bool isChannelReserved(int channel)
-        {
-            return ((1 << channel) & _reservedChannelsMask) != 0;
-        }
-
-        private void StopChannel (int index)
+        /// <summary>
+        /// Stops sound from playing in a channel
+        /// </summary>
+        /// <param name="index">The index of the channel<see cref="int"/></param>
+        private void StopChannel(int index)
         {
             sfxChannels[index] = null;
         }
 
+        /// <summary>
+        /// Stops sound from playing in all channels.
+        /// </summary>
         private void StopAllChannels()
         {
             for (int i = 0; i < sfxChannels.Length; i += 1)
@@ -203,19 +284,36 @@ namespace Pico8_Emulator
         }
     }
 
+    /// <summary>
+    /// Defines all PICO-8s wave functions.<see cref="Oscillator" />
+    /// </summary>
     public class Oscillator
     {
+        /// <summary>
+        /// Maps the waveform number in P8 to the actual waveform function.
+        /// </summary>
         public Func<float, float>[] waveFuncMap;
 
+        /// <summary>
+        /// How many samples per second is retrieved.
+        /// </summary>
         public float sampleRate;
+
+        /// <summary>
+        /// Tracks how much time has passed after each audio sample request.
+        /// </summary>
         private float _time;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Oscillator"/> class.
+        /// </summary>
+        /// <param name="sampleRate">How many samples per second is retrieved.<see cref="float"/></param>
         public Oscillator(float sampleRate)
         {
             waveFuncMap = new Func<float, float>[]{
                 Triangle,
                 TiltedSaw,
-                Sawtooth, 
+                Sawtooth,
                 Square,
                 Pulse,
                 Organ, // Organ
@@ -228,39 +326,77 @@ namespace Pico8_Emulator
             _time = 0.0f;
         }
 
+        /// <summary>
+        /// Sine wave.
+        /// </summary>
+        /// <param name="frequency">The frequency of the wave<see cref="float"/></param>
+        /// <returns>The sample value<see cref="float"/></returns>
         public float Sine(float frequency)
         {
             _time += frequency / sampleRate;
             return (float)Math.Sin(_time * 2 * Math.PI);
         }
 
+        /// <summary>
+        /// Square wave.
+        /// </summary>
+        /// <param name="frequency">The frequency of the wave<see cref="float"/></param>
+        /// <returns>The sample value<see cref="float"/></returns>
         public float Square(float frequency)
         {
             return Sine(frequency) >= 0 ? 1.0f : -1.0f;
         }
+
+        /// <summary>
+        /// Pulse Wave 
+        /// </summary>
+        /// <param name="frequency">The frequency of the wave<see cref="float"/></param>
+        /// <returns>The sample value<see cref="float"/></returns>
         public float Pulse(float frequency)
         {
             _time += frequency / sampleRate;
-            return ((_time) % 1 < 0.3125 ? 1 : - 1) * 1.0f / 3.0f;
+            return ((_time) % 1 < 0.3125 ? 1 : -1) * 1.0f / 3.0f;
         }
+
+        /// <summary>
+        /// TiltedSaw Wave
+        /// </summary>
+        /// <param name="frequency">The frequency of the wave<see cref="float"/></param>
+        /// <returns>The sample value<see cref="float"/></returns>
         public float TiltedSaw(float frequency)
         {
             _time += frequency / sampleRate;
             var t = (_time) % 1;
-            return (((t < 0.875) ? (t * 16 / 7)  : ((1 - t) * 16)) -1) * 0.7f;
+            return (((t < 0.875) ? (t * 16 / 7) : ((1 - t) * 16)) - 1) * 0.7f;
         }
+
+        /// <summary>
+        /// Sawtooth Wave
+        /// </summary>
+        /// <param name="frequency">The frequency of the wave<see cref="float"/></param>
+        /// <returns>The sample value<see cref="float"/></returns>
         public float Sawtooth(float frequency)
         {
             _time += frequency / sampleRate;
             return (float)(2 * (_time - Math.Floor(_time + 0.5)));
         }
 
+        /// <summary>
+        /// Triangle Wave
+        /// </summary>
+        /// <param name="frequency">The frequency of the wave<see cref="float"/></param>
+        /// <returns>The sample value<see cref="float"/></returns>
         public float Triangle(float frequency)
         {
             _time += frequency / sampleRate;
-            return (Math.Abs(((_time) % 1) * 2 - 1) * 2.0f -   1.0f) * 0.7f;
+            return (Math.Abs(((_time) % 1) * 2 - 1) * 2.0f - 1.0f) * 0.7f;
         }
 
+        /// <summary>
+        /// Organ Wave
+        /// </summary>
+        /// <param name="frequency">The frequency of the wave<see cref="float"/></param>
+        /// <returns>The sample value<see cref="float"/></returns>
         public float Organ(float frequency)
         {
             _time += frequency / sampleRate;
@@ -268,6 +404,11 @@ namespace Pico8_Emulator
             return (float)((Math.Abs((x % 2) - 1) - 0.5f + (Math.Abs(((x * 0.5) % 2) - 1) - 0.5f) / 2.0f - 0.1f) * 0.7f);
         }
 
+        /// <summary>
+        /// Phaser Wave
+        /// </summary>
+        /// <param name="frequency">The frequency of the wave<see cref="float"/></param>
+        /// <returns>The sample value<see cref="float"/></returns>
         public float Phaser(float frequency)
         {
             _time += frequency / sampleRate;
@@ -275,10 +416,17 @@ namespace Pico8_Emulator
             return (Math.Abs((x % 2) - 1) - 0.5f + (Math.Abs(((x * 127 / 128) % 2) - 1) - 0.5f) / 2) - 1.0f / 4.0f;
         }
 
+
         private float lastx = 0;
         private float sample = 0;
         private float tscale;
         private Random random = new Random();
+
+        /// <summary>
+        /// White Noise Effect
+        /// </summary>
+        /// <param name="frequency">The frequency of the wave<see cref="float"/></param>
+        /// <returns>The sample value<see cref="float"/></returns>
         public float Noise(float frequency)
         {
             _time += frequency / sampleRate;
@@ -290,34 +438,104 @@ namespace Pico8_Emulator
         }
     }
 
+    /// <summary>
+    /// Defines the <see cref="MusicPlayer" />
+    /// </summary>
     public class MusicPlayer
     {
+        /// <summary>
+        /// Defines the <see cref="ChannelData" />. Used to keep channel information.
+        /// </summary>
         public struct ChannelData
         {
+            /// <summary>
+            /// Defines if the channel is silent or not.
+            /// </summary>
             public bool isSilent;
+
+            /// <summary>
+            /// Defines the sound effect index that is being played on that channel.
+            /// </summary>
             public byte sfxIndex;
         }
+
+        /// <summary>
+        /// Defines the <see cref="PatternData" />. Used to keep pattern information.
+        /// </summary>
         public struct PatternData
         {
+            /// <summary>
+            /// Defines channel data for all available channels
+            /// </summary>
             public ChannelData[] channels;
+
+            /// <summary>
+            /// Defines if this pattern is the start of a loop.
+            /// </summary>
             public bool loopStart;
+
+            /// <summary>
+            /// Defines if this pattern is the end of a loop.
+            /// </summary>
             public bool loopEnd;
+
+            /// <summary>
+            /// Defines if this pattern is the last that should be played.
+            /// </summary>
             public bool shouldStop;
         }
-       
+
+        /// <summary>
+        /// Defines pattern data for all available patterns.
+        /// </summary>
         private PatternData[] patternData;
 
+        /// <summary>
+        /// Defines the sfxs that are played in a pattern.
+        /// </summary>
         private Sfx[] sfxs;
+
+        /// <summary>
+        /// RAM array to get sfx information.
+        /// </summary>
         private byte[] _ram;
+
+        /// <summary>
+        /// Defines the currently playing pattern index.
+        /// </summary>
         private int _patternIndex;
 
+        /// <summary>
+        /// Defines the _audioBuffer
+        /// </summary>
         private List<float> _audioBuffer;
+
+        /// <summary>
+        /// Defines the _sampleRate
+        /// </summary>
         private int _sampleRate;
 
+        /// <summary>
+        /// Defines the _referenceSfx
+        /// </summary>
         private Sfx _referenceSfx = null;
+
+        /// <summary>
+        /// Defines the _oscillator
+        /// </summary>
         private Oscillator _oscillator;
 
+        /// <summary>
+        /// Gets a value indicating whether music is being played.
+        /// </summary>
         public bool isPlaying { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MusicPlayer"/> class.
+        /// </summary>
+        /// <param name="memory">The memory unit reference<see cref="MemoryUnit"/></param>
+        /// <param name="audioBuffer">The audioBuffer reference<see cref="List{float}"/></param>
+        /// <param name="sampleRate">The sampleRate for the music<see cref="int"/></param>
         public MusicPlayer(ref MemoryUnit memory, ref List<float> audioBuffer, int sampleRate)
         {
             sfxs = new Sfx[4] { null, null, null, null };
@@ -330,7 +548,7 @@ namespace Pico8_Emulator
             _oscillator = new Oscillator(_sampleRate);
 
             patternData = new PatternData[64];
-            for(int i = 0; i < patternData.Length; i += 1)
+            for (int i = 0; i < patternData.Length; i += 1)
             {
                 byte[] vals = { _ram[i * 4 + 0 + util.ADDR_SONG],
                                 _ram[i * 4 + 1 + util.ADDR_SONG],
@@ -363,6 +581,9 @@ namespace Pico8_Emulator
             }
         }
 
+        /// <summary>
+        /// Updates music.
+        /// </summary>
         public void Update()
         {
             if (!isPlaying || _patternIndex > 63 || _patternIndex < 0)
@@ -380,7 +601,7 @@ namespace Pico8_Emulator
                     return;
                 }
 
-                if(patternData[_patternIndex].loopEnd)
+                if (patternData[_patternIndex].loopEnd)
                 {
                     _patternIndex = FindClosestLoopStart(_patternIndex);
                 }
@@ -397,9 +618,13 @@ namespace Pico8_Emulator
                 SetUpPattern();
                 Process();
             }
-
         }
 
+        /// <summary>
+        /// Finds closest pattern with the loop start variable set to true.
+        /// </summary>
+        /// <param name="index">The index to start from<see cref="int"/></param>
+        /// <returns>The index of the loop start pattern<see cref="int"/></returns>
         private int FindClosestLoopStart(int index)
         {
             for (int i = index; i >= 0; i -= 1)
@@ -411,6 +636,9 @@ namespace Pico8_Emulator
             return 0;
         }
 
+        /// <summary>
+        /// Process sfx data.
+        /// </summary>
         private void Process()
         {
             for (int i = 0; i < 4; i += 1)
@@ -426,6 +654,10 @@ namespace Pico8_Emulator
             }
         }
 
+        /// <summary>
+        /// Whether or not the pattern has finished playing
+        /// </summary>
+        /// <returns>Whether or not the pattern has finished playing<see cref="bool"/></returns>
         private bool isPatternDone()
         {
             if (_referenceSfx != null && !_referenceSfx.isAlive)
@@ -434,6 +666,9 @@ namespace Pico8_Emulator
             return false;
         }
 
+        /// <summary>
+        /// Sets up a new pattern to be played.
+        /// </summary>
         private void SetUpPattern()
         {
             bool areAllLooping = true;
@@ -466,42 +701,122 @@ namespace Pico8_Emulator
 
             _referenceSfx = areAllLooping ? longest : longestNoLoop;
         }
-        public void Start(int n) {
+
+        /// <summary>
+        /// Starts playing music.
+        /// </summary>
+        /// <param name="n">The pattern index to start playing from<see cref="int"/></param>
+        public void Start(int n)
+        {
             isPlaying = true;
             _patternIndex = n;
 
             SetUpPattern();
         }
-        public void Stop() { isPlaying = false; }
+
+        /// <summary>
+        /// Stops playing music.
+        /// </summary>
+        public void Stop()
+        {
+            isPlaying = false;
+        }
     }
 
+    /// <summary>
+    /// Defines the <see cref="Sfx" />
+    /// </summary>
     public class Sfx
     {
+        /// <summary>
+        /// Defines the <see cref="P8Note" />. Used to track note information.
+        /// </summary>
         public struct P8Note
         {
+            /// <summary>
+            /// Defines if the note is using custom instruments.
+            /// </summary>
             public bool isCustom;
+
+            /// <summary>
+            /// Defines the effect the note uses.
+            /// </summary>
             public byte effect;
+
+            /// <summary>
+            /// Defines the volume of the note.
+            /// </summary>
             public byte volume;
+
+            /// <summary>
+            /// Defines the waveform of the note.
+            /// </summary>
             public byte waveform;
+
+            /// <summary>
+            /// Defines the pitch of the note.
+            /// </summary>
             public byte pitch;
         }
 
+        /// <summary>
+        /// Defines the notes that are present in the sfx.
+        /// </summary>
         public P8Note[] notes;
+
+        /// <summary>
+        /// Defines the duration of each note in the sfx.
+        /// </summary>
         public float duration;
+
+        /// <summary>
+        /// Defines the note where the loop starts.
+        /// </summary>
         public byte startLoop;
+
+        /// <summary>
+        /// Defines the note where the loop ends.
+        /// </summary>
         public byte endLoop;
 
+        /// <summary>
+        /// Defines if the sfx has a loop.
+        /// </summary>
         public bool loop = true;
 
+        /// <summary>
+        /// Defines the _sampleRate
+        /// </summary>
         private int _sampleRate;
 
+        /// <summary>
+        /// Gets a value indicating whether the sfx is alive
+        /// </summary>
         public bool isAlive { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the sfx is active
+        /// </summary>
         public bool isActive { get; private set; }
+
+        /// <summary>
+        /// Gets the sfx index that this sfx references to.
+        /// </summary>
         public int sfxIndex { get; private set; }
 
+        /// <summary>
+        /// Defines the _audioBuffer
+        /// </summary>
         private List<float> _audioBuffer;
 
+        /// <summary>
+        /// Defines the _currentNote that is being played
+        /// </summary>
         private int _currentNote = 0;
+
+        /// <summary>
+        /// Gets or sets the currentNote
+        /// </summary>
         public int currentNote
         {
             get { return _currentNote; }
@@ -513,7 +828,14 @@ namespace Pico8_Emulator
             }
         }
 
+        /// <summary>
+        /// Defines the last note index that should be played.
+        /// </summary>
         private int _lastIndex = 31;
+
+        /// <summary>
+        /// Gets or sets the lastIndex
+        /// </summary>
         public int lastIndex
         {
             get { return _lastIndex; }
@@ -525,14 +847,35 @@ namespace Pico8_Emulator
             }
         }
 
+        /// <summary>
+        /// Defines the _oscillator
+        /// </summary>
         private Oscillator _oscillator;
 
+        /// <summary>
+        /// Defines the notesToPlay. Should be useful for effects like arpeggio that plays 4 notes whithin a single note definition.
+        /// </summary>
         private Queue<Note> notesToPlay;
 
+        /// <summary>
+        /// Defines the _fadeIn length
+        /// </summary>
         private float _fadeIn;
 
+        /// <summary>
+        /// Gets the audioBufferIndex
+        /// </summary>
         public int audioBufferIndex { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Sfx"/> class.
+        /// </summary>
+        /// <param name="_sfxData">The _sfxData to use<see cref="byte[]"/></param>
+        /// <param name="_sfxIndex">The _sfxIndex that this sfx references to<see cref="int"/></param>
+        /// <param name="audioBuffer">The audioBuffer to fill with data<see cref="List{float}"/></param>
+        /// <param name="oscillator">The oscillator reference<see cref="Oscillator"/></param>
+        /// <param name="sampleRate">The sampleRate<see cref="int"/></param>
+        /// <param name="audioBufferIndex">The index to start filling the audio buffer<see cref="int"/></param>
         public Sfx(byte[] _sfxData, int _sfxIndex, ref List<float> audioBuffer, ref Oscillator oscillator, int sampleRate, int audioBufferIndex = 0)
         {
             notes = new P8Note[32];
@@ -573,6 +916,10 @@ namespace Pico8_Emulator
             _fadeIn = 0.05f / duration;
         }
 
+        /// <summary>
+        /// Moves forward with sfx.
+        /// </summary>
+        /// <returns>Whether or not the sfx has ended<see cref="bool"/></returns>
         public bool Update()
         {
             if (!isAlive)
@@ -605,6 +952,9 @@ namespace Pico8_Emulator
             return isAlive;
         }
 
+        /// <summary>
+        /// Queue next notes for playing.
+        /// </summary>
         private void QueueNextNotes()
         {
             if (_currentNote > _lastIndex)
@@ -614,7 +964,7 @@ namespace Pico8_Emulator
 
             P8Note nextNote = notes[_currentNote];
 
-            switch(nextNote.effect)
+            switch (nextNote.effect)
             {
                 case 0:
                     ProcessNoteNoEffect(nextNote);
@@ -654,7 +1004,7 @@ namespace Pico8_Emulator
             }
 
             // If sfx has loop defined, process it. Otherwise keep incrementing note index.
-            if (loop && startLoop < endLoop && _currentNote == endLoop-1)
+            if (loop && startLoop < endLoop && _currentNote == endLoop - 1)
             {
                 _currentNote = startLoop;
             }
@@ -664,14 +1014,29 @@ namespace Pico8_Emulator
             }
         }
 
-        public bool HasLoop() { return startLoop < endLoop; }
+        /// <summary>
+        /// Whether or not this sfx has a loop defined
+        /// </summary>
+        /// <returns>Whether or not this sfx has a loop defined<see cref="bool"/></returns>
+        public bool HasLoop()
+        {
+            return startLoop < endLoop;
+        }
 
+        /// <summary>
+        /// Processes a new note with no effect
+        /// </summary>
+        /// <param name="note">The note to create<see cref="P8Note"/></param>
         private void ProcessNoteNoEffect(P8Note note)
         {
             Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, _fadeIn, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
+        /// <summary>
+        /// Processes a new note with slide effect
+        /// </summary>
+        /// <param name="note">The note to create<see cref="P8Note"/></param>
         private void ProcessNoteSlide(P8Note note)
         {
             int pitchFrom = _currentNote == 0 ? 32 : notes[_currentNote - 1].pitch;
@@ -679,69 +1044,172 @@ namespace Pico8_Emulator
             notesToPlay.Enqueue(noteToPlay);
         }
 
+        /// <summary>
+        /// Processes a new note with vibrato effect
+        /// </summary>
+        /// <param name="note">The note to create<see cref="P8Note"/></param>
         private void ProcessNoteVibrato(P8Note note)
         {
             Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0, true);
             notesToPlay.Enqueue(noteToPlay);
         }
 
+        /// <summary>
+        /// Processes a new note with drop effect
+        /// </summary>
+        /// <param name="note">The note to create<see cref="P8Note"/></param>
         private void ProcessNoteDrop(P8Note note)
         {
             Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, 0, note.pitch, 0, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
+        /// <summary>
+        /// Processes a new note with fade in effect
+        /// </summary>
+        /// <param name="note">The note to create<see cref="P8Note"/></param>
         private void ProcessNoteFadeIn(P8Note note)
         {
             Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 95, 5);
             notesToPlay.Enqueue(noteToPlay);
         }
 
+        /// <summary>
+        /// Processes a new note with fade out effect
+        /// </summary>
+        /// <param name="note">The note to create<see cref="P8Note"/></param>
         private void ProcessNoteFadeOut(P8Note note)
         {
             Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 95);
             notesToPlay.Enqueue(noteToPlay);
         }
 
+        /// <summary>
+        /// Processes a new note with fast arpeggio effect
+        /// </summary>
+        /// <param name="note">The note to create<see cref="P8Note"/></param>
         private void ProcessNoteArpeggioFast(P8Note note)
         {
             Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
+        /// <summary>
+        /// Processes a new note with slow arpeggio effect
+        /// </summary>
+        /// <param name="note">The note to create<see cref="P8Note"/></param>
         private void ProcessNoteArpeggioSlow(P8Note note)
         {
             Note noteToPlay = new Note(ref _audioBuffer, _sampleRate, ref _oscillator, duration, note.volume, note.waveform, note.pitch, note.pitch, 0, 0);
             notesToPlay.Enqueue(noteToPlay);
         }
 
-        public void Start() { isAlive = true; }
-        public void Stop() { isAlive = false; }
+        /// <summary>
+        /// Starts playing sfx
+        /// </summary>
+        public void Start()
+        {
+            isAlive = true;
+        }
+
+        /// <summary>
+        /// Stops playing sfx.
+        /// </summary>
+        public void Stop()
+        {
+            isAlive = false;
+        }
     }
 
+    /// <summary>
+    /// Defines the <see cref="Note" />
+    /// </summary>
     public class Note
     {
+        /// <summary>
+        /// Defines the _audioBuffer
+        /// </summary>
         private List<float> _audioBuffer;
+
+        /// <summary>
+        /// Defines the _duration of the note
+        /// </summary>
         private float _duration;
+
+        /// <summary>
+        /// Defines the _fadeIn length
+        /// </summary>
         private float _fadeIn;
+
+        /// <summary>
+        /// Defines the _fadeOut length
+        /// </summary>
         private float _fadeOut;
 
+        /// <summary>
+        /// Defines the _timePassed through the notes playthrough
+        /// </summary>
         private float _timePassed;
+
+        /// <summary>
+        /// Defines the _sampleRate
+        /// </summary>
         private int _sampleRate;
 
+        /// <summary>
+        /// Defines the isCustom
+        /// </summary>
         public bool isCustom;
+
+        /// <summary>
+        /// Defines the targetVolume
+        /// </summary>
         public float targetVolume;
+
+        /// <summary>
+        /// Defines the waveform
+        /// </summary>
         public byte waveform;
+
+        /// <summary>
+        /// Defines the pitch
+        /// </summary>
         public byte pitch;
 
+        /// <summary>
+        /// Defines the _vibrato
+        /// </summary>
         private bool _vibrato;
 
+        /// <summary>
+        /// Defines the _oscillator
+        /// </summary>
         private Oscillator _oscillator;
 
+        /// <summary>
+        /// Defines the _volume
+        /// </summary>
         private float _volume;
 
+        /// <summary>
+        /// Defines the _pitchFrom
+        /// </summary>
         private int _pitchFrom;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Note"/> class.
+        /// </summary>
+        /// <param name="audioBuffer">The audioBuffer to fill<see cref="List{float}"/></param>
+        /// <param name="sampleRate">The sampleRate<see cref="int"/></param>
+        /// <param name="oscillator">The oscillator reference<see cref="Oscillator"/></param>
+        /// <param name="duration">The duration of the note<see cref="float"/></param>
+        /// <param name="volume">The volume of the note<see cref="byte"/></param>
+        /// <param name="waveform">The waveform of the note<see cref="byte"/></param>
+        /// <param name="pitch">The pitch of the note<see cref="byte"/></param>
+        /// <param name="pitchFrom">The pitch to start the note from<see cref="int"/></param>
+        /// <param name="fadeIn">The fadeIn length<see cref="float"/></param>
+        /// <param name="fadeOut">The fadeOut length<see cref="float"/></param>
+        /// <param name="vibrato">If it should have a vibrato effect<see cref="bool"/></param>
         public Note(ref List<float> audioBuffer, int sampleRate, ref Oscillator oscillator, float duration, byte volume, byte waveform, byte pitch, int pitchFrom = -1, float fadeIn = 1, float fadeOut = 1, bool vibrato = false)
         {
             _audioBuffer = audioBuffer;
@@ -770,6 +1238,12 @@ namespace Pico8_Emulator
             _vibrato = vibrato;
         }
 
+        /// <summary>
+        /// Processes the note
+        /// </summary>
+        /// <param name="bufferOffset">The audio bufferOffset to start processing<see cref="int"/></param>
+        /// <param name="writeToBuffer">If it should write to the buffer or only keep processing without sound.<see cref="bool"/></param>
+        /// <returns>The last position that it filled from the audio buffer.<see cref="int"/></returns>
         public int Process(int bufferOffset = 0, bool writeToBuffer = true)
         {
             int samplesPerBuffer = _audioBuffer.Count;

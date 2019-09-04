@@ -192,7 +192,7 @@
             _isDownFunctions = new List<Func<bool>>[6, 8];
             for (int i = 0; i < _isDownFunctions.GetLength(0); i += 1)
             {
-                for(int j = 0; j < _isDownFunctions.GetLength(1); j += 1)
+                for (int j = 0; j < _isDownFunctions.GetLength(1); j += 1)
                 {
                     _isDownFunctions[i, j] = new List<Func<bool>>();
                 }
@@ -757,7 +757,7 @@
                 p = 0;
             }
 
-            return BtnCurrent[i.GetValueOrDefault(), p.GetValueOrDefault()] && BtnLast[i.GetValueOrDefault(), p.GetValueOrDefault()];
+            return BtnCurrent[i.GetValueOrDefault(), p.GetValueOrDefault()] && !BtnLast[i.GetValueOrDefault(), p.GetValueOrDefault()];
         }
 
         /// <summary>

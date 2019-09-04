@@ -356,6 +356,8 @@
             interpreter.AddFunction("print", Print);
             interpreter.AddFunction("printh", (Func<object, object>)Printh);
 
+            interpreter.AddFunction("menuitem", (Func<int, string, object, object>)Menuitem);
+
             interpreter.RunScript(@"
                 function all(collection)
                    if (collection == nil) then return function() end end
@@ -447,6 +449,27 @@
         public object Printh(object s)
         {
             Console.WriteLine(String.Format("{0:####.####}", s));
+            return null;
+        }
+
+        /// <summary>
+        /// NOT IMPLEMENTED.
+        /// Add an extra item to the pause menu
+        /// Index should be 1..5 and determines the order each menu item is displayed
+        /// label should be a string up to 16 characters long
+        /// callback is a function called when the item is selected by the users
+        /// 
+        /// When no label or function is supplied, the menu item is removed
+        /// ///
+        /// example:
+        /// menuitem(1, "restart puzzle", function() reset_puzzle() sfx(10) end)
+        /// </summary>
+        /// <param name="index">index of the menuitem (1..5)</param>
+        /// <param name="label">string to display as menuitem</param>
+        /// <param name="callback">function to call when menuitem is selected</param>
+        /// <returns></returns>
+        public object Menuitem (int index, string label = null, object callback = null)
+        {
             return null;
         }
 

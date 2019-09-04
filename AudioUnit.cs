@@ -700,6 +700,8 @@
             }
 
             _referenceSfx = areAllLooping ? longest : longestNoLoop;
+            // Remove loop from reference sfx, otherwise it'll keep looping forever.
+            _referenceSfx.endLoop = _referenceSfx.startLoop;
         }
 
         /// <summary>

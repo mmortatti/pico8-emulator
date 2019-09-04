@@ -434,7 +434,7 @@
         /// <returns>The actual color index value for the given color.</returns>
         public int GetScreenColor(int color)
         {
-            if (color < 0 || color > 15) return 0;
+            if (color < 0 || color > 15) color = 0;
             return ram[ADDR_PALETTE_1 + color];
         }
 
@@ -489,7 +489,7 @@
         /// <param name="c1">Color to change palette to.</param>
         public void SetScreenPalette(int c0, int c1)
         {
-            if (c0 >= 0 && c0 <= 15 && c1 >= 0 && c1 <= 15)
+            if (c0 >= 0 && c0 <= 15)
                 ram[ADDR_PALETTE_1 + c0] = (byte)c1;
         }
 

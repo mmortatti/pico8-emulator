@@ -360,7 +360,7 @@
             interpreter.AddFunction("printh", (Func<object, object>)Printh);
 
             interpreter.AddFunction("menuitem", (Func<int, string, object, object>)Menuitem);
-            interpreter.AddFunction("import", (Func<string, object>)Import);
+            interpreter.AddFunction("import", (Func<string, bool, object>)Import);
             interpreter.AddFunction("export", (Func<string, object>)Export);
 
             interpreter.RunScript(@"
@@ -447,7 +447,7 @@
                 ");
         }
 
-        public object Import(string filename)
+        public object Import(string filename, bool onlyHalf = false)
         {
             Bitmap sheet = new Bitmap(filename);
 
@@ -456,7 +456,9 @@
                 throw new ArgumentException($"{filename} must be a 128x128 image, but is {sheet.Width}x{sheet.Width}.");
             }
 
-            for (int i = 0; i < sheet.Height; i += 1)
+            int div = onlyHalf ? 2 : 1;
+
+            for (int i = 0; i < sheet.Height / div; i += 1)
             {
                 for (int j = 0; j < sheet.Width; j += 1)
                 {

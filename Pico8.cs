@@ -461,7 +461,7 @@
                 for (int j = 0; j < sheet.Width; j += 1)
                 {
                     byte val = graphics.ColorToPalette(sheet.GetPixel(j, i));
-                    memory.WritePixel(j, i, val);
+                    graphics.Sset(j, i, val);
                 }
             }
 
@@ -478,7 +478,7 @@
             {
                 for (int j = 0; j < sheet.Width; j += 1)
                 {
-                    byte val = memory.GetPixel(j, i);
+                    byte val = graphics.Sget(j, i);
                     Color col = System.Drawing.Color.FromArgb(graphics.pico8Palette[val, 0],
                                                               graphics.pico8Palette[val, 1],
                                                               graphics.pico8Palette[val, 2]);

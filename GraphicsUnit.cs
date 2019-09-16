@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
 
     /// <summary>
     /// Defines the PICO-8 <see cref="GraphicsUnit{G}" />
@@ -1213,6 +1214,17 @@
             dictionary.Add((char)151, f_xbutton);
             dictionary.Add((char)152, f_horizontal_lines);
             dictionary.Add((char)153, f_vertical_lines);
+        }
+
+        public byte ColorToPalette(Color col)
+        {
+            for (int i = 0; i < pico8Palette.GetLength(0); i += 1)
+            {
+                if (pico8Palette[i, 0] == col.R && pico8Palette[i, 1] == col.G && pico8Palette[i, 2] == col.B)
+                    return (byte)i;
+            }
+
+            return 0;
         }
 
         /// <summary>

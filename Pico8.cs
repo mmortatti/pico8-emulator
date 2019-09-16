@@ -6,6 +6,9 @@
     using System.IO;
     using System.Text.RegularExpressions;
 
+    using System.Drawing;
+    using System.Drawing.Imaging;
+
     /// <summary>
     /// Defines the <see cref="PicoInterpreter{G}" />
     /// </summary>
@@ -357,6 +360,8 @@
             interpreter.AddFunction("printh", (Func<object, object>)Printh);
 
             interpreter.AddFunction("menuitem", (Func<int, string, object, object>)Menuitem);
+            interpreter.AddFunction("import", (Func<string, object>)Import);
+            interpreter.AddFunction("export", (Func<string, object>)Export);
 
             interpreter.RunScript(@"
                 function all(collection)
@@ -440,6 +445,55 @@
                 yield = coroutine.yield
                 sub = string.sub
                 ");
+        }
+
+        public object Import(string filename)
+        {
+            Bitmap sheet = new Bitmap(filename);
+
+            if (sheet.Height != 128 || sheet.Width != 128)
+            {
+                throw new ArgumentException($"{filename} must be a 128x128 image, but is {sheet.Width}x{sheet.Width}.");
+            }
+
+            for (int i = 0; i < sheet.Height; i += 1)
+            {
+                for (int j = 0; j < sheet.Width; j += 1)
+                {
+                    byte val = graphics.ColorToPalette(sheet.GetPixel(j, i));
+                    memory.WritePixel(j, i, val);
+                }
+            }
+
+            sheet.Dispose();
+
+            return null;
+        }
+
+        public object Export(string filename)
+        {
+            Bitmap sheet = new Bitmap(128, 128);
+
+            for (int i = 0; i < sheet.Height; i += 1)
+            {
+                for (int j = 0; j < sheet.Width; j += 1)
+                {
+                    byte val = memory.GetPixel(j, i);
+                    Color col = System.Drawing.Color.FromArgb(graphics.pico8Palette[val, 0],
+                                                              graphics.pico8Palette[val, 1],
+                                                              graphics.pico8Palette[val, 2]);
+                    sheet.SetPixel(j, i, col);
+                }
+            }
+
+            if (File.Exists(filename))
+                File.Delete(filename);
+
+            sheet.Save(filename, ImageFormat.Png);
+
+            sheet.Dispose();
+
+            return null;
         }
 
         /// <summary>

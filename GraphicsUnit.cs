@@ -1558,7 +1558,7 @@
             {
                 memory.WritePixel(x, y, memory.GetDrawColor(col.Value & 0x0f));
             }
-            else if (!memory.fillpTransparent)
+            else if (!memory.fillpTransparent && !memory.IsTransparent(col.Value))
             {
                 memory.WritePixel(x, y, (memory.GetDrawColor(col.Value >> 4)));
             }

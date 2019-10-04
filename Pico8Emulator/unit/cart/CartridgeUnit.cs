@@ -1,17 +1,40 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Pico8Emulator.lua;
+using Pico8Emulator.unit.graphics;
+using GraphicsUnit = Pico8Emulator.unit.graphics.GraphicsUnit;
 
 namespace Pico8Emulator.unit.cart {
 	public class CartridgeUnit : Unit {
 		public Cartridge Loaded;
+		private DateTime startTime;
 
 		public CartridgeUnit(Emulator emulator) : base(emulator) {
 			
 		}
 
-		public void Load(string name) {
+		public override void DefineApi(LuaInterpreter script) {
+			base.DefineApi(script);
+			
+			script.AddFunction("reload", (Func<int, int, int, string, object>) Reload);
+			script.AddFunction("cstore", (Func<int, int, int, string,object>) Cstore);
+			script.AddFunction("dget", (Func<int, object>) Dget);
+			script.AddFunction("dset", (Func<int, double, object>) Dset);
+			
+			script.AddFunction("time", (Func<double>) Time);
+			script.AddFunction("t", (Func<double>) Time);
+		}
+
+		public bool Load(string name) {
+			Log.Info($"Loading cart {name}");
+			
 			var possibleNames = new[] {
 				name,
 				$"{name}.p8.png",
@@ -25,27 +48,48 @@ namespace Pico8Emulator.unit.cart {
 			 * so that the user could set the search/root path
 			 */
 			foreach (var possibleName in possibleNames) {
+				var path = Path.GetFullPath(possibleName);
+				
 				if (File.Exists(possibleName)) {
-					ReadCart(possibleName, possibleName.EndsWith(".png"));
+					Log.Info($"Found cart {possibleName}");
+					return ReadCart(possibleName, possibleName.EndsWith(".png"));
 				}
 			}
 
 			/*
 			 * TODO: report the issue, that the cart was not found
 			 */
+			Log.Info($"Did not find the cart {name}");
+
+			return false;
 		}
 
-		private void ReadCart(string name, bool image) {
+		private bool ReadCart(string name, bool image) {
 			if (image) {
 				/*
 				 * TODO: implement
 				 */
-			} else {
-				LoadTextCart(name);
-			}
-		}
 
-		private void LoadTextCart(string path) {
+				return false;
+			} else {
+				if (!LoadTextCart(name)) {
+					return false;
+				}
+			}
+			
+			Loaded.CartData = new int[Cartridge.CartDataSize];
+			Loaded.Interpreter = new MoonScriptInterpreter();
+			Emulator.InitApi(Loaded.Interpreter);
+			Emulator.Memory.LoadCartridgeData(Loaded.Rom);
+			
+			Loaded.Interpreter.RunScript(Loaded.Code);
+			startTime = DateTime.Now;
+			Loaded.Interpreter.CallIfDefined("_init");
+
+			return true;
+		}
+		
+		private bool LoadTextCart(string path) {
 			var streamReader = new StreamReader(path);
 			var stateMap = new Dictionary<string, int> {
 				{ "__lua__", 0 },
@@ -168,7 +212,10 @@ namespace Pico8Emulator.unit.cart {
 				}
 			}
 
+			Loaded.Code = LuaPatcher.PatchCode(codeBuilder.ToString());
 			streamReader.Close();
+			
+			return true;
 		}
 
 		public void SaveP8(string filename = null) {
@@ -280,6 +327,119 @@ namespace Pico8Emulator.unit.cart {
 
 				file.Close();
 			}
+		}
+
+		public object Import(string filename, bool onlyHalf = false) {
+			var texture = Texture2D.FromStream(Emulator.GraphicsDevice, new FileStream(filename, FileMode.Open));
+			
+			if (texture.Height != 128 || texture.Width != 128) {
+				throw new ArgumentException($"{filename} must be a 128x128 image, but is {texture.Width}x{texture.Width}.");
+			}
+
+			var bound = onlyHalf ? 64 : 128;
+			var data = new Color[GraphicsUnit.ScreenSize];
+
+			texture.GetData(data);
+
+			for (var i = 0; i < bound; i += 1) {
+				for (var j = 0; j < 128; j += 1) {
+					Emulator.Graphics.Sset(j, i, GraphicsUnit.ColorToPalette(data[j + i * 128]));
+				}
+			}
+
+			texture.Dispose();
+			return null;
+		}
+
+		public object Export(string filename) {
+			var texture = new Texture2D(Emulator.GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
+			var data = new Color[GraphicsUnit.ScreenSize];
+			
+			for (var i = 0; i < 128; i += 1) {
+				for (var j = 0; j < 128; j += 1) {
+					data[j + i * 128] = Palette.StandardPalette[Emulator.Graphics.Sget(j, i)];
+				}
+			}
+
+			texture.SetData(data);
+			texture.SaveAsPng(File.Create(filename), 128, 128);
+			texture.Dispose();
+
+			return null;
+		}
+		
+		public object Cartdata(string id) {
+			Trace.Assert(Loaded.CartDataId.Length == 0, "cartdata() can only be called once");
+			Trace.Assert(id.Length <= 64, "cart data id too long");
+			Trace.Assert(id.Length != 0, "empty cart data id");
+
+			Trace.Assert(Regex.IsMatch(id, "^[a-zA-Z0-9_]*$"), "cart data id: bad char");
+
+			var fileName = Cartridge.CartDataPath + id;
+
+			if (File.Exists(fileName)) {
+				using (var reader = new BinaryReader(File.Open(fileName, FileMode.Open))) {
+					for (var i = 0; i < Cartridge.CartDataSize; i++) {
+						Loaded.CartData[i] = reader.ReadInt32();
+					}
+				}
+			} else {
+				for (var i = 0; i < Cartridge.CartDataSize; i++) {
+					Loaded.CartData[i] = 0;
+				}
+
+				SaveCartData(id);
+			}
+
+			Loaded.CartDataId = id;
+			return null;
+		}
+
+		public object Dget(int index) {
+			Trace.Assert(index < Cartridge.CartDataSize, "bad index");
+			return Util.FixedToFloat(Loaded.CartData[index]);
+		}
+
+		public object Dset(int index, double value) {
+			Trace.Assert(index < Cartridge.CartDataSize, "bad index");
+			
+			Loaded.CartData[index] = Util.FloatToFixed(value);
+			SaveCartData(Cartridge.CartDataPath + Loaded.CartDataId);
+
+			return null;
+		}
+
+		private void SaveCartData(string fileName) {
+			using (BinaryWriter writer = new BinaryWriter(File.Open(fileName, FileMode.Create))) {
+				for (int i = 0; i < Cartridge.CartDataSize; i++) {
+					writer.Write(Loaded.CartData[i]);
+				}
+			}
+		}
+
+		public object Reload(int dest_addr, int source_addr, int len, string filename = "") {
+			Trace.Assert(dest_addr < 0x4300);
+			
+			// FIXME
+			var cart = Loaded; // filename.Length == 0 ? Loaded : new Cartridge(filename);
+			Emulator.Memory.Memcpy(dest_addr, source_addr, len, cart.Rom);
+
+			return null;
+		}
+		
+		public object Cstore(int dest_addr, int source_addr, int len, string filename = null) {
+			Trace.Assert(dest_addr < 0x4300);
+
+			// FIXME
+			var cart = Loaded; // filename == null ? loadedGame.cartridge : new Cartridge(filename, true);
+			Buffer.BlockCopy(Emulator.Memory.Ram, source_addr, cart.Rom, dest_addr, len);
+			SaveP8();
+			
+			return null;
+		}
+
+		public double Time() {
+			return (DateTime.Now - startTime).TotalSeconds;
 		}
 	}
 }

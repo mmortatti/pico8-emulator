@@ -1,3 +1,4 @@
+using System;
 using MoonSharp.Interpreter;
 
 namespace Pico8Emulator.lua {
@@ -9,12 +10,21 @@ namespace Pico8Emulator.lua {
 		}
 
 		public void CallFunction(string name) {
-			script.Call(name);
+			try {
+				script.Call(name);
+			} catch (Exception e) {
+				Log.Error(e);
+			}
 		}
 
 		public bool CallIfDefined(string name) {
 			if (IsDefined(name)) {
-				script.Call(script.Globals[name]);
+				try {
+					script.Call(script.Globals[name]);
+				} catch (Exception e) {
+					Log.Error(e);
+				}
+				
 				return true;
 			}
 
@@ -22,7 +32,11 @@ namespace Pico8Emulator.lua {
 		}
 
 		public void RunScript(string str) {
-			script.DoString(str);
+			try {
+				script.DoString(str);
+			} catch (Exception e) {
+				Log.Error(e);
+			}
 		}
 
 		public bool IsDefined(string name) {

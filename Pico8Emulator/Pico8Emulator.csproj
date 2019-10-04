@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Log.cs" />
     <Compile Include="lua\LuaInterpreter.cs" />
     <Compile Include="lua\LuaPatcher.cs" />
     <Compile Include="lua\MoonScriptInterpreter.cs" />
@@ -87,6 +88,9 @@
       <Project>{3b26aa2e-0ba2-42dc-ad62-e6c8617f9e4d}</Project>
       <Name>Lens</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="todo.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MonoGame.Framework.DesktopGL.3.7.0.1708\build\MonoGame.Framework.DesktopGL.targets" Condition="Exists('..\packages\MonoGame.Framework.DesktopGL.3.7.0.1708\build\MonoGame.Framework.DesktopGL.targets')" />

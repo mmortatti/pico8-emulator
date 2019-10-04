@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Pico8Emulator.lua {
 	public static class LuaPatcher {
-		public static string ProcessPico8Code(string picoCode) {
+		public static string PatchCode(string picoCode) {
 			// "if a != b" => "if a ~= b"
 			picoCode = Regex.Replace(picoCode, @"!=", "~=");
 			// Matches and replaces binary style numbers like "0b1010.101" to hex format.
@@ -15,7 +16,6 @@ namespace Pico8Emulator.lua {
 			// Matches <var> <op>= <exp> type expressions, like "a += b".
 			picoCode = Regex.Replace(picoCode, @"([a-zA-Z_](?:[a-zA-Z0-9_]|(?:\.\s*))*(?:\[.*\])?)\s*([+\-*\/%])=\s*(.*)$", ReplaceUnaryShorthand, RegexOptions.Multiline);
 
-			Console.WriteLine(picoCode);
 			return picoCode;
 		}
 
@@ -70,7 +70,7 @@ namespace Pico8Emulator.lua {
 						currentChar += 1;
 						expectTerm = true;
 					} else if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\(|\[|{")) {
-						Stack<char> st = new Stack<char>();
+						var st = new Stack<char>();
 						st.Push(fixedExp[currentChar]);
 						currentChar += 1;
 						while (st.Count > 0) {

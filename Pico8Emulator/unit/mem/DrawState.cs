@@ -136,11 +136,12 @@ namespace Pico8Emulator.unit.mem {
 			return null;
 		}
 
-		public int getFillPBit(int x, int y) {
+		public int GetFillPBit(int x, int y) {
 			x %= 4;
 			y %= 4;
-			int i = y * 4 + x;
-			int mask = (1 << 15) >> i;
+			
+			var i = y * 4 + x;
+			var mask = (1 << 15) >> i;
 
 			return (FillPattern & mask) >> (15 - i);
 		}

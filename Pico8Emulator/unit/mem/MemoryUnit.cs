@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Pico8Emulator.lua;
 using Pico8Emulator.unit.graphics;
 
 namespace Pico8Emulator.unit.mem {
@@ -11,6 +12,15 @@ namespace Pico8Emulator.unit.mem {
 		
 		public MemoryUnit(Emulator emulator) : base(emulator) {
 			DrawState = new DrawState(this);
+		}
+
+		public override void DefineApi(LuaInterpreter script) {
+			base.DefineApi(script);
+			
+			script.AddFunction("memset", (Func<int, byte, int, object>) Memset);
+			script.AddFunction("memcpy", (Func<int, int, int, object>) Memcpy);
+			script.AddFunction("peek", (Func<int, byte>) Peek);
+			script.AddFunction("poke", (Func<int, byte, object>) Poke);
 		}
 
 		public void LoadCartridgeData(byte[] cartridgeRom) {

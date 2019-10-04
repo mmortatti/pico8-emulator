@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework.Audio;
 using Pico8Emulator.unit.mem;
 
 namespace Pico8Emulator.unit.audio {
@@ -12,16 +13,40 @@ namespace Pico8Emulator.unit.audio {
 		public float[] AudioBuffer = new float[BufferSize];
 
 		private MusicPlayer musicPlayer;
+		private DynamicSoundEffectInstance soundInstance;
 
 		public AudioUnit(Emulator emulator) : base(emulator) {
-			
+			soundInstance = new DynamicSoundEffectInstance(SampleRate, AudioChannels.Mono);
+			musicPlayer = new MusicPlayer(emulator);
 		}
 
-		public override void Init() {
-			base.Init();
-			musicPlayer = new MusicPlayer(Emulator);
+		public override void Update() {
+			base.Update();
+			
+			while (soundInstance.PendingBufferCount < 3) {
+				var p8Buffer = RequestBuffer();
+				var samplesPerBuffer = p8Buffer.Length;
+				var audioBuffer = new byte[samplesPerBuffer * 2];
+
+				for (var i = 0; i < samplesPerBuffer; i += 1) {
+					var floatSample = p8Buffer[i];
+
+					var shortSample =
+							(short) (floatSample >= 0.0f ? floatSample * short.MaxValue : floatSample * short.MinValue * -1);
+
+					if (!BitConverter.IsLittleEndian) {
+						audioBuffer[i * 2] = (byte) (shortSample >> 8);
+						audioBuffer[i * 2 + 1] = (byte) shortSample;
+					} else {
+						audioBuffer[i * 2] = (byte) shortSample;
+						audioBuffer[i * 2 + 1] = (byte) (shortSample >> 8);
+					}
+				}
+
+				soundInstance.SubmitBuffer(audioBuffer);
+			}
 		}
-		
+
 		public float[] RequestBuffer() {
 			ClearBuffer();
 			FillBuffer();

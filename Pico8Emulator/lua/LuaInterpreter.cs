@@ -1,4 +1,6 @@
-﻿namespace Pico8Emulator.lua
+﻿using System;
+
+namespace Pico8Emulator.lua
 {
     /// <summary>
     /// Defines the interface for a lua interpreter like Moonsharp or NLua. <see cref="LuaInterpreter" />

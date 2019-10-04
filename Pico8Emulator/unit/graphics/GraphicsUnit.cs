@@ -1,87 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Pico8Emulator.lua;
+using Pico8Emulator.unit.mem;
 
 namespace Pico8Emulator.unit.graphics {
-	/// <summary>
-	/// Defines the PICO-8 <see cref="GraphicsUnit{G}" />
-	/// </summary>
-	/// <typeparam name="G"></typeparam>
 	public class GraphicsUnit : Unit {
-		/// <summary>
-		/// Defines the array of color values for PICO-8 screen.
-		/// </summary>
-		internal G[] screenColorData;
+		public const int ScreenSize = 128 * 128;
+		
+		public Texture2D Surface;
+		private Color[] screenColorData = new Color[ScreenSize];
 
-		/// <summary>
-		/// Defines a function to translate RGB values to a color value.
-		/// </summary>
-		internal Func<int, int, int, G> rgbToColor;
-
-		public GraphicsUnit(Emulator emulator) : base(emulator) {
-			
+		public GraphicsUnit(Emulator emulator, GraphicsDevice graphics) : base(emulator) {
+			Surface = new Texture2D(graphics, 128, 128, false, SurfaceFormat.Color);
 		}
 
 		public override void Init() {
 			base.Init();
-			Emulator.Memory.DrawColor = 6;
+			Emulator.Memory.DrawState.DrawColor = 6;
 		}
 
-		public void Draw() {
-			// todo
+		public override void DefineApi(LuaInterpreter script) {
+			base.DefineApi(script);
+			
+			script.AddFunction("pset", (Func<int, int, byte?, object>) Pset);
+			script.AddFunction("flip", (Action) Flip);
 		}
 
 		public object Cls() {
-			for (int i = 0; i < 0x2000; i++) {
-				Ram[Address.Screen + i] = 0;
+			for (var i = 0; i < 0x2000; i++) {
+				Emulator.Memory.Ram[RamAddress.Screen + i] = 0;
 			}
 
 			return null;
 		}
 
-		public byte ColorToPalette(Color col) {
-			for (int i = 0; i < pico8Palette.GetLength(0); i += 1) {
-				if (pico8Palette[i, 0] == col.R && pico8Palette[i, 1] == col.G && pico8Palette[i, 2] == col.B)
+		public static byte ColorToPalette(Color col) {
+			for (var i = 0; i < 16; i += 1) {
+				if (Palette.StandardPalette[i] == col) {
 					return (byte) i;
+				}
 			}
 
 			return 0;
 		}
-
-		/// <summary>
-		/// Print a string
-		/// If only str is supplied, and the cursor reaches the end of the screen,
-		/// a carriage return and vertical scroll is automatically applied.
-		/// </summary>
-		/// <param name="s">The string or value to print.</param>
-		/// <param name="x">The x position to start the print</param>
-		/// <param name="y">The y position to start the print</param>
-		/// <param name="c">The color of the letters</param>
+		
 		public void Print(object s, int? x = null, int? y = null, byte? c = null) {
 			if (x.HasValue) {
-				memory.cursorX = x.Value;
+				Emulator.Memory.DrawState.CursorX = x.Value;
 			} else {
-				x = memory.cursorX;
+				x = Emulator.Memory.DrawState.CursorX;
 			}
 
 			if (y.HasValue) {
-				memory.cursorY = y.Value;
+				Emulator.Memory.DrawState.CursorY = y.Value;
 			} else {
-				y = memory.cursorY;
-				memory.cursorY += 6;
+				y = Emulator.Memory.DrawState.CursorY;
+				Emulator.Memory.DrawState.CursorY += 6;
 			}
 
-			int xOrig = x.Value;
-			string prtStr = s.ToString();
+			var xOrig = x.Value;
+			var prtStr = s.ToString();
 
-			foreach (char l in prtStr) {
+			foreach (var l in prtStr) {
 				if (l == '\n') {
 					y += 6;
 					x = xOrig;
 					continue;
 				}
 
-				if (dictionary.ContainsKey(l)) {
-					byte[,] digit = dictionary[l];
+				if (Font.Dictionary.ContainsKey(l)) {
+					byte[,] digit = Font.Dictionary[l];
 
 					for (int i = 0; i < digit.GetLength(0); i += 1) {
 						for (int j = 0; j < digit.GetLength(1); j += 1) {
@@ -96,31 +86,19 @@ namespace Pico8Emulator.unit.graphics {
 			}
 		}
 
-		/// <summary>
-		/// Draw section of map (in cels) at screen position sx, sy (pixels)
-		/// if layer is specified, only cels with the same flag number set are drawn
-		/// </summary>
-		/// <param name="cel_x">The starting x axis cell position</param>
-		/// <param name="cel_y">The starting y axis cell position</param>
-		/// <param name="sx">The screen position to draw to in the x axis</param>
-		/// <param name="sy">The screen position to draw to in the y axis</param>
-		/// <param name="cel_w">The width of the map to draw</param>
-		/// <param name="cel_h">The height of the map to draw</param>
-		/// <param name="layer">The layer to use for drawing</param>
-		/// <returns>Returns null everytime</returns>
 		public object Map(int cel_x, int cel_y, int sx, int sy, int cel_w, int cel_h, byte? layer = null) {
 			for (int h = 0; h < cel_h; h++) {
 				for (int w = 0; w < cel_w; w++) {
-					int addr = (cel_y + h) < 32 ? MemoryUnit.ADDR_MAP : MemoryUnit.ADDR_GFX_MAP;
-					byte spr_index = memory.Peek(addr + (cel_y + h) % 32 * 128 + cel_x + w);
-					byte flags = (byte) memory.Fget(spr_index, null);
+					int addr = (cel_y + h) < 32 ? RamAddress.Map : RamAddress.GfxMap;
+					byte spr_index = Emulator.Memory.Peek(addr + (cel_y + h) % 32 * 128 + cel_x + w);
+					byte flags = (byte) Emulator.Memory.Fget(spr_index, null);
 
 					// Spr index 0 is reserved for empty tiles
 					if (spr_index == 0) {
 						continue;
 					}
 
-					// IF layer has not been specified, draw regardless
+					// If layer has not been specified, draw regardless
 					if (!layer.HasValue || (flags & layer.Value) != 0) {
 						Spr(spr_index, sx + 8 * w, sy + 8 * h, 1, 1, false, false);
 					}
@@ -130,58 +108,37 @@ namespace Pico8Emulator.unit.graphics {
 			return null;
 		}
 
-		/// <summary>
-		/// Turns current screen data into color data.
-		/// </summary>
 		public void Flip() {
-			byte[] frameBuffer = memory.FrameBuffer;
+			var ram = Emulator.Memory.Ram;
 
-			for (int i = 0; i < 64 * 128; i++) {
-				byte val = frameBuffer[i];
+			for (int i = 0; i < 8192; i++) {
+				byte val = ram[i + RamAddress.Screen];
 				byte left = (byte) (val & 0x0f);
 				byte right = (byte) (val >> 4);
 
-				byte lc = (byte) memory.GetScreenColor(left);
-				byte rc = (byte) memory.GetScreenColor(right);
+				byte lc = (byte) Emulator.Memory.DrawState.GetScreenColor(left);
+				byte rc = (byte) Emulator.Memory.DrawState.GetScreenColor(right);
 
 				// Convert color if alternative palette bit is set.
 				lc = (byte) ((lc & 0b10000000) != 0 ? (lc & 0b00001111) + 16 : (lc & 0b00001111));
 				rc = (byte) ((rc & 0b10000000) != 0 ? (rc & 0b00001111) + 16 : (rc & 0b00001111));
 
-				int rl = pico8Palette[lc, 0],
-					gl = pico8Palette[lc, 1],
-					bl = pico8Palette[lc, 2];
-
-				int rr = pico8Palette[rc, 0],
-					gr = pico8Palette[rc, 1],
-					br = pico8Palette[rc, 2];
-
-				screenColorData[i * 2] = rgbToColor(rl, gl, bl);
-				screenColorData[i * 2 + 1] = rgbToColor(rr, gr, br);
+				screenColorData[i * 2] = Palette.StandardPalette[lc];
+				screenColorData[i * 2 + 1] = Palette.StandardPalette[rc];
 			}
+			
+			Surface.SetData(screenColorData);
 		}
 
-		/// <summary>
-		/// Draw sprite n (0..255) at position x,y.
-		/// Width and height are 1,1 by default and specify how many sprites wide to blit.
-		/// Colour 0 drawn as transparent by default (see palt())
-		/// </summary>
-		/// <param name="n">The number of the sprite to draw</param>
-		/// <param name="x">The x position to draw the sprite to</param>
-		/// <param name="y">The y position to draw the sprite to</param>
-		/// <param name="w">The width of the spritesheet to draw from</param>
-		/// <param name="h">The height of the spritesheet to draw from</param>
-		/// <param name="flip_x">If it should flip horizontally</param>
-		/// <param name="flip_y">If it should flip vertically</param>
-		/// <returns>Returns null everytime</returns>
 		public object Spr(int n, int x, int y, int? w = null, int? h = null, bool? flip_x = null, bool? flip_y = null) {
 			if (n < 0 || n > 255) {
 				return null;
 			}
 
-			int sprX = (n % 16) * 8, sprY = (n / 16) * 8;
-
-			int width = 1, height = 1;
+			var sprX = (n % 16) * 8;
+			var sprY = (n / 16) * 8;
+			var width = 1;
+			var height = 1;
 
 			if (w.HasValue) {
 				width = w.Value;
@@ -211,22 +168,6 @@ namespace Pico8Emulator.unit.graphics {
 			return null;
 		}
 
-		/// <summary>
-		/// Stretch rectangle from sprite sheet (sx, sy, sw, sh) (given in pixels)
-		/// and draw in rectangle(dx, dy, dw, dh)
-		/// Colour 0 drawn as transparent by default (see palt())
-		/// </summary>
-		/// <param name="sx">The starting pixel x position in the spritesheet to draw from.</param>
-		/// <param name="sy">The starting pixel y position in the spritesheet to draw from.</param>
-		/// <param name="sw">The width to draw from the spritesheet.</param>
-		/// <param name="sh">The height to draw from the spritesheet.</param>
-		/// <param name="dx">The x position to draw the spritesheet on the screen.</param>
-		/// <param name="dy">The y position to draw the spritesheet on the screen.</param>
-		/// <param name="dw">The width of the screen rectangle that the spritesheet section is drawn to. Defaults to sw.</param>
-		/// <param name="dh">The height of the screen rectangle that the spritesheet section is drawn to. Defaults to sh.</param>
-		/// <param name="flip_x">If it should flip horizontally</param>
-		/// <param name="flip_y">If it should flip vertically</param>
-		/// <returns>Returns null everytime</returns>
 		public object Sspr(int sx, int sy, int sw, int sh, int dx, int dy, int? dw = null, int? dh = null,
 			bool? flip_x = null, bool? flip_y = null) {
 			if (!dw.HasValue) {
@@ -273,194 +214,124 @@ namespace Pico8Emulator.unit.graphics {
 
 			return null;
 		}
-
-		/// <summary>
-		/// Get color of a spritesheet pixel.
-		/// </summary>
-		/// <param name="x">The x position in the spritesheet to extract the pixel from.</param>
-		/// <param name="y">The y position in the spritesheet to extract the pixel from.</param>
-		/// <returns>The color value.</returns>
+		
 		public byte Sget(int x, int y) {
-			return memory.GetPixel(x, y, MemoryUnit.ADDR_GFX);
+			return Emulator.Memory.GetPixel(x, y, RamAddress.Gfx);
 		}
 
-		/// <summary>
-		/// Sets color of a spritesheet pixel.
-		/// </summary>
-		/// <param name="x">The x position in the spritesheet where the pixel will be set.</param>
-		/// <param name="y">The y position in the spritesheet where the pixel will be set.</param>
-		/// <param name="col">The color value to set the pixel to.</param>
-		/// <returns>Returns null everytime.</returns>
 		public object Sset(int x, int y, byte? col = null) {
 			if (col.HasValue) {
-				memory.DrawColor = col.Value;
+				Emulator.Memory.DrawState.DrawColor = col.Value;
 			}
 
-			memory.WritePixel(x, y, memory.DrawColor, MemoryUnit.ADDR_GFX);
+			Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.DrawColor, RamAddress.Gfx);
 
 			return null;
 		}
 
-		/// <summary>
-		/// Sets a pixel value to the screen.
-		/// </summary>
-		/// <param name="x">The x position on the screen.</param>
-		/// <param name="y">The y position on the screen.</param>
-		/// <param name="col">The color value to set the pixel to.</param>
-		/// <returns>Returns null everytime.</returns>
 		public object Pset(int x, int y, byte? col = null) {
-			x -= memory.cameraX;
-			y -= memory.cameraY;
+			x -= Emulator.Memory.DrawState.CameraX;
+			y -= Emulator.Memory.DrawState.CameraY;
 
 			if (!col.HasValue) {
-				col = memory.DrawColor;
+				col = Emulator.Memory.DrawState.DrawColor;
 			}
 
-			int f = memory.getFillPBit(x, y);
+			int f = Emulator.Memory.DrawState.GetFillPBit(x, y);
 
 			if (f == 0) {
 				// Do not consider transparency bit for this operation.
-				memory.WritePixel(x, y, (byte) (memory.GetDrawColor(col.Value & 0x0f) & 0x0f));
-			} else if (!memory.fillpTransparent) {
+				Emulator.Memory.WritePixel(x, y, (byte) (Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f) & 0x0f));
+			} else if (!Emulator.Memory.DrawState.FillpTransparent) {
 				// Do not consider transparency bit for this operation.
-				memory.WritePixel(x, y, (byte) (memory.GetDrawColor(col.Value >> 4) & 0x0f));
+				Emulator.Memory.WritePixel(x, y, (byte) (Emulator.Memory.DrawState.GetDrawColor(col.Value >> 4) & 0x0f));
 			}
 
-			memory.DrawColor = (byte) (col.Value & 0x0f);
-
+			Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
 			return null;
 		}
 
-		/// <summary>
-		/// Set pixel considering transparency value. Used for spr, sspr and map.
-		/// </summary>
-		/// <param name="x">The x position on the screen.</param>
-		/// <param name="y">The y position on the screen.</param>
-		/// <param name="col">The color value to set the pixel to.</param>
-		/// <returns>Returns null everytime.</returns>
 		private object Psett(int x, int y, byte? col = null) {
-			x -= memory.cameraX;
-			y -= memory.cameraY;
+			x -= Emulator.Memory.DrawState.CameraX;
+			y -= Emulator.Memory.DrawState.CameraY;
 
 			if (!col.HasValue) {
-				col = memory.DrawColor;
+				col = Emulator.Memory.DrawState.DrawColor;
 			}
 
-			int f = memory.getFillPBit(x, y);
+			int f = Emulator.Memory.DrawState.GetFillPBit(x, y);
 
 			if (f == 0) {
-				memory.WritePixel(x, y, memory.GetDrawColor(col.Value & 0x0f));
-			} else if (!memory.fillpTransparent && !memory.IsTransparent(col.Value)) {
-				memory.WritePixel(x, y, (memory.GetDrawColor(col.Value >> 4)));
+				Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f));
+			} else if (!Emulator.Memory.DrawState.FillpTransparent && !Emulator.Memory.DrawState.IsTransparent(col.Value)) {
+				Emulator.Memory.WritePixel(x, y, (Emulator.Memory.DrawState.GetDrawColor(col.Value >> 4)));
 			}
 
 			// We only want to set the default color if the color given is not transparent.
-			if (!memory.IsTransparent(col.Value)) {
-				memory.DrawColor = (byte) (col.Value & 0x0f);
+			if (!Emulator.Memory.DrawState.IsTransparent(col.Value)) {
+				Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
 			}
 
 			return null;
 		}
 
-		/// <summary>
-		/// Gets the color of a pixel.
-		/// </summary>
-		/// <param name="x">The x position.</param>
-		/// <param name="y">The y position.</param>
-		/// <returns>Returns null everytime.</returns>
 		public byte Pget(int x, int y) {
-			return memory.GetPixel((int) x, (int) y);
+			return Emulator.Memory.GetPixel((int) x, (int) y);
 		}
-
-		/// <summary>
-		/// The Palt
-		/// </summary>
-		/// <param name="col">The col</param>
-		/// <param name="t">The t</param>
-		/// <returns>The </returns>
+		
 		public object Palt(int? col = null, bool? t = null) {
 			if (!col.HasValue || !t.HasValue) {
-				memory.SetTransparent(0);
+				Emulator.Memory.DrawState.SetTransparent(0);
 
 				for (byte i = 1; i < 16; i++) {
-					memory.ResetTransparent(i);
+					Emulator.Memory.DrawState.ResetTransparent(i);
 				}
 
 				return null;
 			}
 
 			if (t.Value) {
-				memory.SetTransparent(col.Value);
+				Emulator.Memory.DrawState.SetTransparent(col.Value);
 			} else {
-				memory.ResetTransparent(col.Value);
+				Emulator.Memory.DrawState.ResetTransparent(col.Value);
 			}
 
 			return null;
 		}
 
-		/// <summary>
-		/// Draw all instances of colour c0 as c1 in subsequent draw calls.
-		/// pal() to reset to system defaults (including transparency values and fill pattern).
-		/// Two types of palette (p; defaults to 0):
-		///     0 draw palette   : colours are remapped on draw    (e.g. to re-colour sprites)
-		///     1 screen palette : colours are remapped on display (e.g. for fades)
-		/// </summary>
-		/// <param name="c0">The color to change.</param>
-		/// <param name="c1">The color to change to.</param>
-		/// <param name="p">The palette to make the change to. Defaults to 0.</param>
-		/// <returns>Returns null everytime.</returns>
 		public object Pal(int? c0 = null, int? c1 = null, int p = 0) {
 			if (!c0.HasValue || !c1.HasValue) {
 				for (byte i = 0; i < 16; i++) {
-					memory.SetDrawPalette(i, i);
-					memory.SetScreenPalette(i, i);
+					Emulator.Memory.DrawState.SetDrawPalette(i, i);
+					Emulator.Memory.DrawState.SetScreenPalette(i, i);
 				}
 
 				Palt(null, null);
-
 				return null;
 			}
 
 			if (p == 0) {
-				memory.SetDrawPalette(c0.Value, c1.Value);
+				Emulator.Memory.DrawState.SetDrawPalette(c0.Value, c1.Value);
 			} else if (p == 1) {
-				memory.SetScreenPalette(c0.Value, c1.Value);
+				Emulator.Memory.DrawState.SetScreenPalette(c0.Value, c1.Value);
 			}
 
 			return null;
 		}
 
-		/// <summary>
-		/// Sets the screen's clipping region in pixels.
-		/// clip() to reset.
-		/// </summary>
-		/// <param name="x">The x position of the clipping rectangle</param>
-		/// <param name="y">The y position of the clipping rectangle</param>
-		/// <param name="w">The width of the clipping rectangle</param>
-		/// <param name="h">The height of the clipping rectangle</param>
-		/// <returns>Returns null everytime.</returns>
 		public object Clip(int? x = null, int? y = null, int? w = null, int? h = null) {
 			if (!x.HasValue || !y.HasValue || !w.HasValue || !h.HasValue) {
 				return null;
 			}
 
-			memory.clipX0 = (byte) x.Value;
-			memory.clipY0 = (byte) y.Value;
-			memory.clipX1 = (byte) (x.Value + w.Value);
-			memory.clipY1 = (byte) (y.Value + h.Value);
+			Emulator.Memory.DrawState.ClipLeft = (byte) x.Value;
+			Emulator.Memory.DrawState.ClipTop = (byte) y.Value;
+			Emulator.Memory.DrawState.ClipRight = (byte) (x.Value + w.Value);
+			Emulator.Memory.DrawState.ClipBottom = (byte) (y.Value + h.Value);
 
 			return null;
 		}
-
-		/// <summary>
-		/// Draws a rectangle
-		/// </summary>
-		/// <param name="x0">The x0 position of the rectangle</param>
-		/// <param name="y0">The y0 position of the rectangle</param>
-		/// <param name="x1">The x1 position of the rectangle</param>
-		/// <param name="y1">The y1 position of the rectangle</param>
-		/// <param name="col">The color of the rectangle</param>
-		/// <returns>returns null everytime.</returns>
+		
 		public object Rect(int x0, int y0, int x1, int y1, byte? col = null) {
 			Line(x0, y0, x1, y0, col);
 			Line(x0, y0, x0, y1, col);
@@ -470,15 +341,6 @@ namespace Pico8Emulator.unit.graphics {
 			return null;
 		}
 
-		/// <summary>
-		/// Draws a filled rectangle.
-		/// </summary>
-		/// <param name="x0">The x0 position of the rectangle</param>
-		/// <param name="y0">The y0 position of the rectangle</param>
-		/// <param name="x1">The x1 position of the rectangle</param>
-		/// <param name="y1">The y1 position of the rectangle</param>
-		/// <param name="col">The color of the rectangle</param>
-		/// <returns>returns null everytime.</returns>
 		public object Rectfill(int x0, int y0, int x1, int y1, byte? col = null) {
 			if (y0 > y1) {
 				Util.Swap(ref y0, ref y1);
@@ -491,31 +353,22 @@ namespace Pico8Emulator.unit.graphics {
 			return null;
 		}
 
-		/// <summary>
-		/// Draw a line
-		/// </summary>
-		/// <param name="x0">The x0 position of the line</param>
-		/// <param name="y0">The y0 position of the line</param>
-		/// <param name="x1">The x1 position of the line</param>
-		/// <param name="y1">The y1 position of the line</param>
-		/// <param name="col">The color of the line</param>
-		/// <returns>returns null everytime.</returns>
 		public object Line(int x0, int y0, int? x1 = null, int? y1 = null, byte? col = null) {
 			if (x1.HasValue) {
-				memory.lineX = x1.Value;
+				Emulator.Memory.DrawState.LineX = x1.Value;
 			}
 
 			if (y1.HasValue) {
-				memory.lineY = y1.Value;
+				Emulator.Memory.DrawState.LineY = y1.Value;
 			}
 
 			int x0_screen = x0;
 			int y0_screen = y0;
-			int x1_screen = memory.lineX;
-			int y1_screen = memory.lineY;
+			int x1_screen = Emulator.Memory.DrawState.LineX;
+			int y1_screen = Emulator.Memory.DrawState.LineY;
 
 			if (col.HasValue) {
-				memory.DrawColor = col.Value;
+				Emulator.Memory.DrawState.DrawColor = col.Value;
 			}
 
 			bool steep = false;
@@ -555,39 +408,21 @@ namespace Pico8Emulator.unit.graphics {
 			return null;
 		}
 
-		/// <summary>
-		/// Draws a circle
-		/// </summary>
-		/// <param name="x">The x position of the circle.</param>
-		/// <param name="y">The y position of the circle.</param>
-		/// <param name="r">The radius of the circle</param>
-		/// <param name="col">The color to draw the circle.</param>
-		/// <returns>Returns null everytime.</returns>
 		public object Circ(int x, int y, double r, byte? col = null) {
 			if (col.HasValue) {
-				memory.DrawColor = col.Value;
+				Emulator.Memory.DrawState.DrawColor = col.Value;
 			}
 
 			DrawCircle(x, y, (int) Math.Ceiling(r), false);
-
 			return null;
 		}
 
-		/// <summary>
-		/// Draws a filled circle.
-		/// </summary>
-		/// <param name="x">The x position of the circle.</param>
-		/// <param name="y">The y position of the circle.</param>
-		/// <param name="r">The radius of the circle</param>
-		/// <param name="col">The color to draw the circle.</param>
-		/// <returns>Returns null everytime.</returns>
 		public object CircFill(int x, int y, double r, byte? col = null) {
 			if (col.HasValue) {
-				memory.DrawColor = col.Value;
+				Emulator.Memory.DrawState.DrawColor = col.Value;
 			}
 
 			DrawCircle(x, y, (int) r, true);
-
 			return null;
 		}
 

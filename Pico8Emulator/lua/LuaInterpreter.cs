@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace Pico8_Emulator
+﻿namespace Pico8Emulator.lua
 {
     /// <summary>
-    /// Defines the interface for a lua interpreter like Moonsharp or NLua. <see cref="ILuaInterpreter" />
+    /// Defines the interface for a lua interpreter like Moonsharp or NLua. <see cref="LuaInterpreter" />
     /// </summary>
-    public interface ILuaInterpreter
+    public interface LuaInterpreter
     {
         /// <summary>
         /// Function to add a C# function to the lua interpreter so that lua code can call it.

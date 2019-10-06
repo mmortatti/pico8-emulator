@@ -24,16 +24,42 @@ namespace Pico8Emulator.unit.graphics {
 		public override void DefineApi(LuaInterpreter script) {
 			base.DefineApi(script);
 			
-			script.AddFunction("pset", (Func<int, int, byte?, object>) Pset);
+			script.AddFunction("pset", (Action<int, int, byte?>) Pset);
+			script.AddFunction("pget", (Func<int, int, byte>) Pget);
 			script.AddFunction("flip", (Action) Flip);
+			script.AddFunction("cls", (Action<byte?>) Cls);
+			
+			script.AddFunction("pal", (Action<int?, int?, int>) Pal);
+			script.AddFunction("palt", (Action<int?, bool?>) Palt);
+
+			script.AddFunction("spr", (Action<int, int, int, int?, int?, bool, bool>) Spr);
+			script.AddFunction("sspr", (Action<int, int, int, int, int, int, int?, int?, bool, bool>) Sspr);
+			
+			script.AddFunction("print", (Action<string, int?, int?, byte?>) Print);
+			script.AddFunction("map", (Action<int?, int?, int?, int?, int?, int?, byte?>) Map);
+			script.AddFunction("clip", (Action<int?, int?, int?, int?>) Clip);
+			
+			script.AddFunction("line", (Action<int, int, int?, int?, byte?>) Line);
+			script.AddFunction("rect", (Action<int, int, int, int, byte?>) Rect);
+			script.AddFunction("rectfill", (Action<int, int, int, int, byte?>) Rectfill);
+			script.AddFunction("circ", (Action<int, int, double?, byte?>) Circ);
+			script.AddFunction("circfill", (Action<int, int, double?, byte?>) Circfill);
+
+			script.AddFunction("sset", (Action<int, int, byte?>) Sset);
+			script.AddFunction("sget", (Func<int, int, byte>) Sget);
 		}
 
-		public object Cls() {
-			for (var i = 0; i < 0x2000; i++) {
-				Emulator.Memory.Ram[RamAddress.Screen + i] = 0;
+		public void Cls(byte? color) {
+			var c = 0;
+			
+			if (color.HasValue) {
+				var v = color.Value % 16;
+				c = v | (v << 4);
 			}
-
-			return null;
+			
+			for (var i = 0; i < 0x2000; i++) {
+				Emulator.Memory.Ram[RamAddress.Screen + i] = (byte) c;
+			}
 		}
 
 		public static byte ColorToPalette(Color col) {
@@ -61,7 +87,7 @@ namespace Pico8Emulator.unit.graphics {
 			}
 
 			var xOrig = x.Value;
-			var prtStr = s.ToString();
+			var prtStr = s.ToString().ToUpper();
 
 			foreach (var l in prtStr) {
 				if (l == '\n') {
@@ -86,26 +112,30 @@ namespace Pico8Emulator.unit.graphics {
 			}
 		}
 
-		public object Map(int cel_x, int cel_y, int sx, int sy, int cel_w, int cel_h, byte? layer = null) {
-			for (int h = 0; h < cel_h; h++) {
-				for (int w = 0; w < cel_w; w++) {
-					int addr = (cel_y + h) < 32 ? RamAddress.Map : RamAddress.GfxMap;
-					byte spr_index = Emulator.Memory.Peek(addr + (cel_y + h) % 32 * 128 + cel_x + w);
-					byte flags = (byte) Emulator.Memory.Fget(spr_index, null);
+		public void Map(int? cellX, int? cellY, int? sx, int? sy, int? cellW, int? cellH, byte? layer = null) {
+			var x = cellX ?? 0;
+			var y = cellY ?? 0;
+			var px = sx ?? 0;
+			var py = sy ?? 0;
+			var tw = cellW ?? 16;
+			var th = cellH ?? 16;
+
+			for (var h = 0; h < th; h++) {
+				for (var w = 0; w < tw; w++) {
+					var addr = (y + h) < 32 ? RamAddress.Map : RamAddress.GfxMap;
+					var spr = Emulator.Memory.Peek(addr + (y + h) % 32 * 128 + x + w);
 
 					// Spr index 0 is reserved for empty tiles
-					if (spr_index == 0) {
+					if (spr == 0) {
 						continue;
 					}
-
+					
 					// If layer has not been specified, draw regardless
-					if (!layer.HasValue || (flags & layer.Value) != 0) {
-						Spr(spr_index, sx + 8 * w, sy + 8 * h, 1, 1, false, false);
+					if (!layer.HasValue || ((byte) Emulator.Memory.Fget(spr, null) & layer.Value) != 0) {
+						Spr(spr, px + 8 * w, py + 8 * h, 1, 1, false, false);
 					}
 				}
 			}
-
-			return null;
 		}
 
 		public void Flip() {
@@ -130,9 +160,9 @@ namespace Pico8Emulator.unit.graphics {
 			Surface.SetData(screenColorData);
 		}
 
-		public object Spr(int n, int x, int y, int? w = null, int? h = null, bool? flip_x = null, bool? flip_y = null) {
+		public void Spr(int n, int x, int y, int? w = null, int? h = null, bool flipX = false, bool flipY = false) {
 			if (n < 0 || n > 255) {
-				return null;
+				return;
 			}
 
 			var sprX = (n % 16) * 8;
@@ -148,42 +178,22 @@ namespace Pico8Emulator.unit.graphics {
 				height = h.Value;
 			}
 
-			bool flipX = false, flipY = false;
-
-			if (flip_x.HasValue) {
-				flipX = flip_x.Value;
-			}
-
-			if (flip_y.HasValue) {
-				flipY = flip_y.Value;
-			}
-
-			for (int i = 0; i < 8 * width; i++) {
-				for (int j = 0; j < 8 * height; j++) {
-					byte sprColor = Sget(i + sprX, j + sprY);
-					Psett(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), sprColor);
+			for (var i = 0; i < 8 * width; i++) {
+				for (var j = 0; j < 8 * height; j++) {
+					Psett(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), Sget(i + sprX, j + sprY));
 				}
 			}
-
-			return null;
 		}
 
-		public object Sspr(int sx, int sy, int sw, int sh, int dx, int dy, int? dw = null, int? dh = null,
-			bool? flip_x = null, bool? flip_y = null) {
+		public void Sspr(int sx, int sy, int sw, int sh, int dx, int dy, int? dw = null, int? dh = null,
+			bool flipX = false, bool flipY = false) {
+			
 			if (!dw.HasValue) {
 				dw = sw;
 			}
 
 			if (!dh.HasValue) {
 				dh = sh;
-			}
-
-			if (!flip_x.HasValue) {
-				flip_x = false;
-			}
-
-			if (!flip_y.HasValue) {
-				flip_y = false;
 			}
 
 			float ratioX = (float) sw / (float) dw.Value;
@@ -200,9 +210,8 @@ namespace Pico8Emulator.unit.graphics {
 				while (y < sy + sh && screenY < dy + dh) {
 					byte sprColor = Sget((int) x, (int) y);
 
-					Psett((flip_x.Value ? dx + dw.Value - ((int) screenX - dx) : (int) screenX),
-						(flip_y.Value ? dy + dh.Value - ((int) screenY - dy) : (int) screenY),
-						sprColor);
+					Psett((flipX ? dx + dw.Value - ((int) screenX - dx) : (int) screenX),
+						(flipY ? dy + dh.Value - ((int) screenY - dy) : (int) screenY), sprColor);
 
 					y += ratioY;
 					screenY += 1;
@@ -211,25 +220,21 @@ namespace Pico8Emulator.unit.graphics {
 				x += ratioX;
 				screenX += 1;
 			}
-
-			return null;
 		}
 		
 		public byte Sget(int x, int y) {
 			return Emulator.Memory.GetPixel(x, y, RamAddress.Gfx);
 		}
 
-		public object Sset(int x, int y, byte? col = null) {
+		public void Sset(int x, int y, byte? col = null) {
 			if (col.HasValue) {
 				Emulator.Memory.DrawState.DrawColor = col.Value;
 			}
 
 			Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.DrawColor, RamAddress.Gfx);
-
-			return null;
 		}
 
-		public object Pset(int x, int y, byte? col = null) {
+		public void Pset(int x, int y, byte? col = null) {
 			x -= Emulator.Memory.DrawState.CameraX;
 			y -= Emulator.Memory.DrawState.CameraY;
 
@@ -248,10 +253,9 @@ namespace Pico8Emulator.unit.graphics {
 			}
 
 			Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
-			return null;
 		}
 
-		private object Psett(int x, int y, byte? col = null) {
+		private void Psett(int x, int y, byte? col = null) {
 			x -= Emulator.Memory.DrawState.CameraX;
 			y -= Emulator.Memory.DrawState.CameraY;
 
@@ -271,15 +275,13 @@ namespace Pico8Emulator.unit.graphics {
 			if (!Emulator.Memory.DrawState.IsTransparent(col.Value)) {
 				Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
 			}
-
-			return null;
 		}
 
 		public byte Pget(int x, int y) {
 			return Emulator.Memory.GetPixel((int) x, (int) y);
 		}
 		
-		public object Palt(int? col = null, bool? t = null) {
+		public void Palt(int? col = null, bool? t = null) {
 			if (!col.HasValue || !t.HasValue) {
 				Emulator.Memory.DrawState.SetTransparent(0);
 
@@ -287,7 +289,7 @@ namespace Pico8Emulator.unit.graphics {
 					Emulator.Memory.DrawState.ResetTransparent(i);
 				}
 
-				return null;
+				return;
 			}
 
 			if (t.Value) {
@@ -295,19 +297,17 @@ namespace Pico8Emulator.unit.graphics {
 			} else {
 				Emulator.Memory.DrawState.ResetTransparent(col.Value);
 			}
-
-			return null;
 		}
 
-		public object Pal(int? c0 = null, int? c1 = null, int p = 0) {
+		public void Pal(int? c0 = null, int? c1 = null, int p = 0) {
 			if (!c0.HasValue || !c1.HasValue) {
 				for (byte i = 0; i < 16; i++) {
 					Emulator.Memory.DrawState.SetDrawPalette(i, i);
 					Emulator.Memory.DrawState.SetScreenPalette(i, i);
 				}
 
-				Palt(null, null);
-				return null;
+				Palt();
+				return;
 			}
 
 			if (p == 0) {
@@ -315,13 +315,16 @@ namespace Pico8Emulator.unit.graphics {
 			} else if (p == 1) {
 				Emulator.Memory.DrawState.SetScreenPalette(c0.Value, c1.Value);
 			}
-
-			return null;
 		}
 
-		public object Clip(int? x = null, int? y = null, int? w = null, int? h = null) {
+		public void Clip(int? x = null, int? y = null, int? w = null, int? h = null) {
 			if (!x.HasValue || !y.HasValue || !w.HasValue || !h.HasValue) {
-				return null;
+				Emulator.Memory.DrawState.ClipLeft = 0;
+				Emulator.Memory.DrawState.ClipTop = 0;
+				Emulator.Memory.DrawState.ClipRight = 128;
+				Emulator.Memory.DrawState.ClipBottom = 128;
+				
+				return;
 			}
 
 			Emulator.Memory.DrawState.ClipLeft = (byte) x.Value;
@@ -329,31 +332,27 @@ namespace Pico8Emulator.unit.graphics {
 			Emulator.Memory.DrawState.ClipRight = (byte) (x.Value + w.Value);
 			Emulator.Memory.DrawState.ClipBottom = (byte) (y.Value + h.Value);
 
-			return null;
+			return;
 		}
 		
-		public object Rect(int x0, int y0, int x1, int y1, byte? col = null) {
+		public void Rect(int x0, int y0, int x1, int y1, byte? col = null) {
 			Line(x0, y0, x1, y0, col);
 			Line(x0, y0, x0, y1, col);
 			Line(x1, y1, x1, y0, col);
 			Line(x1, y1, x0, y1, col);
-
-			return null;
 		}
 
-		public object Rectfill(int x0, int y0, int x1, int y1, byte? col = null) {
+		public void Rectfill(int x0, int y0, int x1, int y1, byte? col = null) {
 			if (y0 > y1) {
 				Util.Swap(ref y0, ref y1);
 			}
 
-			for (int y = y0; y < y1; y++) {
+			for (var y = y0; y < y1; y++) {
 				Line(x0, y, x1, y, col);
 			}
-
-			return null;
 		}
 
-		public object Line(int x0, int y0, int? x1 = null, int? y1 = null, byte? col = null) {
+		public void Line(int x0, int y0, int? x1 = null, int? y1 = null, byte? col = null) {
 			if (x1.HasValue) {
 				Emulator.Memory.DrawState.LineX = x1.Value;
 			}
@@ -362,16 +361,16 @@ namespace Pico8Emulator.unit.graphics {
 				Emulator.Memory.DrawState.LineY = y1.Value;
 			}
 
-			int x0_screen = x0;
-			int y0_screen = y0;
-			int x1_screen = Emulator.Memory.DrawState.LineX;
-			int y1_screen = Emulator.Memory.DrawState.LineY;
+			var x0_screen = x0;
+			var y0_screen = y0;
+			var x1_screen = Emulator.Memory.DrawState.LineX;
+			var y1_screen = Emulator.Memory.DrawState.LineY;
 
 			if (col.HasValue) {
 				Emulator.Memory.DrawState.DrawColor = col.Value;
 			}
 
-			bool steep = false;
+			var steep = false;
 
 			if (Math.Abs(x1_screen - x0_screen) < Math.Abs(y1_screen - y0_screen)) {
 				Util.Swap(ref x0_screen, ref y0_screen);
@@ -384,17 +383,17 @@ namespace Pico8Emulator.unit.graphics {
 				Util.Swap(ref y0_screen, ref y1_screen);
 			}
 
-			int dx = (int) (x1_screen - x0_screen);
-			int dy = (int) (y1_screen - y0_screen);
-			int d_err = 2 * Math.Abs(dy);
-			int err = 0;
-			int y = (int) y0_screen;
+			var dx = (int) (x1_screen - x0_screen);
+			var dy = (int) (y1_screen - y0_screen);
+			var d_err = 2 * Math.Abs(dy);
+			var err = 0;
+			var y = (int) y0_screen;
 
-			for (int x = (int) x0_screen; x <= x1_screen; x++) {
+			for (var x = (int) x0_screen; x <= x1_screen; x++) {
 				if (steep) {
-					Pset(y, x, null);
+					Pset(y, x);
 				} else {
-					Pset(x, y, null);
+					Pset(x, y);
 				}
 
 				err += d_err;
@@ -404,26 +403,22 @@ namespace Pico8Emulator.unit.graphics {
 					err -= dx * 2;
 				}
 			}
-
-			return null;
 		}
 
-		public object Circ(int x, int y, double r, byte? col = null) {
+		public void Circ(int x, int y, double? r, byte? col = null) {
 			if (col.HasValue) {
 				Emulator.Memory.DrawState.DrawColor = col.Value;
 			}
 
-			DrawCircle(x, y, (int) Math.Ceiling(r), false);
-			return null;
+			DrawCircle(x, y, (int) Math.Ceiling(r ?? 1), false);
 		}
 
-		public object CircFill(int x, int y, double r, byte? col = null) {
+		public void Circfill(int x, int y, double? r, byte? col = null) {
 			if (col.HasValue) {
 				Emulator.Memory.DrawState.DrawColor = col.Value;
 			}
 
-			DrawCircle(x, y, (int) r, true);
-			return null;
+			DrawCircle(x, y, (int) r ?? 1, true);
 		}
 
 		private void plot4(int x, int y, int offX, int offY, bool fill) {

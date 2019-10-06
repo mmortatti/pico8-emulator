@@ -21,6 +21,11 @@ namespace Pico8Emulator.unit.mem {
 			script.AddFunction("memcpy", (Func<int, int, int, object>) Memcpy);
 			script.AddFunction("peek", (Func<int, byte>) Peek);
 			script.AddFunction("poke", (Func<int, byte, object>) Poke);
+			
+			script.AddFunction("fget", (Func<int, byte?, object>) Fget);
+			script.AddFunction("fset", (Action<int, byte?, bool?>) Fset);
+
+			DrawState.DefineApi(script);
 		}
 
 		public void LoadCartridgeData(byte[] cartridgeRom) {
@@ -117,9 +122,9 @@ namespace Pico8Emulator.unit.mem {
 			return Peek(RamAddress.GfxProps + n);
 		}
 
-		public object Fset(int n, byte? f = null, bool? v = null) {
+		public void Fset(int n, byte? f = null, bool? v = null) {
 			if (!f.HasValue) {
-				return null;
+				return;
 			}
 
 			if (v.HasValue) {
@@ -131,8 +136,6 @@ namespace Pico8Emulator.unit.mem {
 			} else {
 				Poke(RamAddress.GfxProps + n, (byte) (Peek(RamAddress.GfxProps + n) | f));
 			}
-
-			return null;
 		}
 
 		public byte Mget(int x, int y) {

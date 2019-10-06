@@ -1,4 +1,5 @@
 using System;
+using Pico8Emulator.lua;
 using Pico8Emulator.unit.graphics;
 
 namespace Pico8Emulator.unit.mem {
@@ -14,7 +15,7 @@ namespace Pico8Emulator.unit.mem {
 			ram[RamAddress.Palette0] = 0x10;
 			ram[RamAddress.Palette1] = 0x0;
 
-			for (int i = 1; i < Palette.Size; i++) {
+			for (var i = 1; i < Palette.Size; i++) {
 				ram[RamAddress.Palette0 + i] = (byte) i;
 				ram[RamAddress.Palette1 + i] = (byte) i;
 			}
@@ -25,6 +26,13 @@ namespace Pico8Emulator.unit.mem {
 			ram[RamAddress.ClipBottom] = 127;
 		}
 		
+		public void DefineApi(LuaInterpreter script) {
+			script.AddFunction("color", (Action<byte?>) Color);	
+			script.AddFunction("cursor", (Action<int?, int?>) Cursor);
+			script.AddFunction("fillp", (Action<double?>) Fillp);
+			script.AddFunction("camera", (Action<int?, int?>) Camera);
+		}
+
 		public byte DrawColor {
 			get => ram[RamAddress.DrawColor];
 			set => ram[RamAddress.DrawColor] = (byte) (value & 0xff);
@@ -125,15 +133,13 @@ namespace Pico8Emulator.unit.mem {
 			set => ram[RamAddress.FillPattern + 2] = (byte) (value ? 1 : 0);
 		}
 		
-		public object Fillp(double? p = null) {
+		public void Fillp(double? p = null) {
 			if (!p.HasValue) {
 				p = 0;
 			}
 
 			FillPattern = (int) p.Value;
 			FillpTransparent = Math.Floor(p.Value) < p.Value;
-
-			return null;
 		}
 
 		public int GetFillPBit(int x, int y) {
@@ -145,21 +151,14 @@ namespace Pico8Emulator.unit.mem {
 
 			return (FillPattern & mask) >> (15 - i);
 		}
-		
-		public object Cursor(int x, int y, byte? col = null) {
-			CursorX = x;
-			CursorY = y;
 
-			if (col.HasValue) {
-				DrawColor = col.Value;
-			}
-
-			return null;
+		public void Cursor(int? x, int? y) {
+			CursorX = x ?? 0;
+			CursorY = y ?? 0;
 		}
 
-		public object Color(byte col) {
-			DrawColor = col;
-			return null;
+		public void Color(byte? col) {
+			DrawColor = col ?? 6;
 		}
 
 		public byte GetDrawColor(int color) {
@@ -207,24 +206,9 @@ namespace Pico8Emulator.unit.mem {
 			}
 		}
 
-		public object Camera(int? x = null, int? y = null) {
-			if (!x.HasValue && !y.HasValue) {
-				CameraX = 0;
-				CameraY = 0;
-
-				return null;
-			}
-
-			if (x.HasValue) {
-				CameraX = x.Value;
-			}
-
-			if (!y.HasValue) {
-				y = 0;
-			}
-
-			CameraY = y.Value;
-			return null;
+		public void Camera(int? x = null, int? y = null) {
+			CameraX = x ?? 0;
+			CameraY = y ?? 0;
 		}
 	}
 }

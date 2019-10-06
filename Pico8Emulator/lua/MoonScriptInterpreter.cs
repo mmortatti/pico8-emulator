@@ -13,7 +13,7 @@ namespace Pico8Emulator.lua {
 			try {
 				script.Call(name);
 			} catch (Exception e) {
-				Log.Error(e);
+				Log.Error(e.Message);
 			}
 		}
 
@@ -22,7 +22,7 @@ namespace Pico8Emulator.lua {
 				try {
 					script.Call(script.Globals[name]);
 				} catch (Exception e) {
-					Log.Error(e);
+					Log.Error(e.Message);
 				}
 				
 				return true;
@@ -35,7 +35,7 @@ namespace Pico8Emulator.lua {
 			try {
 				script.DoString(str);
 			} catch (Exception e) {
-				Log.Error(e);
+				Log.Error(e.Message);
 			}
 		}
 

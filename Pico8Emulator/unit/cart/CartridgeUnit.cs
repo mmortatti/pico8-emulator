@@ -83,6 +83,8 @@ namespace Pico8Emulator.unit.cart {
 			Emulator.Memory.LoadCartridgeData(Loaded.Rom);
 			
 			Loaded.Interpreter.RunScript(Loaded.Code);
+			Emulator.Graphics.Flip();
+			
 			startTime = DateTime.Now;
 			Loaded.Interpreter.CallIfDefined("_init");
 

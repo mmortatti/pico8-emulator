@@ -12,12 +12,28 @@ namespace Pico8Emulator.lua {
 		};
 		
 		private static string[] replacement = {
-			"dot", "dots", "right", "time", "lines",
-			"up", "eye", "o", "diamond", "rect", "star",
-			"down", "snowflake", "circle", "heart",
-			"man", "house", "left", "vlines", "cross", 
-			"cat", "arrows", "pat", "note", "sad", "wave"
+			"DOT", "DOTS", "RIGHT", "TIME", "LINES",
+			"UP", "EYE", "O", "DIAMOND", "RECT", "STAR",
+			"DOWN", "SNOWFLAKE", "CIRCLE", "HEART",
+			"MAN", "HOUSE", "LEFT", "VLINES", "CROSS", 
+			"CAT", "ARROWS", "PAT", "NOTE", "SAD", "WAVE"
 		};
+
+		private static char[] printableEmojis = {
+			(char) 144, (char) 132, (char) 145, (char) 147, (char) 152,
+			(char) 148, (char) 136, (char) 142, (char) 143, (char) 128, (char) 146,
+			(char) 131, (char) 133, (char) 134, (char) 135,
+			(char) 137, (char) 138, (char) 139, (char) 153, (char) 151, 
+			(char) 130, (char) 149, (char) 129, (char) 141, (char) 140, (char) 150
+		};
+		
+		public static string ReplaceCodesWithEmojis(string str) {
+			for (var i = 0; i < emojis.Length; i++) {
+				str = str.Replace($"U__{replacement[i]}", $"{printableEmojis[i]}");
+			}
+
+			return str;
+		}
 		
 		public static string PatchCode(string picoCode) {
 			// "if a != b" => "if a ~= b"
@@ -27,8 +43,8 @@ namespace Pico8Emulator.lua {
 			picoCode = Regex.Replace(picoCode, @"\-\-.*", "");
 
 			for (var i = 0; i < emojis.Length; i++) {
-				picoCode = picoCode.Replace(emojis[i], $"u__{replacement[i]}");
-				picoCode = picoCode.Replace($"{emojis[i][0]}", $"u__{replacement[i]}");
+				picoCode = picoCode.Replace(emojis[i], $"U__{replacement[i]}");
+				picoCode = picoCode.Replace($"{emojis[i][0]}", $"U__{replacement[i]}");
 			}
 			
 			// Matches and replaces binary style numbers like "0b1010.101" to hex format.

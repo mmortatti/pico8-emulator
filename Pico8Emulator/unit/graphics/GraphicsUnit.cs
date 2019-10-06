@@ -28,16 +28,12 @@ namespace Pico8Emulator.unit.graphics {
 			script.AddFunction("pget", (Func<int, int, byte>) Pget);
 			script.AddFunction("flip", (Action) Flip);
 			script.AddFunction("cls", (Action<byte?>) Cls);
-			
-			script.AddFunction("pal", (Action<int?, int?, int>) Pal);
-			script.AddFunction("palt", (Action<int?, bool?>) Palt);
 
 			script.AddFunction("spr", (Action<int, int, int, int?, int?, bool, bool>) Spr);
 			script.AddFunction("sspr", (Action<int, int, int, int, int, int, int?, int?, bool, bool>) Sspr);
 			
 			script.AddFunction("print", (Action<string, int?, int?, byte?>) Print);
 			script.AddFunction("map", (Action<int?, int?, int?, int?, int?, int?, byte?>) Map);
-			script.AddFunction("clip", (Action<int?, int?, int?, int?>) Clip);
 			
 			script.AddFunction("line", (Action<int, int, int?, int?, byte?>) Line);
 			script.AddFunction("rect", (Action<int, int, int, int, byte?>) Rect);
@@ -88,6 +84,10 @@ namespace Pico8Emulator.unit.graphics {
 
 			var xOrig = x.Value;
 			var prtStr = s.ToString().ToUpper();
+
+			if (prtStr.Contains("U__")) {
+				prtStr = LuaPatcher.ReplaceCodesWithEmojis(prtStr);
+			}
 
 			foreach (var l in prtStr) {
 				if (l == '\n') {
@@ -263,76 +263,23 @@ namespace Pico8Emulator.unit.graphics {
 				col = Emulator.Memory.DrawState.DrawColor;
 			}
 
-			int f = Emulator.Memory.DrawState.GetFillPBit(x, y);
-
+			var f = Emulator.Memory.DrawState.GetFillPBit(x, y);
+			var t = !Emulator.Memory.DrawState.IsTransparent(col.Value);
+			
 			if (f == 0) {
 				Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f));
-			} else if (!Emulator.Memory.DrawState.FillpTransparent && !Emulator.Memory.DrawState.IsTransparent(col.Value)) {
+			} else if (!Emulator.Memory.DrawState.FillpTransparent && t) {
 				Emulator.Memory.WritePixel(x, y, (Emulator.Memory.DrawState.GetDrawColor(col.Value >> 4)));
 			}
 
 			// We only want to set the default color if the color given is not transparent.
-			if (!Emulator.Memory.DrawState.IsTransparent(col.Value)) {
+			if (t) {
 				Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
 			}
 		}
 
 		public byte Pget(int x, int y) {
 			return Emulator.Memory.GetPixel((int) x, (int) y);
-		}
-		
-		public void Palt(int? col = null, bool? t = null) {
-			if (!col.HasValue || !t.HasValue) {
-				Emulator.Memory.DrawState.SetTransparent(0);
-
-				for (byte i = 1; i < 16; i++) {
-					Emulator.Memory.DrawState.ResetTransparent(i);
-				}
-
-				return;
-			}
-
-			if (t.Value) {
-				Emulator.Memory.DrawState.SetTransparent(col.Value);
-			} else {
-				Emulator.Memory.DrawState.ResetTransparent(col.Value);
-			}
-		}
-
-		public void Pal(int? c0 = null, int? c1 = null, int p = 0) {
-			if (!c0.HasValue || !c1.HasValue) {
-				for (byte i = 0; i < 16; i++) {
-					Emulator.Memory.DrawState.SetDrawPalette(i, i);
-					Emulator.Memory.DrawState.SetScreenPalette(i, i);
-				}
-
-				Palt();
-				return;
-			}
-
-			if (p == 0) {
-				Emulator.Memory.DrawState.SetDrawPalette(c0.Value, c1.Value);
-			} else if (p == 1) {
-				Emulator.Memory.DrawState.SetScreenPalette(c0.Value, c1.Value);
-			}
-		}
-
-		public void Clip(int? x = null, int? y = null, int? w = null, int? h = null) {
-			if (!x.HasValue || !y.HasValue || !w.HasValue || !h.HasValue) {
-				Emulator.Memory.DrawState.ClipLeft = 0;
-				Emulator.Memory.DrawState.ClipTop = 0;
-				Emulator.Memory.DrawState.ClipRight = 128;
-				Emulator.Memory.DrawState.ClipBottom = 128;
-				
-				return;
-			}
-
-			Emulator.Memory.DrawState.ClipLeft = (byte) x.Value;
-			Emulator.Memory.DrawState.ClipTop = (byte) y.Value;
-			Emulator.Memory.DrawState.ClipRight = (byte) (x.Value + w.Value);
-			Emulator.Memory.DrawState.ClipBottom = (byte) (y.Value + h.Value);
-
-			return;
 		}
 		
 		public void Rect(int x0, int y0, int x1, int y1, byte? col = null) {

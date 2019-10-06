@@ -6,8 +6,6 @@ namespace Pico8Emulator.unit.graphics {
 	 * 000 = 0x0
 	 * 111 = 0x9
 	 * etc
-	 *
-	 * new pico8 chars
 	 */
 	public static class Font {
 		public static Dictionary<char, byte[,]> Dictionary;

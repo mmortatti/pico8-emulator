@@ -1,8 +1,6 @@
 # todo
 
 * api missing:
- bit math
- value and object stuff
  menuitem
  exitcmd
  assert

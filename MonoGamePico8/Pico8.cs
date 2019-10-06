@@ -27,7 +27,7 @@ namespace MonoGamePico8 {
 			
 			emulator = new Emulator(GraphicsDevice);
 
-			if (!emulator.CartridgeLoader.Load("game")) {
+			if (!emulator.CartridgeLoader.Load("test")) {
 				Exit();
 			}
 		}

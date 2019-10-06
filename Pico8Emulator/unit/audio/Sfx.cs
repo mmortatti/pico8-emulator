@@ -59,7 +59,7 @@ namespace Pico8Emulator.unit.audio {
 
 			_oscillator = oscillator;
 
-			Console.WriteLine($"header {_sfxData[64]} {_sfxData[65]} {_sfxData[66]} {_sfxData[67]}");
+			// Console.WriteLine($"header {_sfxData[64]} {_sfxData[65]} {_sfxData[66]} {_sfxData[67]}");
 
 			for (int i = 0; i < _sfxData.Length - 4; i += 2) {
 				byte lo = _sfxData[i];
@@ -71,8 +71,7 @@ namespace Pico8Emulator.unit.audio {
 				notes[i / 2].effect = (byte) ((hi & 0b01110000) >> 4);
 				notes[i / 2].isCustom = (byte) ((hi & 0b10000000) >> 7) == 1;
 
-				Console.WriteLine(
-					$"{i} {notes[i / 2].pitch} {notes[i / 2].waveform} {notes[i / 2].volume} {notes[i / 2].effect} {notes[i / 2].isCustom}");
+				// Console.WriteLine($"{i} {notes[i / 2].pitch} {notes[i / 2].waveform} {notes[i / 2].volume} {notes[i / 2].effect} {notes[i / 2].isCustom}");
 			}
 
 			oscillator = new Oscillator(sampleRate);

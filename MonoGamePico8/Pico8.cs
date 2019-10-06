@@ -39,6 +39,8 @@ namespace MonoGamePico8 {
 
 		protected override void Draw(GameTime gameTime) {
 			base.Draw(gameTime);
+
+			emulator.Draw();
 			
 			GraphicsDevice.Clear(Color.Black);
 			

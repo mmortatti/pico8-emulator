@@ -10,3 +10,5 @@
  stop
  trace
  mouse/keyboard
+ update60
+ cap frames

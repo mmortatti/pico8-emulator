@@ -36,12 +36,8 @@ namespace Pico8Emulator.lua {
 			try {
 				script.DoString(str);
 			} catch (Exception e) {
-				Log.Error(str);
-				//File.WriteAllText("log.txt", str);
 				HandleError(e);
 			}
-			
-			Log.Error(str);
 		}
 
 		private void HandleError(Exception e) {

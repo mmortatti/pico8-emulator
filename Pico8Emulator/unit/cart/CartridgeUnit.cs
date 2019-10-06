@@ -20,6 +20,21 @@ namespace Pico8Emulator.unit.cart {
 			
 		}
 
+		public override void Update() {
+			base.Update();
+			Loaded?.Interpreter.CallIfDefined("_update60");
+		}
+
+		public void Draw() {
+			if (Loaded == null) {
+				return;
+			}
+
+			if (Loaded.Interpreter.CallIfDefined("_draw")) {
+				Emulator.Graphics.Flip();
+			}
+		}
+
 		public override void DefineApi(LuaInterpreter script) {
 			base.DefineApi(script);
 			

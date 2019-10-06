@@ -10,6 +10,7 @@ using Pico8Emulator.lua;
 using Pico8Emulator.unit;
 using Pico8Emulator.unit.audio;
 using Pico8Emulator.unit.cart;
+using Pico8Emulator.unit.input;
 using Pico8Emulator.unit.math;
 using Pico8Emulator.unit.mem;
 using GraphicsUnit = Pico8Emulator.unit.graphics.GraphicsUnit;
@@ -21,9 +22,10 @@ namespace Pico8Emulator {
 		public MemoryUnit Memory;
 		public GraphicsUnit Graphics;
 		public AudioUnit Audio;
-		public CartridgeUnit CartridgeLoader;
 		public MathUnit Math;
-		
+		public InputUnit Input;
+		public CartridgeUnit CartridgeLoader;
+
 		public GraphicsDevice GraphicsDevice;
 		
 		public Emulator(GraphicsDevice graphics) {
@@ -32,8 +34,9 @@ namespace Pico8Emulator {
 			units.Add(Memory = new MemoryUnit(this));
 			units.Add(Graphics = new GraphicsUnit(this, graphics));
 			units.Add(Audio = new AudioUnit(this));
-			units.Add(CartridgeLoader = new CartridgeUnit(this));
 			units.Add(Math = new MathUnit(this));
+			units.Add(Input = new InputUnit(this));
+			units.Add(CartridgeLoader = new CartridgeUnit(this));
 
 			foreach (var unit in units) {
 				unit.Init();
@@ -50,6 +53,10 @@ namespace Pico8Emulator {
 			foreach (var unit in units) {
 				unit.Update();
 			}
+		}
+
+		public void Draw() {
+			CartridgeLoader.Draw();
 		}
 
 		public void InitApi(LuaInterpreter script) {

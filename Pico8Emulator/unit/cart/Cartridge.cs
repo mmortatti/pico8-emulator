@@ -11,7 +11,7 @@ namespace Pico8Emulator.unit.cart {
 		public string Path;
 		
 		public int[] CartData = new int[CartDataSize];
-		public string CartDataId;
+		public string CartDataId = "";
 
 		public LuaInterpreter Interpreter;
 	}

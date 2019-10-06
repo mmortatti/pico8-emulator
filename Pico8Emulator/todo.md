@@ -1,5 +1,12 @@
 # todo
 
-* input
-* bit functions in math
-* api definition
+* api missing:
+ bit math
+ value and object stuff
+ menuitem
+ exitcmd
+ assert
+ stat
+ stop
+ trace
+ mouse/keyboard

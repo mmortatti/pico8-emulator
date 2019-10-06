@@ -24,6 +24,8 @@ namespace Pico8Emulator.unit.mem {
 			
 			script.AddFunction("fget", (Func<int, byte?, object>) Fget);
 			script.AddFunction("fset", (Action<int, byte?, bool?>) Fset);
+			script.AddFunction("mget", (Func<int, int, byte>) Mget);
+			script.AddFunction("mset", (Action<int, int, byte>) Mset);
 
 			DrawState.DefineApi(script);
 		}
@@ -150,18 +152,16 @@ namespace Pico8Emulator.unit.mem {
 			return Ram[index + addr];
 		}
 
-		public object Mset(int x, int y, byte v) {
+		public void Mset(int x, int y, byte v) {
 			int addr = (y < 32 ? RamAddress.Map : RamAddress.GfxMap);
 			y = y % 32;
 			int index = (y * 128 + x);
 
 			if (index < 0 || index > 32 * 128 - 1) {
-				return null;
+				return;
 			}
 
 			Ram[index + addr] = v;
-
-			return null;
 		}
 
 		public byte GetPixel(int x, int y, int offset = RamAddress.Screen) {

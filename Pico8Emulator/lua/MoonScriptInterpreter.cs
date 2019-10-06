@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using MoonSharp.Interpreter;
 
 namespace Pico8Emulator.lua {
@@ -13,7 +14,7 @@ namespace Pico8Emulator.lua {
 			try {
 				script.Call(name);
 			} catch (Exception e) {
-				Log.Error(e.Message);
+				HandleError(e);
 			}
 		}
 
@@ -22,7 +23,7 @@ namespace Pico8Emulator.lua {
 				try {
 					script.Call(script.Globals[name]);
 				} catch (Exception e) {
-					Log.Error(e.Message);
+					HandleError(e);
 				}
 				
 				return true;
@@ -35,7 +36,19 @@ namespace Pico8Emulator.lua {
 			try {
 				script.DoString(str);
 			} catch (Exception e) {
-				Log.Error(e.Message);
+				Log.Error(str);
+				//File.WriteAllText("log.txt", str);
+				HandleError(e);
+			}
+			
+			Log.Error(str);
+		}
+
+		private void HandleError(Exception e) {
+			if (e is MoonSharp.Interpreter.SyntaxErrorException se) {
+				Log.Error(se.DecoratedMessage);
+			} else if (e is MoonSharp.Interpreter.InterpreterException ie) {
+				Log.Error(ie.DecoratedMessage);
 			}
 		}
 

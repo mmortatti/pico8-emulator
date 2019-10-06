@@ -418,7 +418,7 @@ namespace Pico8Emulator.unit.graphics {
 				Emulator.Memory.DrawState.DrawColor = col.Value;
 			}
 
-			DrawCircle(x, y, (int) r ?? 1, true);
+			DrawCircle(x, y, (int) (r ?? 1), true);
 		}
 
 		private void plot4(int x, int y, int offX, int offY, bool fill) {

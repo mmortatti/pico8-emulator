@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Audio;
+using Pico8Emulator.lua;
 using Pico8Emulator.unit.mem;
 
 namespace Pico8Emulator.unit.audio {
@@ -18,6 +19,13 @@ namespace Pico8Emulator.unit.audio {
 		public AudioUnit(Emulator emulator) : base(emulator) {
 			soundInstance = new DynamicSoundEffectInstance(SampleRate, AudioChannels.Mono);
 			musicPlayer = new MusicPlayer(emulator);
+		}
+
+		public override void DefineApi(LuaInterpreter script) {
+			base.DefineApi(script);
+
+			script.AddFunction("music", (Action<int, int?, int?>) Music);
+			script.AddFunction("sfx", (Action<int, int?, int?, int?>) Sfx);
 		}
 
 		public override void Update() {
@@ -56,7 +64,7 @@ namespace Pico8Emulator.unit.audio {
 			return ExternalAudioBuffer;
 		}
 		
-		public object Sfx(int n, int? channel = -1, int? offset = 0, int? length = 32) {
+		public void Sfx(int n, int? channel = -1, int? offset = 0, int? length = 32) {
 			switch (n) {
 				case -1:
 					if (channel == -1) {
@@ -107,13 +115,10 @@ namespace Pico8Emulator.unit.audio {
 					SfxChannels[channel.Value].Start();
 					break;
 			}
-
-			return null;
 		}
 
-		public object Music(int? n, int? fade_len = null, int? channel_mask = null) {
-			musicPlayer.Start(n.Value);
-			return null;
+		public void Music(int n, int? fade_len = null, int? channel_mask = null) {
+			musicPlayer.Start(n);
 		}
 
 		public void FillBuffer() {

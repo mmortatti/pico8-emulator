@@ -4,9 +4,33 @@ using System.Text.RegularExpressions;
 
 namespace Pico8Emulator.lua {
 	public static class LuaPatcher {
+		private static string[] emojis = {
+			"…", "░", "➡️", "⧗", "▤", "⬆️", "☉",
+			"🅾️", "◆", "█", "★", "⬇️", "✽", "●",
+			"♥", "웃", "⌂", "⬅️", "▥", "❎", "🐱", 
+			"ˇ", "▒", "♪", "😐", "∧"
+		};
+		
+		private static string[] replacement = {
+			"dot", "dots", "right", "time", "lines",
+			"up", "eye", "o", "diamond", "rect", "star",
+			"down", "snowflake", "circle", "heart",
+			"man", "house", "left", "vlines", "cross", 
+			"cat", "arrows", "pat", "note", "sad", "wave"
+		};
+		
 		public static string PatchCode(string picoCode) {
 			// "if a != b" => "if a ~= b"
 			picoCode = Regex.Replace(picoCode, @"!=", "~=");
+			picoCode = Regex.Replace(picoCode, @"//", "--");
+			picoCode = Regex.Replace(picoCode, @"\-\-\s*\[\[([^\]\]]*)\]\]", "", RegexOptions.Multiline);
+			picoCode = Regex.Replace(picoCode, @"\-\-.*", "");
+
+			for (var i = 0; i < emojis.Length; i++) {
+				picoCode = picoCode.Replace(emojis[i], $"u__{replacement[i]}");
+				picoCode = picoCode.Replace($"{emojis[i][0]}", $"u__{replacement[i]}");
+			}
+			
 			// Matches and replaces binary style numbers like "0b1010.101" to hex format.
 			picoCode = Regex.Replace(picoCode, @"0b([0-1]+)(?:\.{0,1})([0-1]*){0,1}", ReplaceBinaryNumber, RegexOptions.Multiline);
 			// Matches if statements with conditions sorrounded by parenthesis, followed by anything but
@@ -114,6 +138,10 @@ namespace Pico8Emulator.lua {
 
 		private static string ReplaceIfShorthand(Match ifMatch) {
 			string ifLine = ifMatch.Groups[1].ToString();
+
+			if (ifLine.Contains("then")) {
+				return $"if {ifLine}";
+			}
 
 			// Remove the parenthesis from string.
 			Stack<char> st = new Stack<char>();

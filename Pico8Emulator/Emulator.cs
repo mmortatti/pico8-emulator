@@ -58,6 +58,7 @@ namespace Pico8Emulator {
 			}
 			
 			script.AddFunction("printh", (Func<object, object>) Printh);
+			script.RunScript(LuaPatcher.PatchCode(Api.All));
 		}
 
 		public object Printh(object s) {

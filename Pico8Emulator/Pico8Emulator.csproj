@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="lua\LuaInterpreter.cs" />
     <Compile Include="lua\LuaPatcher.cs" />

@@ -177,11 +177,11 @@ namespace Pico8Emulator.unit.mem {
 		public void WritePixel(int x, int y, byte color, int offset = RamAddress.Screen) {
 			int index = (y * 128 + x) / 2;
 
-			if (color >= Palette.Size || x < DrawState.ClipLeft || y < DrawState.ClipTop || x > DrawState.ClipRight || y > DrawState.ClipBottom) {
+			if (x < DrawState.ClipLeft || y < DrawState.ClipTop || x > DrawState.ClipRight || y > DrawState.ClipBottom) {
 				return;
 			}
 
-			Util.SetHalf(ref Ram[index + offset], color, x % 2 == 0);
+			Util.SetHalf(ref Ram[index + offset], (byte) (color % 16), x % 2 == 0);
 		}
 	}
 }

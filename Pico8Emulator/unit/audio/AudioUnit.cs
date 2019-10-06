@@ -18,6 +18,7 @@ namespace Pico8Emulator.unit.audio {
 
 		public AudioUnit(Emulator emulator) : base(emulator) {
 			soundInstance = new DynamicSoundEffectInstance(SampleRate, AudioChannels.Mono);
+			soundInstance.Play();
 			musicPlayer = new MusicPlayer(emulator);
 		}
 

@@ -239,8 +239,8 @@ namespace Pico8Emulator.unit.mem {
 			if (!x.HasValue || !y.HasValue || !w.HasValue || !h.HasValue) {
 				ClipLeft = 0;
 				ClipTop = 0;
-				ClipRight = 128;
-				ClipBottom = 128;
+				ClipRight = 127;
+				ClipBottom = 127;
 				
 				return;
 			}

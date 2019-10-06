@@ -10,6 +10,8 @@ namespace Pico8Emulator.unit.graphics {
 		public const int ScreenSize = 128 * 128;
 		
 		public Texture2D Surface;
+		public int DrawCalls;
+		
 		private Color[] screenColorData = new Color[ScreenSize];
 
 		public GraphicsUnit(Emulator emulator, GraphicsDevice graphics) : base(emulator) {
@@ -183,6 +185,8 @@ namespace Pico8Emulator.unit.graphics {
 					Psett(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), Sget(i + sprX, j + sprY));
 				}
 			}
+
+			DrawCalls++;
 		}
 
 		public void Sspr(int sx, int sy, int sw, int sh, int dx, int dy, int? dw = null, int? dh = null,
@@ -293,8 +297,8 @@ namespace Pico8Emulator.unit.graphics {
 			if (y0 > y1) {
 				Util.Swap(ref y0, ref y1);
 			}
-
-			for (var y = y0; y < y1; y++) {
+			
+			for (var y = y0; y <= y1; y++) {
 				Line(x0, y, x1, y, col);
 			}
 		}
@@ -387,9 +391,8 @@ namespace Pico8Emulator.unit.graphics {
 		}
 
 		private void DrawCircle(int posX, int posY, int r, bool fill) {
-			int cx = posX, cy = posY;
-			int x = r;
-			int y = 0;
+			var x = r;
+			var y = 0;
 			double err = 1 - r;
 
 			while (y <= x) {

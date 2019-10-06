@@ -22,7 +22,7 @@ namespace Pico8Emulator.unit.cart {
 
 		public override void Update() {
 			base.Update();
-			Loaded?.Interpreter.CallIfDefined("_update60");
+			Loaded?.Interpreter.CallIfDefined("_update");
 		}
 
 		public void Draw() {

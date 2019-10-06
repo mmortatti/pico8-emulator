@@ -4,12 +4,19 @@ using Pico8Emulator;
 
 namespace MonoGamePico8 {
 	public class Pico8 : Game {
+		private const float UpdateTime = 1 / 60f;
+		
 		private Emulator emulator;
 		private GraphicsDeviceManager graphics;
 		private SpriteBatch batch;
-
+		private FrameCounter counter;
+		private float delta;
+		
 		public Pico8() {
 			graphics = new GraphicsDeviceManager(this);
+			counter = new FrameCounter();
+
+			IsFixedTimeStep = false;
 		}
 
 		protected override void Initialize() {
@@ -34,7 +41,18 @@ namespace MonoGamePico8 {
 
 		protected override void Update(GameTime gameTime) {
 			base.Update(gameTime);
-			emulator.Update();
+			var dt = (float) gameTime.ElapsedGameTime.TotalSeconds;
+
+			delta += dt;
+
+			while (delta >= UpdateTime) {
+				delta -= UpdateTime;
+				emulator.Update();
+			}
+			
+			counter.Update(dt);
+			Window.Title = $"{counter.AverageFramesPerSecond} fps {emulator.Graphics.DrawCalls} calls";
+			emulator.Graphics.DrawCalls = 0;
 		}
 
 		protected override void Draw(GameTime gameTime) {

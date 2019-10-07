@@ -142,21 +142,14 @@ namespace Pico8Emulator.unit.graphics {
 
 		public void Flip() {
 			var ram = Emulator.Memory.Ram;
+			var drawState = Emulator.Memory.DrawState;
+			var palette = Palette.StandardPalette;
 
-			for (int i = 0; i < 8192; i++) {
-				byte val = ram[i + RamAddress.Screen];
-				byte left = (byte) (val & 0x0f);
-				byte right = (byte) (val >> 4);
+			for (var i = 0; i < 8192; i++) {
+				var val = ram[i + RamAddress.Screen];
 
-				byte lc = (byte) Emulator.Memory.DrawState.GetScreenColor(left);
-				byte rc = (byte) Emulator.Memory.DrawState.GetScreenColor(right);
-
-				// Convert color if alternative palette bit is set.
-				lc = (byte) ((lc & 0b10000000) != 0 ? (lc & 0b00001111) + 16 : (lc & 0b00001111));
-				rc = (byte) ((rc & 0b10000000) != 0 ? (rc & 0b00001111) + 16 : (rc & 0b00001111));
-
-				screenColorData[i * 2] = Palette.StandardPalette[lc];
-				screenColorData[i * 2 + 1] = Palette.StandardPalette[rc];
+				screenColorData[i * 2] = palette[drawState.GetScreenColor(val & 0x0f)];
+				screenColorData[i * 2 + 1] = palette[drawState.GetScreenColor(val >> 4)];
 			}
 			
 			Surface.SetData(screenColorData);
@@ -384,7 +377,7 @@ namespace Pico8Emulator.unit.graphics {
 				Pset((x + offX), (y + offY), null);
 
 				if (offY != 0) {
-					Pset((x - offX), (y - offY), null);
+					Pset((x  - offX), (y - offY), null);
 					Pset((x + offX), (y - offY), null);
 				}
 			}

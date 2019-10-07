@@ -64,13 +64,18 @@ namespace Pico8Emulator {
 				unit.DefineApi(script);
 			}
 			
-			script.AddFunction("printh", (Func<object, object>) Printh);
+			script.AddFunction("printh", (Action<object>) Printh);
+			script.AddFunction("menuitem", (Action<int, string, object>) Menuitem);
+
 			script.RunScript(LuaPatcher.PatchCode(Api.All));
 		}
 
-		public object Printh(object s) {
+		public void Menuitem(int index, string label = null, object callback = null) {
+			// TODO: implement
+		}
+		
+		public void Printh(object s) {
 			Console.WriteLine($"{s:####.####}");
-			return null;
 		}
 	}
 }

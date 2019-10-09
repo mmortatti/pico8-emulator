@@ -27,6 +27,7 @@ namespace Pico8Emulator.unit.cart {
 
 		public void Draw() {
 			if (Loaded == null) {
+				Log.Info("No cart loaded, nothing to draw!");
 				return;
 			}
 

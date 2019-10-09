@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pico8Emulator", "Pico8Emulator\Pico8Emulator.csproj", "{3B26AA2E-0BA2-42DC-AD62-E6C8617F9E4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGamePico8", "MonoGamePico8\MonoGamePico8.csproj", "{BA524303-7074-4C9E-8650-59E2C1293A56}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3B26AA2E-0BA2-42DC-AD62-E6C8617F9E4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B26AA2E-0BA2-42DC-AD62-E6C8617F9E4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B26AA2E-0BA2-42DC-AD62-E6C8617F9E4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B26AA2E-0BA2-42DC-AD62-E6C8617F9E4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA524303-7074-4C9E-8650-59E2C1293A56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA524303-7074-4C9E-8650-59E2C1293A56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA524303-7074-4C9E-8650-59E2C1293A56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA524303-7074-4C9E-8650-59E2C1293A56}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

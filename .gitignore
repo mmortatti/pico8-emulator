@@ -1,1 +1,5 @@
 Lua\ Interpreter/MoonsharpInterpreter.cs
+packages/
+*obj/
+*bin/
+*lib/

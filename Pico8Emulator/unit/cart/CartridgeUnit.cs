@@ -5,11 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Pico8Emulator.lua;
-using Pico8Emulator.unit.graphics;
-using GraphicsUnit = Pico8Emulator.unit.graphics.GraphicsUnit;
 
 namespace Pico8Emulator.unit.cart {
 	public class CartridgeUnit : Unit {
@@ -349,39 +345,11 @@ namespace Pico8Emulator.unit.cart {
 		}
 
 		public void Import(string filename, bool onlyHalf = false) {
-			var texture = Texture2D.FromStream(Emulator.GraphicsDevice, new FileStream(filename, FileMode.Open));
-			
-			if (texture.Height != 128 || texture.Width != 128) {
-				throw new ArgumentException($"{filename} must be a 128x128 image, but is {texture.Width}x{texture.Width}.");
-			}
-
-			var bound = onlyHalf ? 64 : 128;
-			var data = new Color[GraphicsUnit.ScreenSize];
-
-			texture.GetData(data);
-
-			for (var i = 0; i < bound; i += 1) {
-				for (var j = 0; j < 128; j += 1) {
-					Emulator.Graphics.Sset(j, i, GraphicsUnit.ColorToPalette(data[j + i * 128]));
-				}
-			}
-
-			texture.Dispose();
+			Emulator.GraphicsBackend.Import(filename, onlyHalf);
 		}
 
 		public void Export(string filename) {
-			var texture = new Texture2D(Emulator.GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
-			var data = new Color[GraphicsUnit.ScreenSize];
-			
-			for (var i = 0; i < 128; i += 1) {
-				for (var j = 0; j < 128; j += 1) {
-					data[j + i * 128] = Palette.StandardPalette[Emulator.Graphics.Sget(j, i)];
-				}
-			}
-
-			texture.SetData(data);
-			texture.SaveAsPng(File.Create(filename), 128, 128);
-			texture.Dispose();
+			Emulator.GraphicsBackend.Export(filename);
 		}
 		
 		public void Cartdata(string id) {

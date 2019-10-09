@@ -51,41 +51,5 @@ namespace MonoGamePico8.backend {
 
 			return 0;
 		}
-
-		public override void Import(string path, bool onlyHalf) {
-			var texture = Texture2D.FromStream(graphics, new FileStream(path, FileMode.Open));
-			
-			if (texture.Height != 128 || texture.Width != 128) {
-				throw new ArgumentException($"{path} must be a 128x128 image, but is {texture.Width}x{texture.Width}.");
-			}
-
-			var bound = onlyHalf ? 64 : 128;
-			var data = new Color[GraphicsUnit.ScreenSize];
-
-			texture.GetData(data);
-
-			for (var i = 0; i < bound; i += 1) {
-				for (var j = 0; j < 128; j += 1) {
-					Emulator.Graphics.Sset(j, i, ColorToPalette(data[j + i * 128]));
-				}
-			}
-
-			texture.Dispose();
-		}
-
-		public override void Export(string path) {
-			var texture = new Texture2D(graphics, 128, 128, false, SurfaceFormat.Color);
-			var data = new Color[GraphicsUnit.ScreenSize];
-			
-			for (var i = 0; i < 128; i += 1) {
-				for (var j = 0; j < 128; j += 1) {
-					data[j + i * 128] = palette[Emulator.Graphics.Sget(j, i)];
-				}
-			}
-
-			texture.SetData(data);
-			texture.SaveAsPng(File.Create(path), 128, 128);
-			texture.Dispose();
-		}
 	}
 }

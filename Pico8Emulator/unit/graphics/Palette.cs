@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace Pico8Emulator.unit.graphics {
 	public static class Palette {
 		public const int Size = 16;
@@ -20,5 +22,15 @@ namespace Pico8Emulator.unit.graphics {
 			{ 255, 119, 168 },
 			{ 255, 204, 170 }
 		};
+		
+		public static byte ColorToPalette(Color col) {
+			for (var i = 0; i < Size; i++) {
+				if (StandardPalette[i, 0] == col.R && StandardPalette[i, 1] == col.G && StandardPalette[i, 2] == col.B) {
+					return (byte) i;
+				}
+			}
+
+			return 0;
+		}
 	}
 }

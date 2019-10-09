@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Text.RegularExpressions;
-using Microsoft.Xna.Framework.Graphics;
+using Pico8Emulator.backend;
 using Pico8Emulator.lua;
 using Pico8Emulator.unit;
 using Pico8Emulator.unit.audio;
@@ -26,13 +21,21 @@ namespace Pico8Emulator {
 		public InputUnit Input;
 		public CartridgeUnit CartridgeLoader;
 
-		public GraphicsDevice GraphicsDevice;
+		public readonly GraphicsBackend GraphicsBackend;
+		public readonly AudioBackend AudioBackend;
+		public readonly InputBackend InputBackend;
 		
-		public Emulator(GraphicsDevice graphics) {
-			GraphicsDevice = graphics;
+		public Emulator(GraphicsBackend graphics, AudioBackend audio, InputBackend input) {
+			GraphicsBackend = graphics;
+			AudioBackend = audio;
+			InputBackend = input;
+
+			graphics.Emulator = this;
+			audio.Emulator = this;
+			input.Emulator = this;
 			
 			units.Add(Memory = new MemoryUnit(this));
-			units.Add(Graphics = new GraphicsUnit(this, graphics));
+			units.Add(Graphics = new GraphicsUnit(this));
 			units.Add(Audio = new AudioUnit(this));
 			units.Add(Math = new MathUnit(this));
 			units.Add(Input = new InputUnit(this));

@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Pico8Emulator.lua;
 using Pico8Emulator.unit.graphics;
-using GraphicsUnit = Pico8Emulator.unit.graphics.GraphicsUnit;
 
 namespace Pico8Emulator.unit.cart {
 	public class CartridgeUnit : Unit {
@@ -17,7 +16,6 @@ namespace Pico8Emulator.unit.cart {
 		private DateTime startTime;
 
 		public CartridgeUnit(Emulator emulator) : base(emulator) {
-			
 		}
 
 		public override void Update() {
@@ -28,6 +26,7 @@ namespace Pico8Emulator.unit.cart {
 		public void Draw() {
 			if (Loaded == null) {
 				Log.Info("No cart loaded, nothing to draw!");
+
 				return;
 			}
 
@@ -38,25 +37,27 @@ namespace Pico8Emulator.unit.cart {
 
 		public override void DefineApi(LuaInterpreter script) {
 			base.DefineApi(script);
-			
+
 			script.AddFunction("reload", (Action<int, int, int, string>) Reload);
 			script.AddFunction("cstore", (Action<int, int, int, string>) Cstore);
 			script.AddFunction("cartdata", (Action<string>) Cartdata);
 			script.AddFunction("dget", (Func<int, object>) Dget);
 			script.AddFunction("dset", (Action<int, double>) Dset);
-			
+			script.AddFunction("import", (Action<string, bool>) Import);
+			script.AddFunction("export", (Action<string>) Export);
+
 			script.AddFunction("time", (Func<double>) Time);
 			script.AddFunction("t", (Func<double>) Time);
 		}
 
 		public bool Load(string name) {
 			Log.Info($"Loading cart {name}");
-			
+
 			var possibleNames = new[] {
-				name,
-				$"{name}.p8.png",
-				$"{name}.png",
-				$"{name}.p8"
+					name,
+					$"{name}.p8.png",
+					$"{name}.png",
+					$"{name}.p8"
 			};
 
 			/*
@@ -66,9 +67,10 @@ namespace Pico8Emulator.unit.cart {
 			 */
 			foreach (var possibleName in possibleNames) {
 				var path = Path.GetFullPath(possibleName);
-				
+
 				if (File.Exists(possibleName)) {
 					Log.Info($"Found cart {possibleName}");
+
 					return ReadCart(possibleName, possibleName.EndsWith(".png"));
 				}
 			}
@@ -93,33 +95,34 @@ namespace Pico8Emulator.unit.cart {
 					return false;
 				}
 			}
-			
+
 			Loaded.CartData = new int[Cartridge.CartDataSize];
 			Loaded.Interpreter = new MoonSharpInterpreter();
 			Emulator.InitApi(Loaded.Interpreter);
 			Emulator.Memory.LoadCartridgeData(Loaded.Rom);
-			
+
 			Loaded.Interpreter.RunScript(Loaded.Code);
 			Emulator.Graphics.Flip();
-			
+
 			startTime = DateTime.Now;
 			Loaded.Interpreter.CallIfDefined("_init");
 
 			return true;
 		}
-		
+
 		private bool LoadTextCart(string path) {
 			var streamReader = new StreamReader(path);
+
 			var stateMap = new Dictionary<string, int> {
-				{ "__lua__", 0 },
-				{ "__gfx__", 1 },
-				{ "__gff__", 2 },
-				{ "__map__", 3 },
-				{ "__sfx__", 4 },
-				{ "__music__", 5 },
-				{ "__label__", 6 }
+					{"__lua__", 0},
+					{"__gfx__", 1},
+					{"__gff__", 2},
+					{"__map__", 3},
+					{"__sfx__", 4},
+					{"__music__", 5},
+					{"__label__", 6}
 			};
-			
+
 			Loaded = new Cartridge();
 			Loaded.Path = path;
 
@@ -141,6 +144,7 @@ namespace Pico8Emulator.unit.cart {
 				if (stateMap.ContainsKey(line)) {
 					state = stateMap[line];
 					index = 0;
+
 					continue;
 				}
 
@@ -226,14 +230,14 @@ namespace Pico8Emulator.unit.cart {
 					Loaded.Rom[RomAddress.Song + index + 1] = val2;
 					Loaded.Rom[RomAddress.Song + index + 2] = val3;
 					Loaded.Rom[RomAddress.Song + index + 3] = val4;
-					
+
 					index += 4;
 				}
 			}
 
 			Loaded.Code = LuaPatcher.PatchCode(codeBuilder.ToString());
 			streamReader.Close();
-			
+
 			return true;
 		}
 
@@ -241,7 +245,7 @@ namespace Pico8Emulator.unit.cart {
 			if (Loaded == null) {
 				return;
 			}
-			
+
 			if (filename == null) {
 				filename = Loaded.Path;
 			}
@@ -300,7 +304,7 @@ namespace Pico8Emulator.unit.cart {
 					var endLoop = Loaded.Rom[RomAddress.Sfx + j * 68 + 67];
 
 					file.Write(
-						$"{editor.ToString("x2")}{speed.ToString("x2")}{startLoop.ToString("x2")}{endLoop.ToString("x2")}");
+							$"{editor.ToString("x2")}{speed.ToString("x2")}{startLoop.ToString("x2")}{endLoop.ToString("x2")}");
 
 					for (var i = 0; i < 64; i += 2) {
 						var lo = Loaded.Rom[RomAddress.Sfx + j * 68 + i];
@@ -349,41 +353,45 @@ namespace Pico8Emulator.unit.cart {
 		}
 
 		public void Import(string filename, bool onlyHalf = false) {
-			var texture = Texture2D.FromStream(Emulator.GraphicsDevice, new FileStream(filename, FileMode.Open));
-			
-			if (texture.Height != 128 || texture.Width != 128) {
-				throw new ArgumentException($"{filename} must be a 128x128 image, but is {texture.Width}x{texture.Width}.");
+			var sheet = new Bitmap(filename);
+
+			if (sheet.Height != 128 || sheet.Width != 128) {
+				throw new ArgumentException($"{filename} must be a 128x128 image, but is {sheet.Width}x{sheet.Width}.");
 			}
 
-			var bound = onlyHalf ? 64 : 128;
-			var data = new Color[GraphicsUnit.ScreenSize];
+			var div = onlyHalf ? 2 : 1;
 
-			texture.GetData(data);
-
-			for (var i = 0; i < bound; i += 1) {
-				for (var j = 0; j < 128; j += 1) {
-					Emulator.Graphics.Sset(j, i, GraphicsUnit.ColorToPalette(data[j + i * 128]));
+			for (var i = 0; i < sheet.Height / div; i += 1) {
+				for (var j = 0; j < sheet.Width; j += 1) {
+					byte val = Palette.ColorToPalette(sheet.GetPixel(j, i));
+					Emulator.Graphics.Sset(j, i, val);
 				}
 			}
 
-			texture.Dispose();
+			sheet.Dispose();
 		}
 
 		public void Export(string filename) {
-			var texture = new Texture2D(Emulator.GraphicsDevice, 128, 128, false, SurfaceFormat.Color);
-			var data = new Color[GraphicsUnit.ScreenSize];
-			
-			for (var i = 0; i < 128; i += 1) {
-				for (var j = 0; j < 128; j += 1) {
-					data[j + i * 128] = Palette.StandardPalette[Emulator.Graphics.Sget(j, i)];
+			var sheet = new Bitmap(128, 128);
+
+			for (var i = 0; i < sheet.Height; i += 1) {
+				for (var j = 0; j < sheet.Width; j += 1) {
+					var val = Emulator.Graphics.Sget(j, i);
+
+					sheet.SetPixel(j, i, Color.FromArgb(Palette.StandardPalette[val, 0],
+							Palette.StandardPalette[val, 1],
+							Palette.StandardPalette[val, 2]));
 				}
 			}
 
-			texture.SetData(data);
-			texture.SaveAsPng(File.Create(filename), 128, 128);
-			texture.Dispose();
+			if (File.Exists(filename)) {
+				File.Delete(filename);
+			}
+
+			sheet.Save(filename, ImageFormat.Png);
+			sheet.Dispose();
 		}
-		
+
 		public void Cartdata(string id) {
 			Trace.Assert(Loaded.CartDataId.Length == 0, "cartdata() can only be called once");
 			Trace.Assert(id.Length <= 64, "cart data id too long");
@@ -412,12 +420,13 @@ namespace Pico8Emulator.unit.cart {
 
 		public object Dget(int index) {
 			Trace.Assert(index < Cartridge.CartDataSize, "bad index");
+
 			return Util.FixedToFloat(Loaded.CartData[index]);
 		}
 
 		public void Dset(int index, double value) {
 			Trace.Assert(index < Cartridge.CartDataSize, "bad index");
-			
+
 			Loaded.CartData[index] = Util.FloatToFixed(value);
 			SaveCartData(Cartridge.CartDataPath + Loaded.CartDataId);
 		}
@@ -432,12 +441,12 @@ namespace Pico8Emulator.unit.cart {
 
 		public void Reload(int dest_addr, int source_addr, int len, string filename = "") {
 			Trace.Assert(dest_addr < 0x4300);
-			
+
 			// FIXME
 			var cart = Loaded; // filename.Length == 0 ? Loaded : new Cartridge(filename);
 			Emulator.Memory.Memcpy(dest_addr, source_addr, len, cart.Rom);
 		}
-		
+
 		public void Cstore(int dest_addr, int source_addr, int len, string filename = null) {
 			Trace.Assert(dest_addr < 0x4300);
 

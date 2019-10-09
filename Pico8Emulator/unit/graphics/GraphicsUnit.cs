@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Pico8Emulator.backend;
 using Pico8Emulator.lua;
 using Pico8Emulator.unit.mem;
 
@@ -9,13 +8,10 @@ namespace Pico8Emulator.unit.graphics {
 	public class GraphicsUnit : Unit {
 		public const int ScreenSize = 128 * 128;
 		
-		public Texture2D Surface;
 		public int DrawCalls;
 		
-		private Color[] screenColorData = new Color[ScreenSize];
-
-		public GraphicsUnit(Emulator emulator, GraphicsDevice graphics) : base(emulator) {
-			Surface = new Texture2D(graphics, 128, 128, false, SurfaceFormat.Color);
+		public GraphicsUnit(Emulator emulator) : base(emulator) {
+			emulator.GraphicsBackend.CreateSurface();
 		}
 
 		public override void Init() {
@@ -58,16 +54,6 @@ namespace Pico8Emulator.unit.graphics {
 			for (var i = 0; i < 0x2000; i++) {
 				Emulator.Memory.Ram[RamAddress.Screen + i] = (byte) c;
 			}
-		}
-
-		public static byte ColorToPalette(Color col) {
-			for (var i = 0; i < 16; i += 1) {
-				if (Palette.StandardPalette[i] == col) {
-					return (byte) i;
-				}
-			}
-
-			return 0;
 		}
 		
 		public void Print(object s, int? x = null, int? y = null, byte? c = null) {
@@ -141,18 +127,7 @@ namespace Pico8Emulator.unit.graphics {
 		}
 
 		public void Flip() {
-			var ram = Emulator.Memory.Ram;
-			var drawState = Emulator.Memory.DrawState;
-			var palette = Palette.StandardPalette;
-
-			for (var i = 0; i < 8192; i++) {
-				var val = ram[i + RamAddress.Screen];
-
-				screenColorData[i * 2] = palette[drawState.GetScreenColor(val & 0x0f)];
-				screenColorData[i * 2 + 1] = palette[drawState.GetScreenColor(val >> 4)];
-			}
-			
-			Surface.SetData(screenColorData);
+			Emulator.GraphicsBackend.Flip();
 		}
 
 		public void Spr(int n, int x, int y, int? w = null, int? h = null, bool flipX = false, bool flipY = false) {

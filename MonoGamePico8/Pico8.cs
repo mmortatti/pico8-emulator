@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGamePico8.backend;
 using Pico8Emulator;
 
 namespace MonoGamePico8 {
@@ -10,6 +11,7 @@ namespace MonoGamePico8 {
 		private GraphicsDeviceManager graphics;
 		private SpriteBatch batch;
 		private FrameCounter counter;
+		private MonoGameGraphicsBackend graphicsBackend;
 		private float delta;
 		
 		public Pico8() {
@@ -32,7 +34,8 @@ namespace MonoGamePico8 {
 		protected override void LoadContent() {
 			base.LoadContent();
 			
-			emulator = new Emulator(GraphicsDevice);
+			graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
+			emulator = new Emulator(graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
 
 			if (!emulator.CartridgeLoader.Load("test")) {
 				Exit();
@@ -59,11 +62,10 @@ namespace MonoGamePico8 {
 			base.Draw(gameTime);
 
 			emulator.Draw();
-			
 			GraphicsDevice.Clear(Color.Black);
 			
 			batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
-			batch.Draw(emulator.Graphics.Surface, new Rectangle(0, 0, 512, 512), Color.White);
+			batch.Draw(graphicsBackend.Surface, new Rectangle(0, 0, 512, 512), Color.White);
 			batch.End();
 		}
 	}

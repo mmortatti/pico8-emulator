@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="backend\MonoGameAudioBackend.cs" />
+    <Compile Include="backend\MonoGameGraphicsBackend.cs" />
+    <Compile Include="backend\MonoGameInputBackend.cs" />
     <Compile Include="FrameCounter.cs" />
     <Compile Include="Pico8.cs" />
     <Compile Include="Program.cs" />

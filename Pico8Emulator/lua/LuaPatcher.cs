@@ -38,12 +38,20 @@ namespace Pico8Emulator.lua {
 		public static string PatchCode(string picoCode) {
 			// "if a != b" => "if a ~= b"
 			picoCode = Regex.Replace(picoCode, @"!=", "~=");
+			// "//" => "--"
 			picoCode = Regex.Replace(picoCode, @"//", "--");
+			
+			// Comments are removed, because some edge cases with if() conversion happen, and it's easier just to remove comments
+			// Removes all multiline comments
 			picoCode = Regex.Replace(picoCode, @"\-\-\s*\[\[([^\]\]]*)\]\]", "", RegexOptions.Multiline);
+			// Removes all single line comments
 			picoCode = Regex.Replace(picoCode, @"\-\-.*", "");
 
+			// Replace all emojis (like heart) with text code
 			for (var i = 0; i < emojis.Length; i++) {
+				// Some emojis are 2+ chars
 				picoCode = picoCode.Replace(emojis[i], $"U__{replacement[i]}");
+				// Just to make sure we catch all of them, or lua will not like this
 				picoCode = picoCode.Replace($"{emojis[i][0]}", $"U__{replacement[i]}");
 			}
 			

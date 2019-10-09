@@ -56,7 +56,7 @@
     <Compile Include="Log.cs" />
     <Compile Include="lua\LuaInterpreter.cs" />
     <Compile Include="lua\LuaPatcher.cs" />
-    <Compile Include="lua\MoonScriptInterpreter.cs" />
+    <Compile Include="lua\MoonSharpInterpreter.cs" />
     <Compile Include="Emulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="unit\audio\AudioUnit.cs" />

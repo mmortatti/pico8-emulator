@@ -3,7 +3,7 @@ using System.IO;
 using MoonSharp.Interpreter;
 
 namespace Pico8Emulator.lua {
-	public class MoonScriptInterpreter : LuaInterpreter {
+	public class MoonSharpInterpreter : LuaInterpreter {
 		private Script script = new Script();
 		private string latestScript;
 		

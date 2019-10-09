@@ -94,7 +94,7 @@ namespace Pico8Emulator.unit.cart {
 			}
 			
 			Loaded.CartData = new int[Cartridge.CartDataSize];
-			Loaded.Interpreter = new MoonScriptInterpreter();
+			Loaded.Interpreter = new MoonSharpInterpreter();
 			Emulator.InitApi(Loaded.Interpreter);
 			Emulator.Memory.LoadCartridgeData(Loaded.Rom);
 			

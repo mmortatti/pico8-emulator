@@ -258,14 +258,8 @@ namespace Pico8Emulator.unit.graphics {
             {
                 return;
             }
-			
-			if (f == 0) {
-				Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f));
-			} else if (!Emulator.Memory.DrawState.FillpTransparent) {
-				Emulator.Memory.WritePixel(x, y, (Emulator.Memory.DrawState.GetDrawColor(col.Value >> 4)));
-			}
 
-			Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
+            Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f));
 		}
 
 		public byte Pget(int x, int y) {

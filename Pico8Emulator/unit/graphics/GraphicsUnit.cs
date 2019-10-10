@@ -16,8 +16,23 @@ namespace Pico8Emulator.unit.graphics {
 
 		public override void Init() {
 			base.Init();
+
 			Emulator.Memory.DrawState.DrawColor = 6;
-		}
+
+            Emulator.Memory.Ram[RamAddress.Palette0] = 0x10;
+            Emulator.Memory.Ram[RamAddress.Palette1] = 0x0;
+
+            for (int i = 1; i < 16; ++i)
+            {
+                Emulator.Memory.Ram[RamAddress.Palette0 + i] = (byte) i;
+                Emulator.Memory.Ram[RamAddress.Palette1 + i] = (byte) i;
+            }
+
+            Emulator.Memory.Ram[RamAddress.ClipLeft] = 0;
+            Emulator.Memory.Ram[RamAddress.ClipTop] = 0;
+            Emulator.Memory.Ram[RamAddress.ClipRight] = 127;
+            Emulator.Memory.Ram[RamAddress.ClipBottom] = 127;
+        }
 
 		public override void DefineApi(LuaInterpreter script) {
 			base.DefineApi(script);
@@ -236,18 +251,21 @@ namespace Pico8Emulator.unit.graphics {
 			}
 
 			var f = Emulator.Memory.DrawState.GetFillPBit(x, y);
-			var t = !Emulator.Memory.DrawState.IsTransparent(col.Value);
+			var t = Emulator.Memory.DrawState.IsTransparent(col.Value);
+
+            // If the pixel is transparent, don't draw anything.
+            if (t)
+            {
+                return;
+            }
 			
 			if (f == 0) {
 				Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f));
-			} else if (!Emulator.Memory.DrawState.FillpTransparent && t) {
+			} else if (!Emulator.Memory.DrawState.FillpTransparent) {
 				Emulator.Memory.WritePixel(x, y, (Emulator.Memory.DrawState.GetDrawColor(col.Value >> 4)));
 			}
 
-			// We only want to set the default color if the color given is not transparent.
-			if (t) {
-				Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
-			}
+			Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
 		}
 
 		public byte Pget(int x, int y) {

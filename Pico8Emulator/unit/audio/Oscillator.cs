@@ -34,7 +34,7 @@ namespace Pico8Emulator.unit.audio {
 			};
 
 			this.sampleRate = sampleRate;
-			tscale = Util.NoteToFrequency(63) / sampleRate;
+			_tscale = Util.NoteToFrequency(63) / sampleRate;
 			_time = 0.0f;
 		}
 
@@ -45,7 +45,7 @@ namespace Pico8Emulator.unit.audio {
 		/// <returns>The sample value<see cref="float"/></returns>
 		public float Sine(float frequency) {
 			_time += frequency / sampleRate;
-			return (float) Math.Sin(_time * 2 * Math.PI);
+			return (float)Math.Sin(_time * 2 * Math.PI);
 		}
 
 		/// <summary>
@@ -85,7 +85,7 @@ namespace Pico8Emulator.unit.audio {
 		/// <returns>The sample value<see cref="float"/></returns>
 		public float Sawtooth(float frequency) {
 			_time += frequency / sampleRate;
-			return (float) (2 * (_time - Math.Floor(_time + 0.5)));
+			return (float)(2 * (_time - Math.Floor(_time + 0.5)));
 		}
 
 		/// <summary>
@@ -106,7 +106,7 @@ namespace Pico8Emulator.unit.audio {
 		public float Organ(float frequency) {
 			_time += frequency / sampleRate;
 			var x = _time * 4;
-			return (float) ((Math.Abs((x % 2) - 1) - 0.5f + (Math.Abs(((x * 0.5) % 2) - 1) - 0.5f) / 2.0f - 0.1f) * 0.7f);
+			return (float)((Math.Abs((x % 2) - 1) - 0.5f + (Math.Abs(((x * 0.5) % 2) - 1) - 0.5f) / 2.0f - 0.1f) * 0.7f);
 		}
 
 		/// <summary>
@@ -120,10 +120,10 @@ namespace Pico8Emulator.unit.audio {
 			return (Math.Abs((x % 2) - 1) - 0.5f + (Math.Abs(((x * 127 / 128) % 2) - 1) - 0.5f) / 2) - 1.0f / 4.0f;
 		}
 
-		private float lastx = 0;
-		private float sample = 0;
-		private float tscale;
-		private Random random = new Random();
+		private float _lastx = 0;
+		private float _sample = 0;
+		private float _tscale;
+		private Random _random = new Random();
 
 		/// <summary>
 		/// White Noise Effect
@@ -132,11 +132,11 @@ namespace Pico8Emulator.unit.audio {
 		/// <returns>The sample value<see cref="float"/></returns>
 		public float Noise(float frequency) {
 			_time += frequency / sampleRate;
-			float scale = (_time - lastx) / tscale;
-			float lsample = sample;
-			sample = (lsample + scale * ((float) random.NextDouble() * 2 - 1)) / (1.0f + scale);
-			lastx = _time;
-			return Math.Min(Math.Max((lsample + sample) * 4.0f / 3.0f * (1.75f - scale), -1), 1) * 0.7f;
+			float scale = (_time - _lastx) / _tscale;
+			float lsample = _sample;
+			_sample = (lsample + scale * ((float)_random.NextDouble() * 2 - 1)) / (1.0f + scale);
+			_lastx = _time;
+			return Math.Min(Math.Max((lsample + _sample) * 4.0f / 3.0f * (1.75f - scale), -1), 1) * 0.7f;
 		}
 	}
 }

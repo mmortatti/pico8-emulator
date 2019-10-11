@@ -7,15 +7,15 @@ namespace Pico8Emulator.lua {
 		private static string[] emojis = {
 			"…", "░", "➡️", "⧗", "▤", "⬆️", "☉",
 			"🅾️", "◆", "█", "★", "⬇️", "✽", "●",
-			"♥", "웃", "⌂", "⬅️", "▥", "❎", "🐱", 
+			"♥", "웃", "⌂", "⬅️", "▥", "❎", "🐱",
 			"ˇ", "▒", "♪", "😐", "∧"
 		};
-		
+
 		private static string[] replacement = {
 			"DOT", "DOTS", "RIGHT", "TIME", "LINES",
 			"UP", "EYE", "O", "DIAMOND", "RECT", "STAR",
 			"DOWN", "SNOWFLAKE", "CIRCLE", "HEART",
-			"MAN", "HOUSE", "LEFT", "VLINES", "CROSS", 
+			"MAN", "HOUSE", "LEFT", "VLINES", "CROSS",
 			"CAT", "ARROWS", "PAT", "NOTE", "SAD", "WAVE"
 		};
 
@@ -23,10 +23,10 @@ namespace Pico8Emulator.lua {
 			(char) 144, (char) 132, (char) 145, (char) 147, (char) 152,
 			(char) 148, (char) 136, (char) 142, (char) 143, (char) 128, (char) 146,
 			(char) 131, (char) 133, (char) 134, (char) 135,
-			(char) 137, (char) 138, (char) 139, (char) 153, (char) 151, 
+			(char) 137, (char) 138, (char) 139, (char) 153, (char) 151,
 			(char) 130, (char) 149, (char) 129, (char) 141, (char) 140, (char) 150
 		};
-		
+
 		public static string ReplaceCodesWithEmojis(string str) {
 			for (var i = 0; i < emojis.Length; i++) {
 				str = str.Replace($"U__{replacement[i]}", $"{printableEmojis[i]}");
@@ -34,13 +34,13 @@ namespace Pico8Emulator.lua {
 
 			return str;
 		}
-		
+
 		public static string PatchCode(string picoCode) {
 			// "if a != b" => "if a ~= b"
 			picoCode = Regex.Replace(picoCode, @"!=", "~=");
 			// "//" => "--"
 			picoCode = Regex.Replace(picoCode, @"//", "--");
-			
+
 			// Comments are removed, because some edge cases with if() conversion happen, and it's easier just to remove comments
 			// Removes all multiline comments
 			picoCode = Regex.Replace(picoCode, @"\-\-\s*\[\[([^\]\]]*)\]\]", "", RegexOptions.Multiline);
@@ -54,7 +54,7 @@ namespace Pico8Emulator.lua {
 				// Just to make sure we catch all of them, or lua will not like this
 				picoCode = picoCode.Replace($"{emojis[i][0]}", $"U__{replacement[i]}");
 			}
-			
+
 			// Matches and replaces binary style numbers like "0b1010.101" to hex format.
 			picoCode = Regex.Replace(picoCode, @"0b([0-1]+)(?:\.{0,1})([0-1]*){0,1}", ReplaceBinaryNumber, RegexOptions.Multiline);
 			// Matches if statements with conditions sorrounded by parenthesis, followed by anything but
@@ -86,7 +86,7 @@ namespace Pico8Emulator.lua {
 				RegexOptions.Multiline);
 
 
-			var terms = Regex.Matches(fixedExp, @"(?:\-?[0-9.]+)|(?:\-?(?:0x)[0-9.A-Fa-f]+)|(?:\-?[a-zA-Z_\]\[](?:[a-zA-Z0-9_\[\]]|(?:\.\s*))*(?:\[[^\]]\])*)");
+			var terms = Regex.Matches(fixedExp, @"(?:\-?[0-9.]+)|(?:\-?(?:0x)[0-9._A-Fa-f]+)|(?:\-?[a-zA-Z_\]\[](?:[a-zA-Z0-9_\[\]]|(?:\.\s*))*(?:\[[^\]]\])*)");
 			if (terms.Count <= 0) return unaryMatch.ToString();
 
 			int currentChar = 0;
@@ -117,7 +117,8 @@ namespace Pico8Emulator.lua {
 					if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"[\-\+\=\/\*\%\<\>\~]")) {
 						currentChar += 1;
 						expectTerm = true;
-					} else if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\(|\[|{")) {
+					}
+					else if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\(|\[|{")) {
 						var st = new Stack<char>();
 						st.Push(fixedExp[currentChar]);
 						currentChar += 1;
@@ -128,7 +129,8 @@ namespace Pico8Emulator.lua {
 
 							if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\)|\]|}")) {
 								st.Pop();
-							} else if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\(|\[|{")) {
+							}
+							else if (Regex.IsMatch(fixedExp[currentChar].ToString(), @"\(|\[|{")) {
 								st.Push(fixedExp[currentChar]);
 							}
 
@@ -141,7 +143,8 @@ namespace Pico8Emulator.lua {
 
 						expectTerm = false;
 					}
-				} else {
+				}
+				else {
 					if (terms[currentTermIndex].Value.StartsWith("-")) expectTerm = true;
 
 					if (!expectTerm) {
@@ -178,7 +181,8 @@ namespace Pico8Emulator.lua {
 
 				if (Regex.IsMatch(ifLine[currentChar].ToString(), @"\)|\]|}")) {
 					st.Pop();
-				} else if (Regex.IsMatch(ifLine[currentChar].ToString(), @"\(|\[|{")) {
+				}
+				else if (Regex.IsMatch(ifLine[currentChar].ToString(), @"\(|\[|{")) {
 					st.Push(ifLine[currentChar]);
 				}
 

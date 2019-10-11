@@ -37,7 +37,7 @@ namespace MonoGamePico8 {
 			graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
 			emulator = new Emulator(graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
 
-			if (!emulator.CartridgeLoader.Load("test")) {
+			if (!emulator.CartridgeLoader.Load("test.lua")) {
 				Exit();
 			}
 		}
@@ -54,8 +54,8 @@ namespace MonoGamePico8 {
 			}
 			
 			counter.Update(dt);
-			Window.Title = $"{counter.AverageFramesPerSecond} fps {emulator.Graphics.DrawCalls} calls";
-			emulator.Graphics.DrawCalls = 0;
+			Window.Title = $"{counter.AverageFramesPerSecond} fps {emulator.Graphics.drawCalls} calls";
+			emulator.Graphics.drawCalls = 0;
 		}
 
 		protected override void Draw(GameTime gameTime) {

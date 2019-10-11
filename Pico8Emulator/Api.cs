@@ -1,6 +1,6 @@
 namespace Pico8Emulator {
 	public static class Api {
-  public const string All = @"
+		public const string All = @"
 function all(c)
  if c==nil then return function() end end
  local i =0
@@ -65,5 +65,5 @@ sub=string.sub
 ⬇=3
 ❎=4
 🅾️=5";
- }
+	}
 }

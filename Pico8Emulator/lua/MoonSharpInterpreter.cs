@@ -1,12 +1,11 @@
-using System;
-using System.IO;
 using MoonSharp.Interpreter;
+using System;
 
 namespace Pico8Emulator.lua {
 	public class MoonSharpInterpreter : LuaInterpreter {
 		private Script script = new Script();
 		private string latestScript;
-		
+
 		public void AddFunction(string name, object func) {
 			script.Globals[name] = func;
 		}
@@ -14,7 +13,8 @@ namespace Pico8Emulator.lua {
 		public void CallFunction(string name) {
 			try {
 				script.Call(name);
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				HandleError(e);
 			}
 		}
@@ -23,10 +23,11 @@ namespace Pico8Emulator.lua {
 			if (IsDefined(name)) {
 				try {
 					script.Call(script.Globals[name]);
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					HandleError(e);
 				}
-				
+
 				return true;
 			}
 
@@ -37,7 +38,8 @@ namespace Pico8Emulator.lua {
 			try {
 				latestScript = str;
 				script.DoString(str);
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				HandleError(e);
 			}
 		}
@@ -48,7 +50,8 @@ namespace Pico8Emulator.lua {
 
 			if (e is MoonSharp.Interpreter.SyntaxErrorException se) {
 				Log.Error(se.DecoratedMessage);
-			} else if (e is MoonSharp.Interpreter.InterpreterException ie) {
+			}
+			else if (e is MoonSharp.Interpreter.InterpreterException ie) {
 				Log.Error(ie.DecoratedMessage);
 			}
 		}

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Pico8Emulator.backend;
+﻿using Pico8Emulator.backend;
 using Pico8Emulator.lua;
 using Pico8Emulator.unit;
 using Pico8Emulator.unit.audio;
@@ -8,6 +6,8 @@ using Pico8Emulator.unit.cart;
 using Pico8Emulator.unit.input;
 using Pico8Emulator.unit.math;
 using Pico8Emulator.unit.mem;
+using System;
+using System.Collections.Generic;
 using GraphicsUnit = Pico8Emulator.unit.graphics.GraphicsUnit;
 
 namespace Pico8Emulator {
@@ -24,7 +24,7 @@ namespace Pico8Emulator {
 		public readonly GraphicsBackend GraphicsBackend;
 		public readonly AudioBackend AudioBackend;
 		public readonly InputBackend InputBackend;
-		
+
 		public Emulator(GraphicsBackend graphics, AudioBackend audio, InputBackend input) {
 			GraphicsBackend = graphics;
 			AudioBackend = audio;
@@ -33,7 +33,7 @@ namespace Pico8Emulator {
 			graphics.Emulator = this;
 			audio.Emulator = this;
 			input.Emulator = this;
-			
+
 			units.Add(Memory = new MemoryUnit(this));
 			units.Add(Graphics = new GraphicsUnit(this));
 			units.Add(Audio = new AudioUnit(this));
@@ -66,9 +66,9 @@ namespace Pico8Emulator {
 			foreach (var unit in units) {
 				unit.DefineApi(script);
 			}
-			
-			script.AddFunction("printh", (Action<object>) Printh);
-			script.AddFunction("menuitem", (Action<int, string, object>) Menuitem);
+
+			script.AddFunction("printh", (Action<object>)Printh);
+			script.AddFunction("menuitem", (Action<int, string, object>)Menuitem);
 
 			script.RunScript(LuaPatcher.PatchCode(Api.All));
 		}
@@ -76,7 +76,7 @@ namespace Pico8Emulator {
 		public void Menuitem(int index, string label = null, object callback = null) {
 			// TODO: implement
 		}
-		
+
 		public void Printh(object s) {
 			Console.WriteLine($"{s:####.####}");
 		}

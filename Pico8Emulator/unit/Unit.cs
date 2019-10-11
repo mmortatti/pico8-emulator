@@ -9,23 +9,23 @@ namespace Pico8Emulator.unit {
 		}
 
 		public virtual void DefineApi(LuaInterpreter script) {
-			
+
 		}
-		
+
 		public virtual void Init() {
-			
+
 		}
 
 		public virtual void Destroy() {
-			
+
 		}
 
 		public virtual void Update() {
-			
+
 		}
 
-    public virtual void OnCartridgeLoad() {
+		public virtual void OnCartridgeLoad() {
 
-    }
+		}
 	}
 }

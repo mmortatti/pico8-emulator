@@ -16,55 +16,55 @@ namespace Pico8Emulator.unit.audio {
 		public bool isPlaying { get; private set; }
 
 		public MusicPlayer(Emulator emulator) {
-      _emulator = emulator;        
-    }
+			_emulator = emulator;        
+		}
 
-    public void LoadMusic() {
-      channels = new Sfx[4] { null, null, null, null };
-      isPlaying = false;
+		public void LoadMusic() {
+			channels = new Sfx[4] { null, null, null, null };
+			isPlaying = false;
 
-      oscillator = new Oscillator(AudioUnit.SampleRate);
-      patternData = new PatternData[64];
+			oscillator = new Oscillator(AudioUnit.SampleRate);
+			patternData = new PatternData[64];
 
-      for (int i = 0; i < patternData.Length; i += 1)
-      {
-        byte[] vals = {
-            _emulator.Memory.Ram[i * 4 + 0 + RamAddress.Song],
-            _emulator.Memory.Ram[i * 4 + 1 + RamAddress.Song],
-            _emulator.Memory.Ram[i * 4 + 2 + RamAddress.Song],
-            _emulator.Memory.Ram[i * 4 + 3 + RamAddress.Song]
-        };
+			for (int i = 0; i < patternData.Length; i += 1)
+			{
+				byte[] vals = {
+						_emulator.Memory.Ram[i * 4 + 0 + RamAddress.Song],
+						_emulator.Memory.Ram[i * 4 + 1 + RamAddress.Song],
+						_emulator.Memory.Ram[i * 4 + 2 + RamAddress.Song],
+						_emulator.Memory.Ram[i * 4 + 3 + RamAddress.Song]
+				};
 
-        if ((vals[0] & 0x80) == 0x80)
-        {
-          patternData[i].LoopStart = true;
-        }
+				if ((vals[0] & 0x80) == 0x80)
+				{
+					patternData[i].LoopStart = true;
+				}
 
-        if ((vals[1] & 0x80) == 0x80)
-        {
-          patternData[i].LoopEnd = true;
-        }
+				if ((vals[1] & 0x80) == 0x80)
+				{
+					patternData[i].LoopEnd = true;
+				}
 
-        if ((vals[2] & 0x80) == 0x80)
-        {
-          patternData[i].ShouldStop = true;
-        }
+				if ((vals[2] & 0x80) == 0x80)
+				{
+					patternData[i].ShouldStop = true;
+				}
 
-        patternData[i].ChannelCount = new ChannelData[4];
+				patternData[i].ChannelCount = new ChannelData[4];
 
-        for (int j = 0; j < 4; j += 1)
-        {
-          patternData[i].ChannelCount[j] = new ChannelData();
+				for (int j = 0; j < 4; j += 1)
+				{
+					patternData[i].ChannelCount[j] = new ChannelData();
 
-          if ((vals[j] & 0b01000000) != 0)
-          {
-            patternData[i].ChannelCount[j].IsSilent = true;
-          }
+					if ((vals[j] & 0b01000000) != 0)
+					{
+						patternData[i].ChannelCount[j].IsSilent = true;
+					}
 
-          patternData[i].ChannelCount[j].SfxIndex = (byte)(vals[j] & 0b00111111);
-        }
-      }
-    }
+					patternData[i].ChannelCount[j].SfxIndex = (byte)(vals[j] & 0b00111111);
+				}
+			}
+		}
 
 		public void Update() {
 			if (!isPlaying || _patternIndex > 63 || _patternIndex < 0) {

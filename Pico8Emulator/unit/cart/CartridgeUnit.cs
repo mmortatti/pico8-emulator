@@ -101,15 +101,15 @@ namespace Pico8Emulator.unit.cart {
 
 			Emulator.Memory.LoadCartridgeData(Loaded.Rom);
 
-            Emulator.InitApi(Loaded.Interpreter);
-            Loaded.Interpreter.RunScript(Loaded.Code);
+			Emulator.InitApi(Loaded.Interpreter);
+			Loaded.Interpreter.RunScript(Loaded.Code);
 
-            foreach (var u in Emulator.units)
-            {
-                u.OnCartridgeLoad();
-            }
+			foreach (var u in Emulator.units)
+			{
+					u.OnCartridgeLoad();
+			}
 
-            Emulator.Graphics.Flip();
+			Emulator.Graphics.Flip();
 
 			startTime = DateTime.Now;
 			Loaded.Interpreter.CallIfDefined("_init");

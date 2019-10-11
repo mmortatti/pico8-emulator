@@ -242,14 +242,14 @@ namespace Pico8Emulator.unit.graphics {
 			Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
 		}
 
-        /// <summary>
-        /// A special kind of Pset only used in the Spr and Sspr functions.
-        /// It removes Fillp functionality and default color (DrawColor variable) update, 
-        /// since that should only work for functions like circ() and rect().
-        /// </summary>
-        /// <param name="x"> X screen position. </param>
-        /// <param name="y"> Y screen position. </param>
-        /// <param name="col"> Color to draw pixel. </param>
+    /// <summary>
+    /// A special kind of Pset only used in the Spr and Sspr functions.
+    /// It removes Fillp functionality and default color (DrawColor variable) update, 
+    /// since that should only work for functions like circ() and rect().
+    /// </summary>
+    /// <param name="x"> X screen position. </param>
+    /// <param name="y"> Y screen position. </param>
+    /// <param name="col"> Color to draw pixel. </param>
 		private void Spset(int x, int y, byte? col = null) {
 			x -= Emulator.Memory.DrawState.CameraX;
 			y -= Emulator.Memory.DrawState.CameraY;
@@ -261,13 +261,13 @@ namespace Pico8Emulator.unit.graphics {
 			var f = Emulator.Memory.DrawState.GetFillPBit(x, y);
 			var t = Emulator.Memory.DrawState.IsTransparent(col.Value);
 
-            // If the pixel is transparent, don't draw anything.
-            if (t)
-            {
-                return;
-            }
+      // If the pixel is transparent, don't draw anything.
+      if (t)
+      {
+          return;
+      }
 
-            Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f));
+      Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f));
 		}
 
 		public byte Pget(int x, int y) {

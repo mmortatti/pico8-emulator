@@ -15,7 +15,11 @@ namespace Pico8Emulator.unit.audio {
 		private MusicPlayer musicPlayer;
 
 		public AudioUnit(Emulator emulator) : base(emulator) {
-			musicPlayer = new MusicPlayer(emulator);
+			musicPlayer = new MusicPlayer(Emulator);
+		}
+
+		public override void OnCartridgeLoad() {
+			musicPlayer.LoadMusic();
 		}
 
 		public override void DefineApi(LuaInterpreter script) {

@@ -7,8 +7,7 @@ namespace Pico8Emulator.unit.audio {
 		private PatternData[] patternData;
 		private Sfx[] channels;
 		private int _patternIndex;
-		private AudioUnit audio;
-		private MemoryUnit memory;
+		private Emulator _emulator;
 
 		private Sfx referenceSfx;
 
@@ -17,45 +16,52 @@ namespace Pico8Emulator.unit.audio {
 		public bool isPlaying { get; private set; }
 
 		public MusicPlayer(Emulator emulator) {
-			audio = emulator.Audio;
-			memory = emulator.Memory;
-			
-			channels = new Sfx[4] {null, null, null, null};
+			_emulator = emulator;        
+		}
+
+		public void LoadMusic() {
+			channels = new Sfx[4] { null, null, null, null };
 			isPlaying = false;
 
 			oscillator = new Oscillator(AudioUnit.SampleRate);
 			patternData = new PatternData[64];
 
-			for (int i = 0; i < patternData.Length; i += 1) {
+			for (int i = 0; i < patternData.Length; i += 1)
+			{
 				byte[] vals = {
-					memory.Ram[i * 4 + 0 + RamAddress.Song],
-					memory.Ram[i * 4 + 1 + RamAddress.Song],
-					memory.Ram[i * 4 + 2 + RamAddress.Song],
-					memory.Ram[i * 4 + 3 + RamAddress.Song]
+					_emulator.Memory.Ram[i * 4 + 0 + RamAddress.Song],
+					_emulator.Memory.Ram[i * 4 + 1 + RamAddress.Song],
+					_emulator.Memory.Ram[i * 4 + 2 + RamAddress.Song],
+					_emulator.Memory.Ram[i * 4 + 3 + RamAddress.Song]
 				};
 
-				if ((vals[0] & 0x80) == 0x80) {
+				if ((vals[0] & 0x80) == 0x80)
+				{
 					patternData[i].LoopStart = true;
 				}
 
-				if ((vals[1] & 0x80) == 0x80) {
+				if ((vals[1] & 0x80) == 0x80)
+				{
 					patternData[i].LoopEnd = true;
 				}
 
-				if ((vals[2] & 0x80) == 0x80) {
+				if ((vals[2] & 0x80) == 0x80)
+				{
 					patternData[i].ShouldStop = true;
 				}
 
 				patternData[i].ChannelCount = new ChannelData[4];
 
-				for (int j = 0; j < 4; j += 1) {
+				for (int j = 0; j < 4; j += 1)
+				{
 					patternData[i].ChannelCount[j] = new ChannelData();
 
-					if ((vals[j] & 0b01000000) != 0) {
+					if ((vals[j] & 0b01000000) != 0)
+					{
 						patternData[i].ChannelCount[j].IsSilent = true;
 					}
 
-					patternData[i].ChannelCount[j].SfxIndex = (byte) (vals[j] & 0b00111111);
+					patternData[i].ChannelCount[j].SfxIndex = (byte)(vals[j] & 0b00111111);
 				}
 			}
 		}
@@ -130,9 +136,9 @@ namespace Pico8Emulator.unit.audio {
 				}
 
 				byte[] _channelsData = new byte[68];
-				Buffer.BlockCopy(memory.Ram, RamAddress.Sfx + 68 * patternData[_patternIndex].ChannelCount[i].SfxIndex, _channelsData, 0, 68);
+				Buffer.BlockCopy(_emulator.Memory.Ram, RamAddress.Sfx + 68 * patternData[_patternIndex].ChannelCount[i].SfxIndex, _channelsData, 0, 68);
 
-				channels[i] = new Sfx(_channelsData, patternData[_patternIndex].ChannelCount[i].SfxIndex, ref audio.AudioBuffer, ref oscillator,
+				channels[i] = new Sfx(_channelsData, patternData[_patternIndex].ChannelCount[i].SfxIndex, ref _emulator.Audio.AudioBuffer, ref oscillator,
 					AudioUnit.SampleRate, audioBufferIndex);
 
 				channels[i].Start();

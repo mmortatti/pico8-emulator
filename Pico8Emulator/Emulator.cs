@@ -12,7 +12,7 @@ using GraphicsUnit = Pico8Emulator.unit.graphics.GraphicsUnit;
 
 namespace Pico8Emulator {
 	public class Emulator {
-		private List<Unit> units = new List<Unit>();
+		public readonly List<Unit> units = new List<Unit>();
 
 		public MemoryUnit Memory;
 		public GraphicsUnit Graphics;

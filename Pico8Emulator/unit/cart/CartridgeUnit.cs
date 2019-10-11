@@ -106,7 +106,7 @@ namespace Pico8Emulator.unit.cart {
 
 			foreach (var u in Emulator.units)
 			{
-					u.OnCartridgeLoad();
+				u.OnCartridgeLoad();
 			}
 
 			Emulator.Graphics.Flip();

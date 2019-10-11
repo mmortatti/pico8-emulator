@@ -7,7 +7,7 @@ namespace Pico8Emulator.unit.audio {
 		private PatternData[] patternData;
 		private Sfx[] channels;
 		private int _patternIndex;
-    private Emulator _emulator;
+		private Emulator _emulator;
 
 		private Sfx referenceSfx;
 

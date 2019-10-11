@@ -201,7 +201,7 @@ namespace Pico8Emulator.unit.mem {
 		}
 		
 		public void Palt(int? col = null, bool t = false) {
-			if (!col.HasValue) {
+			if (!col.HasValue && !t) {
 				SetTransparent(0);
 
 				for (byte i = 1; i < 16; i++) {

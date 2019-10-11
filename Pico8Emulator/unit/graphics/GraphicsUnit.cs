@@ -16,8 +16,23 @@ namespace Pico8Emulator.unit.graphics {
 
 		public override void Init() {
 			base.Init();
+
 			Emulator.Memory.DrawState.DrawColor = 6;
-		}
+
+            Emulator.Memory.Ram[RamAddress.Palette0] = 0x10;
+            Emulator.Memory.Ram[RamAddress.Palette1] = 0x0;
+
+            for (int i = 1; i < 16; ++i)
+            {
+                Emulator.Memory.Ram[RamAddress.Palette0 + i] = (byte) i;
+                Emulator.Memory.Ram[RamAddress.Palette1 + i] = (byte) i;
+            }
+
+            Emulator.Memory.Ram[RamAddress.ClipLeft] = 0;
+            Emulator.Memory.Ram[RamAddress.ClipTop] = 0;
+            Emulator.Memory.Ram[RamAddress.ClipRight] = 127;
+            Emulator.Memory.Ram[RamAddress.ClipBottom] = 127;
+        }
 
 		public override void DefineApi(LuaInterpreter script) {
 			base.DefineApi(script);
@@ -150,7 +165,7 @@ namespace Pico8Emulator.unit.graphics {
 
 			for (var i = 0; i < 8 * width; i++) {
 				for (var j = 0; j < 8 * height; j++) {
-					Psett(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), Sget(i + sprX, j + sprY));
+					Spset(x + (flipX ? 8 * width - i : i), y + (flipY ? 8 * height - j : j), Sget(i + sprX, j + sprY));
 				}
 			}
 
@@ -182,7 +197,7 @@ namespace Pico8Emulator.unit.graphics {
 				while (y < sy + sh && screenY < dy + dh) {
 					byte sprColor = Sget((int) x, (int) y);
 
-					Psett((flipX ? dx + dw.Value - ((int) screenX - dx) : (int) screenX),
+					Spset((flipX ? dx + dw.Value - ((int) screenX - dx) : (int) screenX),
 						(flipY ? dy + dh.Value - ((int) screenY - dy) : (int) screenY), sprColor);
 
 					y += ratioY;
@@ -227,7 +242,15 @@ namespace Pico8Emulator.unit.graphics {
 			Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
 		}
 
-		private void Psett(int x, int y, byte? col = null) {
+		/// <summary>
+		/// A special kind of Pset only used in the Spr and Sspr functions.
+		/// It removes Fillp functionality and default color (DrawColor variable) update, 
+		/// since that should only work for functions like circ() and rect().
+		/// </summary>
+		/// <param name="x"> X screen position. </param>
+		/// <param name="y"> Y screen position. </param>
+		/// <param name="col"> Color to draw pixel. </param>
+		private void Spset(int x, int y, byte? col = null) {
 			x -= Emulator.Memory.DrawState.CameraX;
 			y -= Emulator.Memory.DrawState.CameraY;
 
@@ -236,18 +259,15 @@ namespace Pico8Emulator.unit.graphics {
 			}
 
 			var f = Emulator.Memory.DrawState.GetFillPBit(x, y);
-			var t = !Emulator.Memory.DrawState.IsTransparent(col.Value);
-			
-			if (f == 0) {
-				Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f));
-			} else if (!Emulator.Memory.DrawState.FillpTransparent && t) {
-				Emulator.Memory.WritePixel(x, y, (Emulator.Memory.DrawState.GetDrawColor(col.Value >> 4)));
+			var t = Emulator.Memory.DrawState.IsTransparent(col.Value);
+
+			// If the pixel is transparent, don't draw anything.
+			if (t)
+			{
+					return;
 			}
 
-			// We only want to set the default color if the color given is not transparent.
-			if (t) {
-				Emulator.Memory.DrawState.DrawColor = (byte) (col.Value & 0x0f);
-			}
+			Emulator.Memory.WritePixel(x, y, Emulator.Memory.DrawState.GetDrawColor(col.Value & 0x0f));
 		}
 
 		public byte Pget(int x, int y) {

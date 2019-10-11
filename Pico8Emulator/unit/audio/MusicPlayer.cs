@@ -29,10 +29,10 @@ namespace Pico8Emulator.unit.audio {
 			for (int i = 0; i < patternData.Length; i += 1)
 			{
 				byte[] vals = {
-						_emulator.Memory.Ram[i * 4 + 0 + RamAddress.Song],
-						_emulator.Memory.Ram[i * 4 + 1 + RamAddress.Song],
-						_emulator.Memory.Ram[i * 4 + 2 + RamAddress.Song],
-						_emulator.Memory.Ram[i * 4 + 3 + RamAddress.Song]
+					_emulator.Memory.Ram[i * 4 + 0 + RamAddress.Song],
+					_emulator.Memory.Ram[i * 4 + 1 + RamAddress.Song],
+					_emulator.Memory.Ram[i * 4 + 2 + RamAddress.Song],
+					_emulator.Memory.Ram[i * 4 + 3 + RamAddress.Song]
 				};
 
 				if ((vals[0] & 0x80) == 0x80)

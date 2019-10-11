@@ -24,9 +24,8 @@ namespace Pico8Emulator.unit {
 			
 		}
 
-        public virtual void OnCartridgeLoad()
-        {
+    public virtual void OnCartridgeLoad() {
 
-        }
+    }
 	}
 }

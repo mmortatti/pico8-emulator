@@ -14,6 +14,7 @@ namespace MonoGamePico8.backend {
 		 * TODO: implement other player support and gamepad support
 		 */
 		public override bool IsButtonDown(int i, int p) {
+			if (p != 0) return false;
 			var s = Keyboard.GetState();
 			return s.IsKeyDown(keymap[i]) || s.IsKeyDown(keymap[i + InputUnit.ButtonCount]);
 		}

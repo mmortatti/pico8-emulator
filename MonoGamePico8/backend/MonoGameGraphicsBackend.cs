@@ -20,7 +20,7 @@ namespace MonoGamePico8.backend {
 			palette = new Color[Palette.Size];
 
 			for (var i = 0; i < Palette.Size; i++) {
-				palette[i] = new Color(Palette.StandardPalette[i, 0], Palette.StandardPalette[i, 1], Palette.StandardPalette[i, 2]);
+				palette[i] = new Color(Palette.standardPalette[i, 0], Palette.standardPalette[i, 1], Palette.standardPalette[i, 2]);
 			}
 		}
 		
@@ -29,8 +29,8 @@ namespace MonoGamePico8.backend {
 		}
 
 		public override void Flip() {
-			var ram = Emulator.Memory.Ram;
-			var drawState = Emulator.Memory.DrawState;
+			var ram = Emulator.Memory.ram;
+			var drawState = Emulator.Memory.drawState;
 
 			for (var i = 0; i < 8192; i++) {
 				var val = ram[i + RamAddress.Screen];

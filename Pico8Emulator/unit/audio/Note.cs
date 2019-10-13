@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace Pico8Emulator.unit.audio {
 	public class Note {
@@ -13,7 +12,7 @@ namespace Pico8Emulator.unit.audio {
 		public float targetVolume;
 		public byte waveform;
 		public byte pitch;
-		
+
 		private bool _vibrato;
 		private float _volume;
 		private int _pitchFrom;
@@ -48,9 +47,11 @@ namespace Pico8Emulator.unit.audio {
 				if (writeToBuffer) {
 					if (_timePassed < _fadeIn) {
 						_volume = Util.Lerp(0, targetVolume, _timePassed / _fadeIn);
-					} else if (_timePassed > _duration - _fadeOut) {
+					}
+					else if (_timePassed > _duration - _fadeOut) {
 						_volume = Util.Lerp(targetVolume, 0, (_timePassed - (_duration - _fadeOut)) / _fadeOut);
-					} else {
+					}
+					else {
 						_volume = targetVolume;
 					}
 
@@ -62,8 +63,9 @@ namespace Pico8Emulator.unit.audio {
 
 					if (_vibrato) {
 						freq = Util.Lerp(Util.NoteToFrequency(pitch), Util.NoteToFrequency(pitch + 0.5f),
-							(float) Math.Sin(_timePassed * 2 * Math.PI * 8));
-					} else {
+							(float)Math.Sin(_timePassed * 2 * Math.PI * 8));
+					}
+					else {
 						freq = Util.Lerp(Util.NoteToFrequency(_pitchFrom), Util.NoteToFrequency(pitch), _timePassed / _duration);
 					}
 

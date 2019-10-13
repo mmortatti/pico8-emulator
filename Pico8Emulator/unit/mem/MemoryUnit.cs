@@ -1,65 +1,64 @@
+using Pico8Emulator.lua;
 using System;
 using System.Diagnostics;
-using Pico8Emulator.lua;
-using Pico8Emulator.unit.graphics;
 
 namespace Pico8Emulator.unit.mem {
 	public class MemoryUnit : Unit {
 		public const int Size = RamAddress.End;
-		
-		public readonly byte[] Ram = new byte[Size];
-		public DrawState DrawState;
-		
+
+		public readonly byte[] ram = new byte[Size];
+		public DrawState drawState;
+
 		public MemoryUnit(Emulator emulator) : base(emulator) {
-			DrawState = new DrawState(this);
+			drawState = new DrawState(this);
 		}
 
 		public override void DefineApi(LuaInterpreter script) {
 			base.DefineApi(script);
-			
-			script.AddFunction("memset", (Func<int, byte, int, object>) Memset);
-			script.AddFunction("memcpy", (Func<int, int, int, object>) Memcpy);
-			script.AddFunction("peek", (Func<int, byte>) Peek);
-			script.AddFunction("poke", (Func<int, byte, object>) Poke);
-			
-			script.AddFunction("fget", (Func<int, byte?, object>) Fget);
-			script.AddFunction("fset", (Action<int, byte?, bool?>) Fset);
-			script.AddFunction("mget", (Func<int, int, byte>) Mget);
-			script.AddFunction("mset", (Action<int, int, byte>) Mset);
 
-			DrawState.DefineApi(script);
+			script.AddFunction("memset", (Func<int, byte, int, object>)Memset);
+			script.AddFunction("memcpy", (Func<int, int, int, object>)Memcpy);
+			script.AddFunction("peek", (Func<int, byte>)Peek);
+			script.AddFunction("poke", (Func<int, byte, object>)Poke);
+
+			script.AddFunction("fget", (Func<int, byte?, object>)Fget);
+			script.AddFunction("fset", (Action<int, byte?, bool?>)Fset);
+			script.AddFunction("mget", (Func<int, int, byte>)Mget);
+			script.AddFunction("mset", (Action<int, int, byte>)Mset);
+
+			drawState.DefineApi(script);
 		}
 
 		public void LoadCartridgeData(byte[] cartridgeRom) {
-			Buffer.BlockCopy(cartridgeRom, 0x0, Ram, 0, 0x4300);
+			Buffer.BlockCopy(cartridgeRom, 0x0, ram, 0, 0x4300);
 		}
-		
+
 		public object Memset(int destination, byte val, int len) {
 			for (int i = 0; i < len; i++) {
-				Ram[destination + i] = val;
+				ram[destination + i] = val;
 			}
 
 			return null;
 		}
 
 		public object Memcpy(int destination, int source, int len) {
-			Buffer.BlockCopy(Ram, source, Ram, destination, len);
+			Buffer.BlockCopy(ram, source, ram, destination, len);
 
 			return null;
 		}
 
 		public object Memcpy(int destination, int source, int len, byte[] src) {
-			Buffer.BlockCopy(src, source, Ram, destination, len);
+			Buffer.BlockCopy(src, source, ram, destination, len);
 
 			return null;
 		}
-		
+
 		public byte Peek(int address) {
 			if (address < 0 || address >= 0x8000) {
 				return 0;
 			}
 
-			return Ram[address];
+			return ram[address];
 		}
 
 		public object Poke(int address, byte val) {
@@ -67,7 +66,7 @@ namespace Pico8Emulator.unit.mem {
 			 * FIXME: better error handling
 			 */
 			Trace.Assert(address >= 0 && address < 0x8000, "bad memory access");
-			Ram[address] = val;
+			ram[address] = val;
 
 			return null;
 		}
@@ -77,7 +76,7 @@ namespace Pico8Emulator.unit.mem {
 				return 0;
 			}
 
-			return Ram[addr] | (Ram[addr + 1] << 8);
+			return ram[addr] | (ram[addr + 1] << 8);
 		}
 
 		public object Poke2(int address, int val) {
@@ -86,16 +85,16 @@ namespace Pico8Emulator.unit.mem {
 			 */
 			Trace.Assert(address >= 0 && address < 0x8000, "bad memory access");
 
-			Ram[address] = (byte) (val & 0xff);
-			Ram[address + 1] = (byte) ((val >> 8) & 0xff);
+			ram[address] = (byte)(val & 0xff);
+			ram[address + 1] = (byte)((val >> 8) & 0xff);
 
 			return null;
 		}
 
 		public double Peek4(int address) {
 			if (address < 0 || address >= 0x8000 - 3) return 0;
-			int right = Ram[address] | (Ram[address + 1] << 8);
-			int left = ((Ram[address + 2] << 16) | (Ram[address + 3] << 24));
+			int right = ram[address] | (ram[address + 1] << 8);
+			int left = ((ram[address + 2] << 16) | (ram[address + 3] << 24));
 
 			return Util.FixedToFloat(left + right);
 		}
@@ -108,10 +107,10 @@ namespace Pico8Emulator.unit.mem {
 
 			Int32 f = Util.FloatToFixed(val);
 
-			Ram[address] = (byte) (f & 0xff);
-			Ram[address + 1] = (byte) ((f >> 8) & 0xff);
-			Ram[address + 2] = (byte) ((f >> 16) & 0xff);
-			Ram[address + 3] = (byte) ((f >> 24) & 0xff);
+			ram[address] = (byte)(f & 0xff);
+			ram[address + 1] = (byte)((f >> 8) & 0xff);
+			ram[address + 2] = (byte)((f >> 16) & 0xff);
+			ram[address + 3] = (byte)((f >> 24) & 0xff);
 
 			return null;
 		}
@@ -131,12 +130,14 @@ namespace Pico8Emulator.unit.mem {
 
 			if (v.HasValue) {
 				if (v.Value) {
-					Poke(RamAddress.GfxProps + n, (byte) (Peek(RamAddress.GfxProps + n) | (1 << f)));
-				} else {
-					Poke(RamAddress.GfxProps + n, (byte) (Peek(RamAddress.GfxProps + n) & ~(1 << f)));
+					Poke(RamAddress.GfxProps + n, (byte)(Peek(RamAddress.GfxProps + n) | (1 << f)));
 				}
-			} else {
-				Poke(RamAddress.GfxProps + n, (byte) (Peek(RamAddress.GfxProps + n) | f));
+				else {
+					Poke(RamAddress.GfxProps + n, (byte)(Peek(RamAddress.GfxProps + n) & ~(1 << f)));
+				}
+			}
+			else {
+				Poke(RamAddress.GfxProps + n, (byte)(Peek(RamAddress.GfxProps + n) | f));
 			}
 		}
 
@@ -149,7 +150,7 @@ namespace Pico8Emulator.unit.mem {
 				return 0x0;
 			}
 
-			return Ram[index + addr];
+			return ram[index + addr];
 		}
 
 		public void Mset(int x, int y, byte v) {
@@ -161,7 +162,7 @@ namespace Pico8Emulator.unit.mem {
 				return;
 			}
 
-			Ram[index + addr] = v;
+			ram[index + addr] = v;
 		}
 
 		public byte GetPixel(int x, int y, int offset = RamAddress.Screen) {
@@ -171,17 +172,17 @@ namespace Pico8Emulator.unit.mem {
 				return 0x10;
 			}
 
-			return Util.GetHalf(Ram[index + offset], x % 2 == 0);
+			return Util.GetHalf(ram[index + offset], x % 2 == 0);
 		}
 
 		public void WritePixel(int x, int y, byte color, int offset = RamAddress.Screen) {
 			int index = (y * 128 + x) / 2;
 
-			if (x < DrawState.ClipLeft || y < DrawState.ClipTop || x > DrawState.ClipRight || y > DrawState.ClipBottom) {
+			if (x < drawState.ClipLeft || y < drawState.ClipTop || x > drawState.ClipRight || y > drawState.ClipBottom) {
 				return;
 			}
 
-			Util.SetHalf(ref Ram[index + offset], (byte) (color % 16), x % 2 == 0);
+			Util.SetHalf(ref ram[index + offset], (byte)(color % 16), x % 2 == 0);
 		}
 	}
 }

@@ -8,10 +8,10 @@ namespace Pico8Emulator.unit.graphics {
 	 * etc
 	 */
 	public static class Font {
-		public static Dictionary<char, byte[,]> Dictionary;
+		public static Dictionary<char, byte[,]> dictionary;
 
 		#region digit definitions
-		private static byte[,] empty = {
+		private static byte[,] _empty = {
 			{0, 0, 0},
 			{0, 0, 0},
 			{0, 0, 0},
@@ -19,7 +19,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0},
 		};
 
-		private static byte[,] exclamation = {
+		private static byte[,] _exclamation = {
 			{0, 1, 0},
 			{0, 1, 0},
 			{0, 1, 0},
@@ -27,7 +27,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0},
 		};
 
-		private static byte[,] quotes = {
+		private static byte[,] _quotes = {
 			{1, 0, 1},
 			{1, 0, 1},
 			{0, 0, 0},
@@ -35,7 +35,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0},
 		};
 
-		private static byte[,] hashtag = {
+		private static byte[,] _hashtag = {
 			{1, 0, 1},
 			{1, 1, 1},
 			{1, 0, 1},
@@ -43,7 +43,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1},
 		};
 
-		private static byte[,] dolar = {
+		private static byte[,] _dolar = {
 			{1, 1, 1},
 			{1, 1, 0},
 			{0, 1, 1},
@@ -51,7 +51,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0},
 		};
 
-		private static byte[,] percentage = {
+		private static byte[,] _percentage = {
 			{1, 0, 1},
 			{0, 0, 1},
 			{0, 1, 0},
@@ -59,7 +59,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1},
 		};
 
-		private static byte[,] ampersand = {
+		private static byte[,] _ampersand = {
 			{1, 1, 0},
 			{1, 1, 0},
 			{1, 1, 0},
@@ -67,7 +67,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] tone = {
+		private static byte[,] _tone = {
 			{0, 1, 0},
 			{1, 0, 0},
 			{0, 0, 0},
@@ -75,7 +75,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0},
 		};
 
-		private static byte[,] par_open = {
+		private static byte[,] _par_open = {
 			{0, 1, 0},
 			{1, 0, 0},
 			{1, 0, 0},
@@ -83,7 +83,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0},
 		};
 
-		private static byte[,] par_close = {
+		private static byte[,] _par_close = {
 			{0, 1, 0},
 			{0, 0, 1},
 			{0, 0, 1},
@@ -91,7 +91,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0},
 		};
 
-		private static byte[,] astherisc = {
+		private static byte[,] _astherisc = {
 			{1, 0, 1},
 			{0, 1, 0},
 			{1, 1, 1},
@@ -99,7 +99,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1},
 		};
 
-		private static byte[,] plus = {
+		private static byte[,] _plus = {
 			{0, 0, 0},
 			{0, 1, 0},
 			{1, 1, 1},
@@ -107,7 +107,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0},
 		};
 
-		private static byte[,] comma = {
+		private static byte[,] _comma = {
 			{0, 0, 0},
 			{0, 0, 0},
 			{0, 0, 0},
@@ -115,7 +115,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 0},
 		};
 
-		private static byte[,] dash = {
+		private static byte[,] _dash = {
 			{0, 0, 0},
 			{0, 0, 0},
 			{1, 1, 1},
@@ -123,7 +123,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0},
 		};
 
-		private static byte[,] dot = {
+		private static byte[,] _dot = {
 			{0, 0, 0},
 			{0, 0, 0},
 			{0, 0, 0},
@@ -131,7 +131,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0},
 		};
 
-		private static byte[,] slash = {
+		private static byte[,] _slash = {
 			{0, 0, 1},
 			{0, 1, 0},
 			{0, 1, 0},
@@ -139,7 +139,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 0},
 		};
 
-		private static byte[,] digit0 = {
+		private static byte[,] _digit0 = {
 			{1, 1, 1},
 			{1, 0, 1},
 			{1, 0, 1},
@@ -147,7 +147,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] digit1 = {
+		private static byte[,] _digit1 = {
 			{1, 1, 0},
 			{0, 1, 0},
 			{0, 1, 0},
@@ -155,7 +155,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] digit2 = {
+		private static byte[,] _digit2 = {
 			{1, 1, 1},
 			{0, 0, 1},
 			{1, 1, 1},
@@ -163,7 +163,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] digit3 = {
+		private static byte[,] _digit3 = {
 			{1, 1, 1},
 			{0, 0, 1},
 			{0, 1, 1},
@@ -171,7 +171,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] digit4 = {
+		private static byte[,] _digit4 = {
 			{1, 0, 1},
 			{1, 0, 1},
 			{1, 1, 1},
@@ -179,7 +179,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 1},
 		};
 
-		private static byte[,] digit5 = {
+		private static byte[,] _digit5 = {
 			{1, 1, 1},
 			{1, 0, 0},
 			{1, 1, 1},
@@ -187,7 +187,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] digit6 = {
+		private static byte[,] _digit6 = {
 			{1, 0, 0},
 			{1, 0, 0},
 			{1, 1, 1},
@@ -195,7 +195,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] digit7 = {
+		private static byte[,] _digit7 = {
 			{1, 1, 1},
 			{0, 0, 1},
 			{0, 0, 1},
@@ -203,7 +203,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 1},
 		};
 
-		private static byte[,] digit8 = {
+		private static byte[,] _digit8 = {
 			{1, 1, 1},
 			{1, 0, 1},
 			{1, 1, 1},
@@ -211,7 +211,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] digit9 = {
+		private static byte[,] _digit9 = {
 			{1, 1, 1},
 			{1, 0, 1},
 			{1, 1, 1},
@@ -219,7 +219,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 1},
 		};
 
-		private static byte[,] colon = {
+		private static byte[,] _colon = {
 			{0, 0, 0},
 			{0, 1, 0},
 			{0, 0, 0},
@@ -227,7 +227,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0},
 		};
 
-		private static byte[,] semicolon = {
+		private static byte[,] _semicolon = {
 			{0, 0, 0},
 			{0, 1, 0},
 			{0, 0, 0},
@@ -235,7 +235,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 0},
 		};
 
-		private static byte[,] less = {
+		private static byte[,] _less = {
 			{0, 0, 1},
 			{0, 1, 0},
 			{1, 0, 0},
@@ -243,7 +243,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 1},
 		};
 
-		private static byte[,] equals = {
+		private static byte[,] _equals = {
 			{0, 0, 0},
 			{1, 1, 1},
 			{0, 0, 0},
@@ -251,7 +251,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0},
 		};
 
-		private static byte[,] greater = {
+		private static byte[,] _greater = {
 			{1, 0, 0},
 			{0, 1, 0},
 			{0, 0, 1},
@@ -259,303 +259,303 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 0},
 		};
 
-		private static byte[,] question = {
+		private static byte[,] _question = {
 			{1, 1, 1},
-			{0, 0, 1},
-			{0, 1, 1},
-			{0, 0, 0},
-			{0, 1, 0},
-		};
-
-		private static byte[,] at = {
-			{0, 1, 0},
-			{1, 0, 1},
-			{1, 0, 1},
-			{1, 0, 0},
-			{0, 1, 1},
-		};
-
-		private static byte[,] a = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{1, 0, 1},
-			{1, 1, 1},
-			{1, 0, 1},
-		};
-
-		private static byte[,] b = {
-			{0, 0, 0},
-			{1, 1, 0},
-			{1, 1, 0},
-			{1, 0, 1},
-			{1, 1, 1},
-		};
-
-		private static byte[,] c = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{1, 0, 0},
-			{1, 0, 0},
-			{1, 1, 1},
-		};
-
-		private static byte[,] d = {
-			{0, 0, 0},
-			{1, 1, 0},
-			{1, 0, 1},
-			{1, 0, 1},
-			{1, 1, 0},
-		};
-
-		private static byte[,] e = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{1, 1, 0},
-			{1, 0, 0},
-			{1, 1, 1},
-		};
-
-		private static byte[,] f = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{1, 1, 0},
-			{1, 0, 0},
-			{1, 0, 0},
-		};
-
-		private static byte[,] g = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{1, 0, 0},
-			{1, 0, 1},
-			{1, 1, 1},
-		};
-
-		private static byte[,] h = {
-			{0, 0, 0},
-			{1, 0, 1},
-			{1, 0, 1},
-			{1, 1, 1},
-			{1, 0, 1},
-		};
-
-		private static byte[,] i = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{0, 1, 0},
-			{0, 1, 0},
-			{1, 1, 1},
-		};
-
-		private static byte[,] j = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{0, 1, 0},
-			{0, 1, 0},
-			{1, 1, 0},
-		};
-
-		private static byte[,] k = {
-			{0, 0, 0},
-			{1, 0, 1},
-			{1, 1, 0},
-			{1, 0, 1},
-			{1, 0, 1},
-		};
-
-		private static byte[,] l = {
-			{0, 0, 0},
-			{1, 0, 0},
-			{1, 0, 0},
-			{1, 0, 0},
-			{1, 1, 1},
-		};
-
-		private static byte[,] m = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{1, 1, 1},
-			{1, 0, 1},
-			{1, 0, 1},
-		};
-
-		private static byte[,] n = {
-			{0, 0, 0},
-			{1, 1, 0},
-			{1, 0, 1},
-			{1, 0, 1},
-			{1, 0, 1},
-		};
-
-		private static byte[,] o = {
-			{0, 0, 0},
-			{0, 1, 1},
-			{1, 0, 1},
-			{1, 0, 1},
-			{1, 1, 0},
-		};
-
-		private static byte[,] p = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{1, 0, 1},
-			{1, 1, 1},
-			{1, 0, 0},
-		};
-
-		private static byte[,] q = {
-			{0, 0, 0},
-			{0, 1, 0},
-			{1, 0, 1},
-			{1, 1, 0},
-			{0, 1, 1},
-		};
-
-		private static byte[,] r = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{1, 0, 1},
-			{1, 1, 0},
-			{1, 0, 1},
-		};
-
-		private static byte[,] s = {
-			{0, 0, 0},
-			{0, 1, 1},
-			{1, 0, 0},
-			{0, 0, 1},
-			{1, 1, 0},
-		};
-
-		private static byte[,] t = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{0, 1, 0},
-			{0, 1, 0},
-			{0, 1, 0},
-		};
-
-		private static byte[,] u = {
-			{0, 0, 0},
-			{1, 0, 1},
-			{1, 0, 1},
-			{1, 0, 1},
-			{0, 1, 1},
-		};
-
-		private static byte[,] v = {
-			{0, 0, 0},
-			{1, 0, 1},
-			{1, 0, 1},
-			{1, 1, 1},
-			{0, 1, 0},
-		};
-
-		private static byte[,] w = {
-			{0, 0, 0},
-			{1, 0, 1},
-			{1, 0, 1},
-			{1, 1, 1},
-			{1, 1, 1},
-		};
-
-		private static byte[,] x = {
-			{0, 0, 0},
-			{1, 0, 1},
-			{0, 1, 0},
-			{1, 0, 1},
-			{1, 0, 1},
-		};
-
-		private static byte[,] y = {
-			{0, 0, 0},
-			{1, 0, 1},
-			{1, 1, 1},
-			{0, 0, 1},
-			{1, 1, 1},
-		};
-
-		private static byte[,] z = {
-			{0, 0, 0},
-			{1, 1, 1},
-			{0, 0, 1},
-			{1, 0, 0},
-			{1, 1, 1},
-		};
-
-		private static byte[,] bracket_open = {
-			{1, 1, 0},
-			{1, 0, 0},
-			{1, 0, 0},
-			{1, 0, 0},
-			{1, 1, 0},
-		};
-
-		private static byte[,] backslash = {
-			{1, 0, 0},
-			{0, 1, 0},
-			{0, 1, 0},
-			{0, 1, 0},
-			{0, 0, 1},
-		};
-
-		private static byte[,] bracket_close = {
-			{0, 1, 1},
-			{0, 0, 1},
-			{0, 0, 1},
 			{0, 0, 1},
 			{0, 1, 1},
+			{0, 0, 0},
+			{0, 1, 0},
 		};
 
-		private static byte[,] carat = {
+		private static byte[,] _at = {
 			{0, 1, 0},
 			{1, 0, 1},
-			{0, 0, 0},
-			{0, 0, 0},
-			{0, 0, 0},
-		};
-
-		private static byte[,] underscore = {
-			{0, 0, 0},
-			{0, 0, 0},
-			{0, 0, 0},
-			{0, 0, 0},
-			{1, 1, 1},
-		};
-
-		private static byte[,] back_quote = {
-			{0, 1, 0},
-			{0, 0, 1},
-			{0, 0, 0},
-			{0, 0, 0},
-			{0, 0, 0},
-		};
-
-		private static byte[,] A = {
-			{1, 1, 1},
 			{1, 0, 1},
-			{1, 1, 1},
-			{1, 0, 1},
-			{1, 0, 1},
-		};
-
-		private static byte[,] B = {
-			{1, 1, 1},
-			{1, 0, 1},
-			{1, 1, 0},
-			{1, 0, 1},
-			{1, 1, 1},
-		};
-
-		private static byte[,] C = {
-			{0, 1, 1},
-			{1, 0, 0},
-			{1, 0, 0},
 			{1, 0, 0},
 			{0, 1, 1},
 		};
 
-		private static byte[,] D = {
+		private static byte[,] _a = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{1, 0, 1},
+			{1, 1, 1},
+			{1, 0, 1},
+		};
+
+		private static byte[,] _b = {
+			{0, 0, 0},
+			{1, 1, 0},
+			{1, 1, 0},
+			{1, 0, 1},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _c = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{1, 0, 0},
+			{1, 0, 0},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _d = {
+			{0, 0, 0},
+			{1, 1, 0},
+			{1, 0, 1},
+			{1, 0, 1},
+			{1, 1, 0},
+		};
+
+		private static byte[,] _e = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{1, 1, 0},
+			{1, 0, 0},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _f = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{1, 1, 0},
+			{1, 0, 0},
+			{1, 0, 0},
+		};
+
+		private static byte[,] _g = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{1, 0, 0},
+			{1, 0, 1},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _h = {
+			{0, 0, 0},
+			{1, 0, 1},
+			{1, 0, 1},
+			{1, 1, 1},
+			{1, 0, 1},
+		};
+
+		private static byte[,] _i = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{0, 1, 0},
+			{0, 1, 0},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _j = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{0, 1, 0},
+			{0, 1, 0},
+			{1, 1, 0},
+		};
+
+		private static byte[,] _k = {
+			{0, 0, 0},
+			{1, 0, 1},
+			{1, 1, 0},
+			{1, 0, 1},
+			{1, 0, 1},
+		};
+
+		private static byte[,] _l = {
+			{0, 0, 0},
+			{1, 0, 0},
+			{1, 0, 0},
+			{1, 0, 0},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _m = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{1, 1, 1},
+			{1, 0, 1},
+			{1, 0, 1},
+		};
+
+		private static byte[,] _n = {
+			{0, 0, 0},
+			{1, 1, 0},
+			{1, 0, 1},
+			{1, 0, 1},
+			{1, 0, 1},
+		};
+
+		private static byte[,] _o = {
+			{0, 0, 0},
+			{0, 1, 1},
+			{1, 0, 1},
+			{1, 0, 1},
+			{1, 1, 0},
+		};
+
+		private static byte[,] _p = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{1, 0, 1},
+			{1, 1, 1},
+			{1, 0, 0},
+		};
+
+		private static byte[,] _q = {
+			{0, 0, 0},
+			{0, 1, 0},
+			{1, 0, 1},
+			{1, 1, 0},
+			{0, 1, 1},
+		};
+
+		private static byte[,] _r = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{1, 0, 1},
+			{1, 1, 0},
+			{1, 0, 1},
+		};
+
+		private static byte[,] _s = {
+			{0, 0, 0},
+			{0, 1, 1},
+			{1, 0, 0},
+			{0, 0, 1},
+			{1, 1, 0},
+		};
+
+		private static byte[,] _t = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{0, 1, 0},
+			{0, 1, 0},
+			{0, 1, 0},
+		};
+
+		private static byte[,] _u = {
+			{0, 0, 0},
+			{1, 0, 1},
+			{1, 0, 1},
+			{1, 0, 1},
+			{0, 1, 1},
+		};
+
+		private static byte[,] _v = {
+			{0, 0, 0},
+			{1, 0, 1},
+			{1, 0, 1},
+			{1, 1, 1},
+			{0, 1, 0},
+		};
+
+		private static byte[,] _w = {
+			{0, 0, 0},
+			{1, 0, 1},
+			{1, 0, 1},
+			{1, 1, 1},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _x = {
+			{0, 0, 0},
+			{1, 0, 1},
+			{0, 1, 0},
+			{1, 0, 1},
+			{1, 0, 1},
+		};
+
+		private static byte[,] _y = {
+			{0, 0, 0},
+			{1, 0, 1},
+			{1, 1, 1},
+			{0, 0, 1},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _z = {
+			{0, 0, 0},
+			{1, 1, 1},
+			{0, 0, 1},
+			{1, 0, 0},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _bracket_open = {
+			{1, 1, 0},
+			{1, 0, 0},
+			{1, 0, 0},
+			{1, 0, 0},
+			{1, 1, 0},
+		};
+
+		private static byte[,] _backslash = {
+			{1, 0, 0},
+			{0, 1, 0},
+			{0, 1, 0},
+			{0, 1, 0},
+			{0, 0, 1},
+		};
+
+		private static byte[,] _bracket_close = {
+			{0, 1, 1},
+			{0, 0, 1},
+			{0, 0, 1},
+			{0, 0, 1},
+			{0, 1, 1},
+		};
+
+		private static byte[,] _carat = {
+			{0, 1, 0},
+			{1, 0, 1},
+			{0, 0, 0},
+			{0, 0, 0},
+			{0, 0, 0},
+		};
+
+		private static byte[,] _underscore = {
+			{0, 0, 0},
+			{0, 0, 0},
+			{0, 0, 0},
+			{0, 0, 0},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _back_quote = {
+			{0, 1, 0},
+			{0, 0, 1},
+			{0, 0, 0},
+			{0, 0, 0},
+			{0, 0, 0},
+		};
+
+		private static byte[,] _A = {
+			{1, 1, 1},
+			{1, 0, 1},
+			{1, 1, 1},
+			{1, 0, 1},
+			{1, 0, 1},
+		};
+
+		private static byte[,] _B = {
+			{1, 1, 1},
+			{1, 0, 1},
+			{1, 1, 0},
+			{1, 0, 1},
+			{1, 1, 1},
+		};
+
+		private static byte[,] _C = {
+			{0, 1, 1},
+			{1, 0, 0},
+			{1, 0, 0},
+			{1, 0, 0},
+			{0, 1, 1},
+		};
+
+		private static byte[,] _D = {
 			{1, 1, 0},
 			{1, 0, 1},
 			{1, 0, 1},
@@ -563,7 +563,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] E = {
+		private static byte[,] _E = {
 			{1, 1, 1},
 			{1, 0, 0},
 			{1, 1, 0},
@@ -571,7 +571,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] F = {
+		private static byte[,] _F = {
 			{1, 1, 1},
 			{1, 0, 0},
 			{1, 1, 0},
@@ -579,7 +579,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 0},
 		};
 
-		private static byte[,] G = {
+		private static byte[,] _G = {
 			{0, 1, 1},
 			{1, 0, 0},
 			{1, 0, 0},
@@ -587,7 +587,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] H = {
+		private static byte[,] _H = {
 			{1, 0, 1},
 			{1, 0, 1},
 			{1, 1, 1},
@@ -595,7 +595,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1},
 		};
 
-		private static byte[,] I = {
+		private static byte[,] _I = {
 			{1, 1, 1},
 			{0, 1, 0},
 			{0, 1, 0},
@@ -611,7 +611,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 0},
 		};
 
-		private static byte[,] K = {
+		private static byte[,] _K = {
 			{1, 0, 1},
 			{1, 0, 1},
 			{1, 1, 0},
@@ -619,7 +619,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1},
 		};
 
-		private static byte[,] L = {
+		private static byte[,] _L = {
 			{1, 0, 0},
 			{1, 0, 0},
 			{1, 0, 0},
@@ -627,7 +627,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] M = {
+		private static byte[,] _M = {
 			{1, 1, 1},
 			{1, 1, 1},
 			{1, 0, 1},
@@ -635,7 +635,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1},
 		};
 
-		private static byte[,] N = {
+		private static byte[,] _N = {
 			{1, 1, 0},
 			{1, 0, 1},
 			{1, 0, 1},
@@ -643,7 +643,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1},
 		};
 
-		private static byte[,] O = {
+		private static byte[,] _O = {
 			{0, 1, 1},
 			{1, 0, 1},
 			{1, 0, 1},
@@ -651,7 +651,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 0},
 		};
 
-		private static byte[,] P = {
+		private static byte[,] _P = {
 			{1, 1, 1},
 			{1, 0, 1},
 			{1, 1, 1},
@@ -659,7 +659,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 0},
 		};
 
-		private static byte[,] Q = {
+		private static byte[,] _Q = {
 			{0, 1, 0},
 			{1, 0, 1},
 			{1, 0, 1},
@@ -667,7 +667,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1},
 		};
 
-		private static byte[,] R = {
+		private static byte[,] _R = {
 			{1, 1, 1},
 			{1, 0, 1},
 			{1, 1, 0},
@@ -675,7 +675,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1},
 		};
 
-		private static byte[,] S = {
+		private static byte[,] _S = {
 			{0, 1, 1},
 			{1, 0, 0},
 			{1, 1, 1},
@@ -683,7 +683,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 0},
 		};
 
-		private static byte[,] T = {
+		private static byte[,] _T = {
 			{1, 1, 1},
 			{0, 1, 0},
 			{0, 1, 0},
@@ -691,7 +691,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0},
 		};
 
-		private static byte[,] U = {
+		private static byte[,] _U = {
 			{1, 0, 1},
 			{1, 0, 1},
 			{1, 0, 1},
@@ -699,7 +699,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1},
 		};
 
-		private static byte[,] V = {
+		private static byte[,] _V = {
 			{1, 0, 1},
 			{1, 0, 1},
 			{1, 0, 1},
@@ -707,7 +707,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0},
 		};
 
-		private static byte[,] W = {
+		private static byte[,] _W = {
 			{1, 0, 1},
 			{1, 0, 1},
 			{1, 0, 1},
@@ -715,7 +715,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] X = {
+		private static byte[,] _X = {
 			{1, 0, 1},
 			{1, 0, 1},
 			{0, 1, 0},
@@ -723,7 +723,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1},
 		};
 
-		private static byte[,] Y = {
+		private static byte[,] _Y = {
 			{1, 0, 1},
 			{1, 0, 1},
 			{1, 1, 1},
@@ -731,7 +731,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] Z = {
+		private static byte[,] _Z = {
 			{1, 1, 1},
 			{0, 0, 1},
 			{0, 1, 0},
@@ -739,7 +739,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] brace_open = {
+		private static byte[,] _brace_open = {
 			{0, 1, 1},
 			{0, 1, 0},
 			{1, 1, 0},
@@ -747,7 +747,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1},
 		};
 
-		private static byte[,] pipe = {
+		private static byte[,] _pipe = {
 			{0, 1, 0},
 			{0, 1, 0},
 			{0, 1, 0},
@@ -755,7 +755,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0},
 		};
 
-		private static byte[,] brace_close = {
+		private static byte[,] _brace_close = {
 			{1, 1, 0},
 			{0, 1, 0},
 			{0, 1, 1},
@@ -763,7 +763,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 0},
 		};
 
-		private static byte[,] tilde = {
+		private static byte[,] _tilde = {
 			{0, 0, 0},
 			{0, 0, 1},
 			{1, 1, 1},
@@ -771,7 +771,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0},
 		};
 
-		private static byte[,] nubbin = {
+		private static byte[,] _nubbin = {
 			{0, 0, 0},
 			{0, 1, 0},
 			{1, 0, 1},
@@ -779,7 +779,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1},
 		};
 
-		private static byte[,] block = {
+		private static byte[,] _block = {
 			{1, 1, 1, 1, 1, 1, 1},
 			{1, 1, 1, 1, 1, 1, 1},
 			{1, 1, 1, 1, 1, 1, 1},
@@ -787,7 +787,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1, 1, 1, 1, 1},
 		};
 
-		private static byte[,] semi_block = {
+		private static byte[,] _semi_block = {
 			{1, 0, 1, 0, 1, 0, 1},
 			{0, 1, 0, 1, 0, 1, 0},
 			{1, 0, 1, 0, 1, 0, 1},
@@ -795,7 +795,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 1, 0, 1, 0, 1},
 		};
 
-		private static byte[,] alien = {
+		private static byte[,] _alien = {
 			{1, 0, 0, 0, 0, 0, 1},
 			{1, 1, 1, 1, 1, 1, 1},
 			{1, 0, 1, 1, 1, 0, 1},
@@ -803,7 +803,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1, 1, 1, 1, 0},
 		};
 
-		private static byte[,] downbutton = {
+		private static byte[,] _downbutton = {
 			{0, 1, 1, 1, 1, 1, 0},
 			{1, 1, 0, 0, 0, 1, 1},
 			{1, 1, 0, 0, 0, 1, 1},
@@ -811,7 +811,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1, 1, 1, 1, 0},
 		};
 
-		private static byte[,] quasi_block = {
+		private static byte[,] _quasi_block = {
 			{1, 0, 0, 0, 1, 0, 0},
 			{0, 0, 1, 0, 0, 0, 1},
 			{1, 0, 0, 0, 1, 0, 0},
@@ -819,7 +819,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 0, 0, 0, 1, 0, 0},
 		};
 
-		private static byte[,] shuriken = {
+		private static byte[,] _shuriken = {
 			{0, 0, 1, 0, 0, 0, 0},
 			{0, 0, 1, 1, 1, 1, 0},
 			{0, 0, 1, 1, 1, 0, 0},
@@ -827,7 +827,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0, 0, 1, 0, 0},
 		};
 
-		private static byte[,] shiny_ball = {
+		private static byte[,] _shiny_ball = {
 			{0, 0, 1, 1, 1, 0, 0},
 			{0, 1, 1, 1, 0, 1, 0},
 			{0, 1, 1, 1, 1, 1, 0},
@@ -835,7 +835,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 1, 1, 1, 0, 0},
 		};
 
-		private static byte[,] heart = {
+		private static byte[,] _heart = {
 			{0, 1, 1, 0, 1, 1, 0},
 			{0, 1, 1, 1, 1, 1, 0},
 			{0, 1, 1, 1, 1, 1, 0},
@@ -843,7 +843,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0, 1, 0, 0, 0},
 		};
 
-		private static byte[,] sauron = {
+		private static byte[,] _sauron = {
 			{0, 0, 1, 1, 1, 0, 0},
 			{0, 1, 1, 0, 1, 1, 0},
 			{1, 1, 1, 0, 1, 1, 1},
@@ -851,7 +851,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 1, 1, 1, 0, 0},
 		};
 
-		private static byte[,] human = {
+		private static byte[,] _human = {
 			{0, 0, 1, 1, 1, 0, 0},
 			{0, 0, 1, 1, 1, 0, 0},
 			{0, 1, 1, 1, 1, 1, 0},
@@ -859,7 +859,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 1, 0, 1, 0, 0},
 		};
 
-		private static byte[,] house = {
+		private static byte[,] _house = {
 			{0, 0, 1, 1, 1, 0, 0},
 			{0, 1, 1, 1, 1, 1, 0},
 			{1, 1, 1, 1, 1, 1, 1},
@@ -867,7 +867,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0, 1, 1, 1, 0},
 		};
 
-		private static byte[,] leftbutton = {
+		private static byte[,] _leftbutton = {
 			{0, 1, 1, 1, 1, 1, 0},
 			{1, 1, 1, 0, 0, 1, 1},
 			{1, 1, 0, 0, 0, 1, 1},
@@ -875,7 +875,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1, 1, 1, 1, 0},
 		};
 
-		private static byte[,] face = {
+		private static byte[,] _face = {
 			{1, 1, 1, 1, 1, 1, 1},
 			{1, 0, 1, 1, 1, 0, 1},
 			{1, 1, 1, 1, 1, 1, 1},
@@ -883,7 +883,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1, 1, 1, 1, 1},
 		};
 
-		private static byte[,] note = {
+		private static byte[,] _note = {
 			{0, 0, 0, 1, 1, 1, 0},
 			{0, 0, 0, 1, 0, 0, 0},
 			{0, 0, 0, 1, 0, 0, 0},
@@ -891,7 +891,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1, 1, 0, 0, 0},
 		};
 
-		private static byte[,] obutton = {
+		private static byte[,] _obutton = {
 			{0, 1, 1, 1, 1, 1, 0},
 			{1, 1, 0, 0, 0, 1, 1},
 			{1, 1, 0, 1, 0, 1, 1},
@@ -899,7 +899,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1, 1, 1, 1, 0},
 		};
 
-		private static byte[,] diamond = {
+		private static byte[,] _diamond = {
 			{0, 0, 0, 1, 0, 0, 0},
 			{0, 0, 1, 1, 1, 0, 0},
 			{0, 1, 1, 1, 1, 1, 0},
@@ -907,7 +907,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0, 1, 0, 0, 0},
 		};
 
-		private static byte[,] dot_line = {
+		private static byte[,] _dot_line = {
 			{0, 0, 0, 0, 0, 0, 0},
 			{0, 0, 0, 0, 0, 0, 0},
 			{1, 0, 1, 0, 1, 0, 1},
@@ -915,7 +915,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0, 0, 0, 0, 0},
 		};
 
-		private static byte[,] rightbutton = {
+		private static byte[,] _rightbutton = {
 			{0, 1, 1, 1, 1, 1, 0},
 			{1, 1, 0, 0, 1, 1, 1},
 			{1, 1, 0, 0, 0, 1, 1},
@@ -923,7 +923,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1, 1, 1, 1, 0},
 		};
 
-		private static byte[,] star = {
+		private static byte[,] _star = {
 			{0, 0, 0, 1, 0, 0, 0},
 			{0, 0, 1, 1, 1, 0, 0},
 			{1, 1, 1, 1, 1, 1, 1},
@@ -931,7 +931,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 0, 0, 0, 1, 0},
 		};
 
-		private static byte[,] hourclass = {
+		private static byte[,] _hourclass = {
 			{0, 1, 1, 1, 1, 1, 0},
 			{0, 0, 1, 1, 1, 0, 0},
 			{0, 0, 0, 1, 0, 0, 0},
@@ -939,7 +939,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1, 1, 1, 1, 0},
 		};
 
-		private static byte[,] upbutton = {
+		private static byte[,] _upbutton = {
 			{0, 1, 1, 1, 1, 1, 0},
 			{1, 1, 1, 0, 1, 1, 1},
 			{1, 1, 0, 0, 0, 1, 1},
@@ -947,7 +947,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1, 1, 1, 1, 0},
 		};
 
-		private static byte[,] down_arrows = {
+		private static byte[,] _down_arrows = {
 			{0, 0, 0, 0, 0, 0, 0},
 			{1, 0, 1, 0, 0, 0, 0},
 			{0, 1, 0, 0, 1, 0, 1},
@@ -955,7 +955,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0, 0, 0, 0, 0},
 		};
 
-		private static byte[,] triangle_wave = {
+		private static byte[,] _triangle_wave = {
 			{0, 0, 0, 0, 0, 0, 0},
 			{1, 0, 0, 0, 1, 0, 0},
 			{0, 1, 0, 1, 0, 1, 0},
@@ -963,7 +963,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 0, 0, 0, 0, 0, 0},
 		};
 
-		private static byte[,] xbutton = {
+		private static byte[,] _xbutton = {
 			{0, 1, 1, 1, 1, 1, 0},
 			{1, 1, 0, 1, 0, 1, 1},
 			{1, 1, 1, 0, 1, 1, 1},
@@ -971,7 +971,7 @@ namespace Pico8Emulator.unit.graphics {
 			{0, 1, 1, 1, 1, 1, 0},
 		};
 
-		private static byte[,] horizontal_lines = {
+		private static byte[,] _horizontal_lines = {
 			{1, 1, 1, 1, 1, 1, 1},
 			{0, 0, 0, 0, 0, 0, 0},
 			{1, 1, 1, 1, 1, 1, 1},
@@ -979,7 +979,7 @@ namespace Pico8Emulator.unit.graphics {
 			{1, 1, 1, 1, 1, 1, 1},
 		};
 
-		private static byte[,] vertical_lines = {
+		private static byte[,] _vertical_lines = {
 			{1, 0, 1, 0, 1, 0, 1},
 			{1, 0, 1, 0, 1, 0, 1},
 			{1, 0, 1, 0, 1, 0, 1},
@@ -989,129 +989,129 @@ namespace Pico8Emulator.unit.graphics {
 		#endregion
 
 		static Font() {
-			Dictionary = new Dictionary<char, byte[,]>();
-			Dictionary.Add(' ', empty);
-			Dictionary.Add('!', exclamation);
-			Dictionary.Add('"', quotes);
-			Dictionary.Add('#', hashtag);
-			Dictionary.Add('$', dolar);
-			Dictionary.Add('%', percentage);
-			Dictionary.Add('&', ampersand);
-			Dictionary.Add('\'', tone);
-			Dictionary.Add('(', par_open);
-			Dictionary.Add(')', par_close);
-			Dictionary.Add('*', astherisc);
-			Dictionary.Add('+', plus);
-			Dictionary.Add(',', comma);
-			Dictionary.Add('-', dash);
-			Dictionary.Add('.', dot);
-			Dictionary.Add('/', slash);
-			Dictionary.Add('0', digit0);
-			Dictionary.Add('1', digit1);
-			Dictionary.Add('2', digit2);
-			Dictionary.Add('3', digit3);
-			Dictionary.Add('4', digit4);
-			Dictionary.Add('5', digit5);
-			Dictionary.Add('6', digit6);
-			Dictionary.Add('7', digit7);
-			Dictionary.Add('8', digit8);
-			Dictionary.Add('9', digit9);
-			Dictionary.Add(':', colon);
-			Dictionary.Add(';', semicolon);
-			Dictionary.Add('<', less);
-			Dictionary.Add('=', equals);
-			Dictionary.Add('>', greater);
-			Dictionary.Add('?', question);
-			Dictionary.Add('@', at);
-			Dictionary.Add('a', a);
-			Dictionary.Add('b', b);
-			Dictionary.Add('c', c);
-			Dictionary.Add('d', d);
-			Dictionary.Add('e', e);
-			Dictionary.Add('f', f);
-			Dictionary.Add('g', g);
-			Dictionary.Add('h', h);
-			Dictionary.Add('i', i);
-			Dictionary.Add('j', j);
-			Dictionary.Add('k', k);
-			Dictionary.Add('l', l);
-			Dictionary.Add('m', m);
-			Dictionary.Add('n', n);
-			Dictionary.Add('o', o);
-			Dictionary.Add('p', p);
-			Dictionary.Add('q', q);
-			Dictionary.Add('r', r);
-			Dictionary.Add('s', s);
-			Dictionary.Add('t', t);
-			Dictionary.Add('u', u);
-			Dictionary.Add('v', v);
-			Dictionary.Add('w', w);
-			Dictionary.Add('x', x);
-			Dictionary.Add('y', y);
-			Dictionary.Add('z', z);
-			Dictionary.Add('[', bracket_open);
-			Dictionary.Add('\\', backslash);
-			Dictionary.Add(']', bracket_close);
-			Dictionary.Add('^', carat);
-			Dictionary.Add('_', underscore);
-			Dictionary.Add('`', back_quote);
-			Dictionary.Add('A', A);
-			Dictionary.Add('B', B);
-			Dictionary.Add('C', C);
-			Dictionary.Add('D', D);
-			Dictionary.Add('E', E);
-			Dictionary.Add('F', F);
-			Dictionary.Add('G', G);
-			Dictionary.Add('H', H);
-			Dictionary.Add('I', I);
-			Dictionary.Add('J', J);
-			Dictionary.Add('K', K);
-			Dictionary.Add('L', L);
-			Dictionary.Add('M', M);
-			Dictionary.Add('N', N);
-			Dictionary.Add('O', O);
-			Dictionary.Add('P', P);
-			Dictionary.Add('Q', Q);
-			Dictionary.Add('R', R);
-			Dictionary.Add('S', S);
-			Dictionary.Add('T', T);
-			Dictionary.Add('U', U);
-			Dictionary.Add('V', V);
-			Dictionary.Add('W', W);
-			Dictionary.Add('X', X);
-			Dictionary.Add('Y', Y);
-			Dictionary.Add('Z', Z);
-			Dictionary.Add('{', brace_open);
-			Dictionary.Add('|', pipe);
-			Dictionary.Add('}', brace_close);
-			Dictionary.Add('~', tilde);
-			Dictionary.Add((char) 127, nubbin);
-			Dictionary.Add((char) 128, block);
-			Dictionary.Add((char) 129, semi_block);
-			Dictionary.Add((char) 130, alien);
-			Dictionary.Add((char) 131, downbutton);
-			Dictionary.Add((char) 132, quasi_block);
-			Dictionary.Add((char) 133, shuriken);
-			Dictionary.Add((char) 134, shiny_ball);
-			Dictionary.Add((char) 135, heart);
-			Dictionary.Add((char) 136, sauron);
-			Dictionary.Add((char) 137, human);
-			Dictionary.Add((char) 138, house);
-			Dictionary.Add((char) 139, leftbutton);
-			Dictionary.Add((char) 140, face);
-			Dictionary.Add((char) 141, note);
-			Dictionary.Add((char) 142, obutton);
-			Dictionary.Add((char) 143, diamond);
-			Dictionary.Add((char) 144, dot_line);
-			Dictionary.Add((char) 145, rightbutton);
-			Dictionary.Add((char) 146, star);
-			Dictionary.Add((char) 147, hourclass);
-			Dictionary.Add((char) 148, upbutton);
-			Dictionary.Add((char) 149, down_arrows);
-			Dictionary.Add((char) 150, triangle_wave);
-			Dictionary.Add((char) 151, xbutton);
-			Dictionary.Add((char) 152, horizontal_lines);
-			Dictionary.Add((char) 153, vertical_lines);
+			dictionary = new Dictionary<char, byte[,]>();
+			dictionary.Add(' ', _empty);
+			dictionary.Add('!', _exclamation);
+			dictionary.Add('"', _quotes);
+			dictionary.Add('#', _hashtag);
+			dictionary.Add('$', _dolar);
+			dictionary.Add('%', _percentage);
+			dictionary.Add('&', _ampersand);
+			dictionary.Add('\'', _tone);
+			dictionary.Add('(', _par_open);
+			dictionary.Add(')', _par_close);
+			dictionary.Add('*', _astherisc);
+			dictionary.Add('+', _plus);
+			dictionary.Add(',', _comma);
+			dictionary.Add('-', _dash);
+			dictionary.Add('.', _dot);
+			dictionary.Add('/', _slash);
+			dictionary.Add('0', _digit0);
+			dictionary.Add('1', _digit1);
+			dictionary.Add('2', _digit2);
+			dictionary.Add('3', _digit3);
+			dictionary.Add('4', _digit4);
+			dictionary.Add('5', _digit5);
+			dictionary.Add('6', _digit6);
+			dictionary.Add('7', _digit7);
+			dictionary.Add('8', _digit8);
+			dictionary.Add('9', _digit9);
+			dictionary.Add(':', _colon);
+			dictionary.Add(';', _semicolon);
+			dictionary.Add('<', _less);
+			dictionary.Add('=', _equals);
+			dictionary.Add('>', _greater);
+			dictionary.Add('?', _question);
+			dictionary.Add('@', _at);
+			dictionary.Add('a', _a);
+			dictionary.Add('b', _b);
+			dictionary.Add('c', _c);
+			dictionary.Add('d', _d);
+			dictionary.Add('e', _e);
+			dictionary.Add('f', _f);
+			dictionary.Add('g', _g);
+			dictionary.Add('h', _h);
+			dictionary.Add('i', _i);
+			dictionary.Add('j', _j);
+			dictionary.Add('k', _k);
+			dictionary.Add('l', _l);
+			dictionary.Add('m', _m);
+			dictionary.Add('n', _n);
+			dictionary.Add('o', _o);
+			dictionary.Add('p', _p);
+			dictionary.Add('q', _q);
+			dictionary.Add('r', _r);
+			dictionary.Add('s', _s);
+			dictionary.Add('t', _t);
+			dictionary.Add('u', _u);
+			dictionary.Add('v', _v);
+			dictionary.Add('w', _w);
+			dictionary.Add('x', _x);
+			dictionary.Add('y', _y);
+			dictionary.Add('z', _z);
+			dictionary.Add('[', _bracket_open);
+			dictionary.Add('\\', _backslash);
+			dictionary.Add(']', _bracket_close);
+			dictionary.Add('^', _carat);
+			dictionary.Add('_', _underscore);
+			dictionary.Add('`', _back_quote);
+			dictionary.Add('A', _A);
+			dictionary.Add('B', _B);
+			dictionary.Add('C', _C);
+			dictionary.Add('D', _D);
+			dictionary.Add('E', _E);
+			dictionary.Add('F', _F);
+			dictionary.Add('G', _G);
+			dictionary.Add('H', _H);
+			dictionary.Add('I', _I);
+			dictionary.Add('J', J);
+			dictionary.Add('K', _K);
+			dictionary.Add('L', _L);
+			dictionary.Add('M', _M);
+			dictionary.Add('N', _N);
+			dictionary.Add('O', _O);
+			dictionary.Add('P', _P);
+			dictionary.Add('Q', _Q);
+			dictionary.Add('R', _R);
+			dictionary.Add('S', _S);
+			dictionary.Add('T', _T);
+			dictionary.Add('U', _U);
+			dictionary.Add('V', _V);
+			dictionary.Add('W', _W);
+			dictionary.Add('X', _X);
+			dictionary.Add('Y', _Y);
+			dictionary.Add('Z', _Z);
+			dictionary.Add('{', _brace_open);
+			dictionary.Add('|', _pipe);
+			dictionary.Add('}', _brace_close);
+			dictionary.Add('~', _tilde);
+			dictionary.Add((char)127, _nubbin);
+			dictionary.Add((char)128, _block);
+			dictionary.Add((char)129, _semi_block);
+			dictionary.Add((char)130, _alien);
+			dictionary.Add((char)131, _downbutton);
+			dictionary.Add((char)132, _quasi_block);
+			dictionary.Add((char)133, _shuriken);
+			dictionary.Add((char)134, _shiny_ball);
+			dictionary.Add((char)135, _heart);
+			dictionary.Add((char)136, _sauron);
+			dictionary.Add((char)137, _human);
+			dictionary.Add((char)138, _house);
+			dictionary.Add((char)139, _leftbutton);
+			dictionary.Add((char)140, _face);
+			dictionary.Add((char)141, _note);
+			dictionary.Add((char)142, _obutton);
+			dictionary.Add((char)143, _diamond);
+			dictionary.Add((char)144, _dot_line);
+			dictionary.Add((char)145, _rightbutton);
+			dictionary.Add((char)146, _star);
+			dictionary.Add((char)147, _hourclass);
+			dictionary.Add((char)148, _upbutton);
+			dictionary.Add((char)149, _down_arrows);
+			dictionary.Add((char)150, _triangle_wave);
+			dictionary.Add((char)151, _xbutton);
+			dictionary.Add((char)152, _horizontal_lines);
+			dictionary.Add((char)153, _vertical_lines);
 		}
 	}
 }

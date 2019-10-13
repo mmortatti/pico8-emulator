@@ -7,16 +7,16 @@ namespace MonoGamePico8 {
 	public class Pico8 : Game {
 		private const float UpdateTime = 1 / 60f;
 		
-		private Emulator emulator;
-		private GraphicsDeviceManager graphics;
-		private SpriteBatch batch;
-		private FrameCounter counter;
-		private MonoGameGraphicsBackend graphicsBackend;
-		private float delta;
+		private Emulator _emulator;
+		private GraphicsDeviceManager _graphics;
+		private SpriteBatch _batch;
+		private FrameCounter _counter;
+		private MonoGameGraphicsBackend _graphicsBackend;
+		private float _delta;
 		
 		public Pico8() {
-			graphics = new GraphicsDeviceManager(this);
-			counter = new FrameCounter();
+			_graphics = new GraphicsDeviceManager(this);
+			_counter = new FrameCounter();
 
 			IsFixedTimeStep = false;
 		}
@@ -24,20 +24,20 @@ namespace MonoGamePico8 {
 		protected override void Initialize() {
 			base.Initialize();
 			
-			batch = new SpriteBatch(GraphicsDevice);
+			_batch = new SpriteBatch(GraphicsDevice);
 			
-			graphics.PreferredBackBufferWidth = 512;
-			graphics.PreferredBackBufferHeight = 512;
-			graphics.ApplyChanges();
+			_graphics.PreferredBackBufferWidth = 512;
+			_graphics.PreferredBackBufferHeight = 512;
+			_graphics.ApplyChanges();
 		}
 
 		protected override void LoadContent() {
 			base.LoadContent();
 			
-			graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
-			emulator = new Emulator(graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
+			_graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
+			_emulator = new Emulator(_graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
 
-			if (!emulator.CartridgeLoader.Load("test")) {
+			if (!_emulator.CartridgeLoader.Load("test.lua")) {
 				Exit();
 			}
 		}
@@ -46,27 +46,27 @@ namespace MonoGamePico8 {
 			base.Update(gameTime);
 			var dt = (float) gameTime.ElapsedGameTime.TotalSeconds;
 
-			delta += dt;
+			_delta += dt;
 
-			while (delta >= UpdateTime) {
-				delta -= UpdateTime;
-				emulator.Update();
+			while (_delta >= UpdateTime) {
+				_delta -= UpdateTime;
+				_emulator.Update();
 			}
 			
-			counter.Update(dt);
-			Window.Title = $"{counter.AverageFramesPerSecond} fps {emulator.Graphics.DrawCalls} calls";
-			emulator.Graphics.DrawCalls = 0;
+			_counter.Update(dt);
+			Window.Title = $"{_counter.AverageFramesPerSecond} fps {_emulator.Graphics.drawCalls} calls";
+			_emulator.Graphics.drawCalls = 0;
 		}
 
 		protected override void Draw(GameTime gameTime) {
 			base.Draw(gameTime);
 
-			emulator.Draw();
+			_emulator.Draw();
 			GraphicsDevice.Clear(Color.Black);
 			
-			batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
-			batch.Draw(graphicsBackend.Surface, new Rectangle(0, 0, 512, 512), Color.White);
-			batch.End();
+			_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
+			_batch.Draw(_graphicsBackend.Surface, new Rectangle(0, 0, 512, 512), Color.White);
+			_batch.End();
 		}
 	}
 }

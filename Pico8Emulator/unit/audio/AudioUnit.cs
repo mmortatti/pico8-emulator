@@ -1,6 +1,6 @@
-﻿using System;
-using Pico8Emulator.lua;
+﻿using Pico8Emulator.lua;
 using Pico8Emulator.unit.mem;
+using System;
 
 namespace Pico8Emulator.unit.audio {
 	public class AudioUnit : Unit {
@@ -8,25 +8,25 @@ namespace Pico8Emulator.unit.audio {
 		public const int BufferSize = 2048;
 		public const int ChannelCount = 4;
 
-		public Sfx[] SfxChannels = new Sfx[ChannelCount];
-		public float[] ExternalAudioBuffer = new float[BufferSize];
-		public float[] AudioBuffer = new float[BufferSize];
+		public Sfx[] sfxChannels = new Sfx[ChannelCount];
+		public float[] externalAudioBuffer = new float[BufferSize];
+		public float[] audioBuffer = new float[BufferSize];
 
-		private MusicPlayer musicPlayer;
+		private MusicPlayer _musicPlayer;
 
 		public AudioUnit(Emulator emulator) : base(emulator) {
-			musicPlayer = new MusicPlayer(Emulator);
+			_musicPlayer = new MusicPlayer(Emulator);
 		}
 
 		public override void OnCartridgeLoad() {
-			musicPlayer.LoadMusic();
+			_musicPlayer.LoadMusic();
 		}
 
 		public override void DefineApi(LuaInterpreter script) {
 			base.DefineApi(script);
 
-			script.AddFunction("music", (Action<int, int?, int?>) Music);
-			script.AddFunction("sfx", (Action<int, int?, int?, int?>) Sfx);
+			script.AddFunction("music", (Action<int, int?, int?>)Music);
+			script.AddFunction("sfx", (Action<int, int?, int?, int?>)Sfx);
 		}
 
 		public override void Update() {
@@ -39,10 +39,10 @@ namespace Pico8Emulator.unit.audio {
 			FillBuffer();
 			CompressBuffer();
 
-			Buffer.BlockCopy(AudioBuffer, 0, ExternalAudioBuffer, 0, sizeof(float) * BufferSize);
-			return ExternalAudioBuffer;
+			Buffer.BlockCopy(audioBuffer, 0, externalAudioBuffer, 0, sizeof(float) * BufferSize);
+			return externalAudioBuffer;
 		}
-		
+
 		public void Sfx(int n, int? channel = -1, int? offset = 0, int? length = 32) {
 			switch (n) {
 				case -1:
@@ -54,14 +54,14 @@ namespace Pico8Emulator.unit.audio {
 					if (channel < 0 || channel >= ChannelCount)
 						break;
 
-					SfxChannels[channel.Value] = null;
+					sfxChannels[channel.Value] = null;
 					break;
 				case -2:
 					if (channel.Value < 0 || channel.Value >= ChannelCount)
 						break;
 
-					if (SfxChannels[channel.Value] != null) {
-						SfxChannels[channel.Value].loop = false;
+					if (sfxChannels[channel.Value] != null) {
+						sfxChannels[channel.Value].loop = false;
 					}
 
 					break;
@@ -70,7 +70,7 @@ namespace Pico8Emulator.unit.audio {
 					int? index = FindSoundOnAChannel(n);
 
 					if (index != null) {
-						SfxChannels[index.Value] = null;
+						sfxChannels[index.Value] = null;
 					}
 
 					if (channel == -1) {
@@ -85,48 +85,48 @@ namespace Pico8Emulator.unit.audio {
 					}
 
 					byte[] _sfxData = new byte[68];
-					Buffer.BlockCopy(Emulator.Memory.Ram, RamAddress.Sfx + 68 * n, _sfxData, 0, 68);
+					Buffer.BlockCopy(Emulator.Memory.ram, RamAddress.Sfx + 68 * n, _sfxData, 0, 68);
 
 					var osc = new Oscillator(SampleRate);
-					SfxChannels[channel.Value] = new Sfx(_sfxData, n, ref AudioBuffer, ref osc, SampleRate);
-					SfxChannels[channel.Value].currentNote = offset.Value;
-					SfxChannels[channel.Value].lastIndex = offset.Value + length.Value - 1;
-					SfxChannels[channel.Value].Start();
+					sfxChannels[channel.Value] = new Sfx(_sfxData, n, ref audioBuffer, ref osc, SampleRate);
+					sfxChannels[channel.Value].CurrentNote = offset.Value;
+					sfxChannels[channel.Value].LastIndex = offset.Value + length.Value - 1;
+					sfxChannels[channel.Value].Start();
 					break;
 			}
 		}
 
 		public void Music(int n, int? fade_len = null, int? channel_mask = null) {
-			musicPlayer.Start(n);
+			_musicPlayer.Start(n);
 		}
 
 		public void FillBuffer() {
 			for (int i = 0; i < ChannelCount; i += 1) {
-				var s = SfxChannels[i];
-				
+				var s = sfxChannels[i];
+
 				if (s != null && !s.Update()) {
-					SfxChannels[i] = null;
+					sfxChannels[i] = null;
 				}
 			}
 
-			musicPlayer.Update();
+			_musicPlayer.Update();
 		}
-		
+
 		public void ClearBuffer() {
 			for (int i = 0; i < BufferSize; i++) {
-				AudioBuffer[i] = 0;
+				audioBuffer[i] = 0;
 			}
 		}
 
 		public void CompressBuffer() {
 			for (int i = 0; i < BufferSize; i++) {
-				AudioBuffer[i] = (float) Math.Tanh(AudioBuffer[i]);
+				audioBuffer[i] = (float)Math.Tanh(audioBuffer[i]);
 			}
 		}
 
 		private int? FindAvailableChannel() {
 			for (int i = 0; i < ChannelCount; i += 1) {
-				if (SfxChannels[i] == null) {
+				if (sfxChannels[i] == null) {
 					return i;
 				}
 			}
@@ -136,9 +136,9 @@ namespace Pico8Emulator.unit.audio {
 
 		private int? FindSoundOnAChannel(int n) {
 			for (int i = 0; i < ChannelCount; i += 1) {
-				var s = SfxChannels[i];
+				var s = sfxChannels[i];
 
-				if (s != null && s.sfxIndex == n) {
+				if (s != null && s.SfxIndex == n) {
 					return i;
 				}
 			}
@@ -147,9 +147,9 @@ namespace Pico8Emulator.unit.audio {
 		}
 
 		private void StopChannel(int index) {
-			SfxChannels[index] = null;
+			sfxChannels[index] = null;
 		}
-		
+
 		private void StopAllChannelCount() {
 			for (int i = 0; i < ChannelCount; i += 1) {
 				StopChannel(i);

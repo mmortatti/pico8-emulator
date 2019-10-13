@@ -28,8 +28,8 @@ namespace Pico8Emulator.unit.math {
 			script.AddFunction("bor", (Func<float, float, double>)Bor);
 			script.AddFunction("bxor", (Func<float, float, double>)Bxor);
 			script.AddFunction("bnot", (Func<float, double>)Bnot);
-			script.AddFunction("shl", (Func<float, float, double>)Shl);
-			script.AddFunction("shr", (Func<float, float, double>)Shr);
+			script.AddFunction("shl", (Func<float, int, double>)Shl);
+			script.AddFunction("shr", (Func<float, int, double>)Shr);
 		}
 
 		public double Rnd(double? x = null) {
@@ -48,32 +48,32 @@ namespace Pico8Emulator.unit.math {
 			return Math.Floor(x);
 		}
 
-		public double Max(double a, double b) {
-			return a > b ? a : b;
+		public double Max(double x, double y) {
+			return Math.Max(x, y);
 		}
 
-		public double Min(double a, double b) {
-			return a < b ? a : b;
+		public double Min(double x, double y) {
+			return Math.Min(x, y);
 		}
 
-		public double Mid(double a, double b, double c) {
-			return Max(Min(Max(a, b), c), Min(a, b));
+		public double Mid(double x, double y, double z) {
+			return Max(Min(Max(x, y), z), Min(x, y));
 		}
 
-		public double Abs(double a) {
-			return a >= 0 ? a : -a;
+		public double Abs(double x) {
+			return Math.Abs(x);
 		}
 
-		public double Sqrt(double a) {
-			return a >= 0 ? a : -a;
+		public double Sqrt(double x) {
+			return Math.Sqrt(x);
 		}
 
-		public double Cos(double a) {
-			return Math.Cos(2 * a * Math.PI);
+		public double Cos(double x) {
+			return Math.Cos(2 * x * Math.PI);
 		}
 
-		public double Sin(double a) {
-			return -Math.Sin(2 * a * Math.PI);
+		public double Sin(double x) {
+			return -Math.Sin(2 * x * Math.PI);
 		}
 
 		public double Atan2(double dx, double dy) {
@@ -96,12 +96,16 @@ namespace Pico8Emulator.unit.math {
 			return Util.FixedToFloat(~Util.FloatToFixed(x));
 		}
 
-		public double Shl(float x, float y) {
-			return Util.FixedToFloat(Util.FloatToFixed(x) << Util.FloatToFixed(y));
+		public double Shl(float x, int n) {
+			return Util.FixedToFloat(Util.FloatToFixed(x) << n);
 		}
 
-		public double Shr(float x, float y) {
-			return Util.FixedToFloat(Util.FloatToFixed(x) >> Util.FloatToFixed(y));
+		public double Shr(float x, int n) {
+			return Util.FixedToFloat(Util.FloatToFixed(x) >> n);
+		}
+
+		public double Lshr(float x, int n) {
+			return Util.FixedToFloat((int)((uint)Util.FloatToFixed(x)) >> n);
 		}
 	}
 }

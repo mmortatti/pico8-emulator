@@ -56,7 +56,6 @@ namespace MonoGamePico8 {
 			
 			_counter.Update(dt);
 			Window.Title = $"{_counter.AverageFramesPerSecond} fps {_emulator.Graphics.drawCalls} calls";
-			_emulator.Graphics.drawCalls = 0;
 
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
 					Keyboard.GetState().IsKeyDown(Keys.Escape)) {
@@ -73,6 +72,7 @@ namespace MonoGamePico8 {
 
 			while (_deltaDraw >= UpdateTime) {
 				_deltaDraw -= UpdateTime;
+				_emulator.Graphics.drawCalls = 0;
 				_emulator.Draw();
 			}
 

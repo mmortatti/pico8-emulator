@@ -75,14 +75,7 @@ namespace MonoGamePico8 {
 			while (_deltaDraw >= UpdateTime) {
 				_deltaDraw -= UpdateTime;
 				_emulator.Graphics.drawCalls = 0;
-				Stopwatch sw = Stopwatch.StartNew();
-				//for(int i = 0; i < 300; ++i) {
-				//	_emulator.Graphics.Circfill(64, 64, 32);
-				//	_emulator.Graphics.Print(_emulator.Graphics.Pget(64, 64), 0, 0);
-				//}
 				_emulator.Draw();
-				sw.Stop();
-				Console.WriteLine(sw.Elapsed.TotalMilliseconds * 1000);
 			}
 
 			GraphicsDevice.Clear(Color.Black);

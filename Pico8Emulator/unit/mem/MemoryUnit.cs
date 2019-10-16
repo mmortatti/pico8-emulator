@@ -144,8 +144,8 @@ namespace Pico8Emulator.unit.mem {
 
 		public byte Mget(int x, int y) {
 			int addr = (y < 32 ? RamAddress.Map : RamAddress.GfxMap);
-			y = y % 32;
-			int index = (y * 128 + x);
+			y = y & 0x1f;
+			int index = ((y << 7) + x);
 
 			if (index < 0 || index > 32 * 128 - 1) {
 				return 0x0;
@@ -156,8 +156,8 @@ namespace Pico8Emulator.unit.mem {
 
 		public void Mset(int x, int y, byte v) {
 			int addr = (y < 32 ? RamAddress.Map : RamAddress.GfxMap);
-			y = y % 32;
-			int index = (y * 128 + x);
+			y = y & 0x1f;
+			int index = ((y << 7) + x);
 
 			if (index < 0 || index > 32 * 128 - 1) {
 				return;
@@ -200,7 +200,6 @@ namespace Pico8Emulator.unit.mem {
 
 			int index = (((y << 7) + x) >> 1) + 0x6000;
 
-			//Util.SetHalf(ref ram[index + 0x6000], (byte)(color % 16), x % 2 == 0);
 			if ((x & 1) == 0) {
 				ram[index] = (byte)((byte)(ram[index] & 0xf0) | (color & 0x0f));
 			}

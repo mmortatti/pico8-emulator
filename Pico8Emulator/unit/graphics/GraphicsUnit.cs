@@ -60,7 +60,7 @@ namespace Pico8Emulator.unit.graphics {
 			var c = 0;
 
 			if (color.HasValue) {
-				var v = color.Value % 16;
+				var v = color.Value & 0x0f;
 				c = v | (v << 4);
 			}
 
@@ -134,7 +134,7 @@ namespace Pico8Emulator.unit.graphics {
 			for (var h = 0; h < th; h++) {
 				for (var w = 0; w < tw; w++) {
 					var addr = (y + h) < 32 ? RamAddress.Map : RamAddress.GfxMap;
-					var spr = Emulator.Memory.Peek(addr + (y + h) % 32 * 128 + x + w);
+					var spr = Emulator.Memory.Peek(addr + (((y + h) & 0x1f) << 7) + x + w);
 
 					// Spr index 0 is reserved for empty tiles
 					if (spr == 0) {
@@ -161,8 +161,8 @@ namespace Pico8Emulator.unit.graphics {
 			x -= Emulator.Memory.drawState.CameraX;
 			y -= Emulator.Memory.drawState.CameraY;
 
-			var sprX = (n % 16) * 8;
-			var sprY = (n / 16) * 8;
+			var sprX = (n & 0x0f) << 3;
+			var sprY = (n >> 4) << 3;
 			var width = 1;
 			var height = 1;
 

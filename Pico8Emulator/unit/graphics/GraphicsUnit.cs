@@ -72,7 +72,6 @@ namespace Pico8Emulator.unit.graphics {
 		public void Print(object s, int? x = null, int? y = null, byte? col = null) {
 			if (x.HasValue) {
 				Emulator.Memory.drawState.CursorX = x.Value;
-				x -= Emulator.Memory.drawState.CameraX;
 			}
 			else {
 				x = Emulator.Memory.drawState.CursorX;
@@ -80,12 +79,14 @@ namespace Pico8Emulator.unit.graphics {
 
 			if (y.HasValue) {
 				Emulator.Memory.drawState.CursorY = y.Value;
-				y -= Emulator.Memory.drawState.CameraY;
 			}
 			else {
 				y = Emulator.Memory.drawState.CursorY;
 				Emulator.Memory.drawState.CursorY += 6;
 			}
+
+			x -= Emulator.Memory.drawState.CameraX;
+			y -= Emulator.Memory.drawState.CameraY;
 
 			if (col.HasValue) {
 				Emulator.Memory.drawState.DrawColor = col.Value;

@@ -200,7 +200,7 @@ namespace Pico8Emulator.unit.mem {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetTransparent(int col) {
-			col %= 16;
+			col &= 0x0f;
 
 			_ram[RamAddress.Palette0 + col] &= 0x0f;
 			_ram[RamAddress.Palette0 + col] |= 0x10;
@@ -213,17 +213,17 @@ namespace Pico8Emulator.unit.mem {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ResetTransparent(int col) {
-			_ram[RamAddress.Palette0 + col % 16] &= 0x0f;
+			_ram[RamAddress.Palette0 + (col & 0x0f)] &= 0x0f;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetDrawPalette(int c0, int c1) {
-			_ram[RamAddress.Palette0 + c0 % 16] = (byte)(c1 % 16);
+			_ram[RamAddress.Palette0 + (c0 & 0x0f)] = (byte)(c1 & 0x0f);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetScreenPalette(int c0, int c1) {
-			_ram[RamAddress.Palette1 + c0 % 16] = (byte)(c1 % 16);
+			_ram[RamAddress.Palette1 + (c0 & 0x0f)] = (byte)(c1 & 0x0f);
 		}
 
 		public void Camera(int? x = null, int? y = null) {

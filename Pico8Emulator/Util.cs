@@ -1,19 +1,26 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Pico8Emulator {
 	public static class Util {
 		public const int Shift16 = 1 << 16;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static byte GetHalf(byte b, bool rightmost = true) {
-			byte mask = (byte)(rightmost ? 0x0f : 0xf0);
-			byte val = (byte)(b & mask);
-			return (byte)(rightmost ? val : val >> 4);
+			if (rightmost) {
+				return (byte)(b & 0x0f);
+			} else {
+				return (byte)((b & 0xf0) >> 4);
+			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void SetHalf(ref byte b, byte val, bool rightmost = true) {
-			byte mask = (byte)(rightmost ? 0xf0 : 0x0f);
-			val = (byte)(rightmost ? val & 0x0f : val << 4);
-			b = (byte)((byte)(b & mask) | val);
+			if (rightmost) {
+				b = (byte)((byte)(b & 0xf0) | (val & 0x0f));
+			} else {
+				b = (byte)((byte)(b & 0x0f) | (val << 4));
+			}
 		}
 
 		public static int FloatToFixed(double x) {

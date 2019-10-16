@@ -1,6 +1,7 @@
 ﻿using Pico8Emulator.lua;
 using Pico8Emulator.unit.mem;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Pico8Emulator.unit.graphics {
 	public class GraphicsUnit : Unit {
@@ -68,9 +69,10 @@ namespace Pico8Emulator.unit.graphics {
 			}
 		}
 
-		public void Print(object s, int? x = null, int? y = null, byte? c = null) {
+		public void Print(object s, int? x = null, int? y = null, byte? col = null) {
 			if (x.HasValue) {
 				Emulator.Memory.drawState.CursorX = x.Value;
+				x -= Emulator.Memory.drawState.CameraX;
 			}
 			else {
 				x = Emulator.Memory.drawState.CursorX;
@@ -78,12 +80,18 @@ namespace Pico8Emulator.unit.graphics {
 
 			if (y.HasValue) {
 				Emulator.Memory.drawState.CursorY = y.Value;
+				y -= Emulator.Memory.drawState.CameraY;
 			}
 			else {
 				y = Emulator.Memory.drawState.CursorY;
 				Emulator.Memory.drawState.CursorY += 6;
 			}
 
+			if (col.HasValue) {
+				Emulator.Memory.drawState.DrawColor = col.Value;
+			}
+
+			var c = Emulator.Memory.drawState.DrawColor;
 			var xOrig = x.Value;
 			var prtStr = s.ToString().ToUpper();
 
@@ -104,7 +112,7 @@ namespace Pico8Emulator.unit.graphics {
 					for (int i = 0; i < digit.GetLength(0); i += 1) {
 						for (int j = 0; j < digit.GetLength(1); j += 1) {
 							if (digit[i, j] == 1) {
-								Pset(x.Value + j, y.Value + i, c);
+								DrawPixel(x.Value + j, y.Value + i, c);
 							}
 						}
 					}
@@ -149,6 +157,9 @@ namespace Pico8Emulator.unit.graphics {
 				return;
 			}
 
+			x -= Emulator.Memory.drawState.CameraX;
+			y -= Emulator.Memory.drawState.CameraY;
+
 			var sprX = (n % 16) * 8;
 			var sprY = (n / 16) * 8;
 			var width = 1;
@@ -173,6 +184,8 @@ namespace Pico8Emulator.unit.graphics {
 
 		public void Sspr(int sx, int sy, int sw, int sh, int dx, int dy, int? dw = null, int? dh = null,
 			bool flipX = false, bool flipY = false) {
+			dx -= Emulator.Memory.drawState.CameraX;
+			dy -= Emulator.Memory.drawState.CameraY;
 
 			if (!dw.HasValue) {
 				dw = sw;
@@ -185,19 +198,17 @@ namespace Pico8Emulator.unit.graphics {
 			float ratioX = sw / (float)dw.Value;
 			float ratioY = sh / (float)dh.Value;
 			float x = sx;
-			float y = sy;
 			float screenX = dx;
-			float screenY = dy;
+			float y;
+			float screenY;
 
 			while (x < sx + sw && screenX < dx + dw) {
 				y = sy;
 				screenY = dy;
 
 				while (y < sy + sh && screenY < dy + dh) {
-					byte sprColor = Sget((int)x, (int)y);
-
 					Spset((flipX ? dx + dw.Value - ((int)screenX - dx) : (int)screenX),
-						(flipY ? dy + dh.Value - ((int)screenY - dy) : (int)screenY), sprColor);
+						(flipY ? dy + dh.Value - ((int)screenY - dy) : (int)screenY), Sget((int)x, (int)y));
 
 					y += ratioY;
 					screenY += 1;
@@ -220,6 +231,7 @@ namespace Pico8Emulator.unit.graphics {
 			Emulator.Memory.WritePixel(x, y, Emulator.Memory.drawState.DrawColor, RamAddress.Gfx);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Pset(int x, int y, byte? col = null) {
 			x -= Emulator.Memory.drawState.CameraX;
 			y -= Emulator.Memory.drawState.CameraY;
@@ -228,16 +240,7 @@ namespace Pico8Emulator.unit.graphics {
 				col = Emulator.Memory.drawState.DrawColor;
 			}
 
-			int f = Emulator.Memory.drawState.GetFillPBit(x, y);
-
-			if (f == 0) {
-				// Do not consider transparency bit for this operation.
-				Emulator.Memory.WritePixel(x, y, (byte)(Emulator.Memory.drawState.GetDrawColor(col.Value & 0x0f) & 0x0f));
-			}
-			else if (!Emulator.Memory.drawState.FillpTransparent) {
-				// Do not consider transparency bit for this operation.
-				Emulator.Memory.WritePixel(x, y, (byte)(Emulator.Memory.drawState.GetDrawColor(col.Value >> 4) & 0x0f));
-			}
+			DrawPixel(x, y, col.Value);
 
 			Emulator.Memory.drawState.DrawColor = (byte)(col.Value & 0x0f);
 		}
@@ -250,23 +253,12 @@ namespace Pico8Emulator.unit.graphics {
 		/// <param name="x"> X screen position. </param>
 		/// <param name="y"> Y screen position. </param>
 		/// <param name="col"> Color to draw pixel. </param>
-		private void Spset(int x, int y, byte? col = null) {
-			x -= Emulator.Memory.drawState.CameraX;
-			y -= Emulator.Memory.drawState.CameraY;
-
-			if (!col.HasValue) {
-				col = Emulator.Memory.drawState.DrawColor;
-			}
-
-			var f = Emulator.Memory.drawState.GetFillPBit(x, y);
-			var t = Emulator.Memory.drawState.IsTransparent(col.Value);
-
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void Spset(int x, int y, byte col) {
 			// If the pixel is transparent, don't draw anything.
-			if (t) {
-				return;
+			if (!Emulator.Memory.drawState.IsTransparent(col)) {
+				Emulator.Memory.WritePixel(x, y, Emulator.Memory.drawState.GetDrawColor(col & 0x0f));
 			}
-
-			Emulator.Memory.WritePixel(x, y, Emulator.Memory.drawState.GetDrawColor(col.Value & 0x0f));
 		}
 
 		public byte Pget(int x, int y) {
@@ -299,55 +291,25 @@ namespace Pico8Emulator.unit.graphics {
 				Emulator.Memory.drawState.LineY = y1.Value;
 			}
 
-			var x0_screen = x0;
-			var y0_screen = y0;
-			var x1_screen = Emulator.Memory.drawState.LineX;
-			var y1_screen = Emulator.Memory.drawState.LineY;
-
 			if (col.HasValue) {
 				Emulator.Memory.drawState.DrawColor = col.Value;
 			}
 
-			var steep = false;
+			var x0_screen = x0 - Emulator.Memory.drawState.CameraX;
+			var y0_screen = y0 - Emulator.Memory.drawState.CameraY;
+			var x1_screen = Emulator.Memory.drawState.LineX - Emulator.Memory.drawState.CameraX;
+			var y1_screen = Emulator.Memory.drawState.LineY - Emulator.Memory.drawState.CameraY;
 
-			if (Math.Abs(x1_screen - x0_screen) < Math.Abs(y1_screen - y0_screen)) {
-				Util.Swap(ref x0_screen, ref y0_screen);
-				Util.Swap(ref x1_screen, ref y1_screen);
-				steep = true;
-			}
-
-			if (x0_screen > x1_screen) {
-				Util.Swap(ref x0_screen, ref x1_screen);
-				Util.Swap(ref y0_screen, ref y1_screen);
-			}
-
-			var dx = x1_screen - x0_screen;
-			var dy = y1_screen - y0_screen;
-			var d_err = 2 * Math.Abs(dy);
-			var err = 0;
-			var y = y0_screen;
-
-			for (var x = x0_screen; x <= x1_screen; x++) {
-				if (steep) {
-					Pset(y, x);
-				}
-				else {
-					Pset(x, y);
-				}
-
-				err += d_err;
-
-				if (err > dx) {
-					y += y1_screen > y0_screen ? 1 : -1;
-					err -= dx * 2;
-				}
-			}
+			DrawLine(x0_screen, y0_screen, x1_screen, y1_screen, Emulator.Memory.drawState.DrawColor);
 		}
 
 		public void Circ(int x, int y, double? r, byte? col = null) {
 			if (col.HasValue) {
 				Emulator.Memory.drawState.DrawColor = col.Value;
 			}
+
+			x -= Emulator.Memory.drawState.CameraX;
+			y -= Emulator.Memory.drawState.CameraY;
 
 			DrawCircle(x, y, (int)Math.Ceiling(r ?? 1), false);
 		}
@@ -357,28 +319,37 @@ namespace Pico8Emulator.unit.graphics {
 				Emulator.Memory.drawState.DrawColor = col.Value;
 			}
 
+			x -= Emulator.Memory.drawState.CameraX;
+			y -= Emulator.Memory.drawState.CameraY;
+
 			DrawCircle(x, y, (int)(r ?? 1), true);
 		}
 
 		private void Plot4(int x, int y, int offX, int offY, bool fill) {
+			var c = Emulator.Memory.drawState.DrawColor;
 			if (fill) {
-				Line((x - offX), (y + offY), (x + offX), (y + offY), null);
+				DrawLine((x - offX), (y + offY), (x + offX), (y + offY), c);
 
 				if (offY != 0) {
-					Line((x - offX), (y - offY), (x + offX), (y - offY), null);
+					DrawLine((x - offX), (y - offY), (x + offX), (y - offY), c);
 				}
 			}
 			else {
-				Pset((x - offX), (y + offY), null);
-				Pset((x + offX), (y + offY), null);
+				DrawPixel((x - offX), (y + offY), c);
+				DrawPixel((x + offX), (y + offY), c);
 
 				if (offY != 0) {
-					Pset((x - offX), (y - offY), null);
-					Pset((x + offX), (y - offY), null);
+					DrawPixel((x - offX), (y - offY), c);
+					DrawPixel((x + offX), (y - offY), c);
 				}
 			}
 		}
 
+		//
+		// Pure draw functions.
+		//
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void DrawCircle(int posX, int posY, int r, bool fill) {
 			var x = r;
 			var y = 0;
@@ -400,6 +371,56 @@ namespace Pico8Emulator.unit.graphics {
 				}
 
 				y = y + 1;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void DrawLine(int x0, int y0, int x1, int y1, byte col) {
+			var steep = false;
+
+			if (Math.Abs(x1 - x0) < Math.Abs(y1 - y0)) {
+				Util.Swap(ref x0, ref y0);
+				Util.Swap(ref x1, ref y1);
+				steep = true;
+			}
+
+			if (x0 > x1) {
+				Util.Swap(ref x0, ref x1);
+				Util.Swap(ref y0, ref y1);
+			}
+
+			var dx = x1 - x0;
+			var dy = y1 - y0;
+			var d_err = 2 * Math.Abs(dy);
+			var err = 0;
+			var y = y0;
+
+			for (var x = x0; x <= x1; x++) {
+				if (steep) {
+					DrawPixel(y, x, col);
+				}
+				else {
+					DrawPixel(x, y, col);
+				}
+
+				err += d_err;
+
+				if (err > dx) {
+					y += y1 > y0 ? 1 : -1;
+					err -= dx * 2;
+				}
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void DrawPixel(int x, int y, byte c) {
+			if (Emulator.Memory.drawState.GetFillPBit(x, y) == 0) {
+				// Do not consider transparency bit for this operation.
+				Emulator.Memory.WritePixel(x, y, (byte)(Emulator.Memory.drawState.GetDrawColor(c & 0x0f) & 0x0f));
+			}
+			else if (!Emulator.Memory.drawState.FillpTransparent) {
+				// Do not consider transparency bit for this operation.
+				Emulator.Memory.WritePixel(x, y, (byte)(Emulator.Memory.drawState.GetDrawColor(c >> 4) & 0x0f));
 			}
 		}
 	}

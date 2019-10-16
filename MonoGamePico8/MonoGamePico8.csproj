@@ -52,6 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="testcarts\draw_test.p8">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="testcarts\btn_test.p8">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

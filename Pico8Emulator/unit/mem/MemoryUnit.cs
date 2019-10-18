@@ -1,6 +1,7 @@
 using Pico8Emulator.lua;
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Pico8Emulator.unit.mem {
 	public class MemoryUnit : Unit {
@@ -143,8 +144,8 @@ namespace Pico8Emulator.unit.mem {
 
 		public byte Mget(int x, int y) {
 			int addr = (y < 32 ? RamAddress.Map : RamAddress.GfxMap);
-			y = y % 32;
-			int index = (y * 128 + x);
+			y = y & 0x1f;
+			int index = ((y << 7) + x);
 
 			if (index < 0 || index > 32 * 128 - 1) {
 				return 0x0;
@@ -155,8 +156,8 @@ namespace Pico8Emulator.unit.mem {
 
 		public void Mset(int x, int y, byte v) {
 			int addr = (y < 32 ? RamAddress.Map : RamAddress.GfxMap);
-			y = y % 32;
-			int index = (y * 128 + x);
+			y = y & 0x1f;
+			int index = ((y << 7) + x);
 
 			if (index < 0 || index > 32 * 128 - 1) {
 				return;
@@ -172,17 +173,39 @@ namespace Pico8Emulator.unit.mem {
 				return 0x10;
 			}
 
-			return Util.GetHalf(ram[index + offset], x % 2 == 0);
+			return Util.GetHalf(ram[index + offset], (x & 1) == 0);
 		}
 
-		public void WritePixel(int x, int y, byte color, int offset = RamAddress.Screen) {
-			int index = (y * 128 + x) / 2;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void WritePixel(int x, int y, byte color, int offset) {
+			int index = (((y << 7) + x) >> 1) + offset;
 
 			if (x < drawState.ClipLeft || y < drawState.ClipTop || x > drawState.ClipRight || y > drawState.ClipBottom) {
 				return;
 			}
 
-			Util.SetHalf(ref ram[index + offset], (byte)(color % 16), x % 2 == 0);
+			if ((x & 1) == 0) {
+				ram[index] = (byte)((byte)(ram[index] & 0xf0) | (color & 0x0f));
+			}
+			else {
+				ram[index] = (byte)((byte)(ram[index] & 0x0f) | ((color & 0x0f) << 4));
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void WritePixel(int x, int y, byte color) {
+			if (x < drawState.ClipLeft || y < drawState.ClipTop || x > drawState.ClipRight || y > drawState.ClipBottom) {
+				return;
+			}
+
+			int index = (((y << 7) + x) >> 1) + 0x6000;
+
+			if ((x & 1) == 0) {
+				ram[index] = (byte)((byte)(ram[index] & 0xf0) | (color & 0x0f));
+			}
+			else {
+				ram[index] = (byte)((byte)(ram[index] & 0x0f) | ((color & 0x0f) << 4));
+			}
 		}
 	}
 }

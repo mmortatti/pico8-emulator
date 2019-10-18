@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGamePico8.backend;
 using Pico8Emulator;
+using System;
+using System.Diagnostics;
 
 namespace MonoGamePico8 {
 	public class Pico8 : Game {
@@ -38,7 +40,7 @@ namespace MonoGamePico8 {
 			_graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
 			_emulator = new Emulator(_graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
 
-			if (!_emulator.CartridgeLoader.Load("testcarts/upcrawlnativerez.p8")) {
+			if (!_emulator.CartridgeLoader.Load("testcarts/draw_test.p8")) {
 				Exit();
 			}
 		}

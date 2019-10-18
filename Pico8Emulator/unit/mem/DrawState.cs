@@ -1,6 +1,7 @@
 using Pico8Emulator.lua;
 using Pico8Emulator.unit.graphics;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Pico8Emulator.unit.mem {
 	public class DrawState {
@@ -20,10 +21,10 @@ namespace Pico8Emulator.unit.mem {
 				_ram[RamAddress.Palette1 + i] = (byte)i;
 			}
 
-			_ram[RamAddress.ClipLeft] = 0;
-			_ram[RamAddress.ClipTop] = 0;
-			_ram[RamAddress.ClipRight] = 127;
-			_ram[RamAddress.ClipBottom] = 127;
+			ClipLeft = 0;
+			ClipTop = 0;
+			ClipRight = 127;
+			ClipBottom = 127;
 		}
 
 		public void DefineApi(LuaInterpreter script) {
@@ -36,11 +37,6 @@ namespace Pico8Emulator.unit.mem {
 			script.AddFunction("clip", (Action<int?, int?, int?, int?>)Clip);
 		}
 
-		public byte DrawColor {
-			get => _ram[RamAddress.DrawColor];
-			set => _ram[RamAddress.DrawColor] = (byte)(value & 0xff);
-		}
-
 		public int CursorX {
 			get => _ram[RamAddress.CursorX];
 			set => _ram[RamAddress.CursorX] = (byte)value;
@@ -51,19 +47,23 @@ namespace Pico8Emulator.unit.mem {
 			set => _ram[RamAddress.CursorY] = (byte)value;
 		}
 
+		private int _cameraX;
 		public int CameraX {
-			get => ((sbyte)(_ram[RamAddress.CameraX + 1]) << 8) | _ram[RamAddress.CameraX];
+			get => _cameraX;
 			set {
 				_ram[RamAddress.CameraX] = (byte)(value & 0xff);
 				_ram[RamAddress.CameraX + 1] = (byte)(value >> 8);
+				_cameraX = value;
 			}
 		}
 
+		private int _cameraY;
 		public int CameraY {
-			get => ((sbyte)(_ram[RamAddress.CameraY + 1]) << 8) | _ram[RamAddress.CameraY];
+			get => _cameraY;
 			set {
 				_ram[RamAddress.CameraY] = (byte)(value & 0xff);
 				_ram[RamAddress.CameraY + 1] = (byte)(value >> 8);
+				_cameraY = value;
 			}
 		}
 
@@ -81,26 +81,6 @@ namespace Pico8Emulator.unit.mem {
 				_ram[RamAddress.LineY] = (byte)(value & 0xff);
 				_ram[RamAddress.LineY + 1] = (byte)(value >> 8);
 			}
-		}
-
-		public byte ClipLeft {
-			get => (byte)(_ram[RamAddress.ClipLeft] & 0x7f);
-			set => _ram[RamAddress.ClipLeft] = value;
-		}
-
-		public byte ClipTop {
-			get => (byte)(_ram[RamAddress.ClipTop] & 0x7f);
-			set => _ram[RamAddress.ClipTop] = value;
-		}
-
-		public byte ClipRight {
-			get => (byte)(_ram[RamAddress.ClipRight] & 0x7f);
-			set => _ram[RamAddress.ClipRight] = value;
-		}
-
-		public byte ClipBottom {
-			get => (byte)(_ram[RamAddress.ClipBottom] & 0x7f);
-			set => _ram[RamAddress.ClipBottom] = value;
 		}
 
 		/*
@@ -124,16 +104,60 @@ namespace Pico8Emulator.unit.mem {
 		}
 
 		public int FillPattern {
-			get => (_ram[RamAddress.FillPattern + 1] << 8) | _ram[RamAddress.FillPattern];
+			get => _fillPattern;
 			set {
 				_ram[RamAddress.FillPattern] = (byte)(value & 0xff);
 				_ram[RamAddress.FillPattern + 1] = (byte)(value >> 8 & 0xff);
+				_fillPattern = value;
 			}
 		}
+
+		private int _fillPattern;
 
 		public bool FillpTransparent {
 			get => _ram[RamAddress.FillPattern + 2] != 0;
 			set => _ram[RamAddress.FillPattern + 2] = (byte)(value ? 1 : 0);
+		}
+
+		private byte _clipLeft;
+		public byte ClipLeft {
+			get => _clipLeft;
+			set {
+				_ram[RamAddress.ClipLeft] = value;
+				_clipLeft = (byte)(value & 0x7f);
+			}
+		}
+
+		private byte _clipTop;
+		public byte ClipTop {
+			get => _clipTop;
+			set {
+				_ram[RamAddress.ClipTop] = value;
+				_clipTop = (byte)(value & 0x7f);
+			}
+		}
+
+		private byte _clipRight;
+		public byte ClipRight {
+			get => _clipRight;
+			set {
+				_ram[RamAddress.ClipRight] = value;
+				_clipRight = (byte)(value & 0x7f);
+			}
+		}
+
+		private byte _clipBottom;
+		public byte ClipBottom {
+			get => _clipBottom;
+			set {
+				_ram[RamAddress.ClipBottom] = value;
+				_clipBottom = (byte)(value & 0x7f);
+			}
+		}
+
+		public byte DrawColor {
+			get => _ram[RamAddress.DrawColor];
+			set => _ram[RamAddress.DrawColor] = (byte)(value & 0xff);
 		}
 
 		public void Fillp(double? p = null) {
@@ -145,14 +169,13 @@ namespace Pico8Emulator.unit.mem {
 			FillpTransparent = Math.Floor(p.Value) < p.Value;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetFillPBit(int x, int y) {
-			x %= 4;
-			y %= 4;
+			x &= 0b11;
+			y &= 0b11;
 
-			var i = y * 4 + x;
-			var mask = (1 << 15) >> i;
-
-			return (FillPattern & mask) >> (15 - i);
+			var i = (y << 2) + x;
+			return (FillPattern & (1 << 15) >> i) >> (15 - i);
 		}
 
 		public void Cursor(int? x, int? y) {
@@ -160,39 +183,47 @@ namespace Pico8Emulator.unit.mem {
 			CursorY = y ?? 0;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Color(byte? col) {
 			DrawColor = col ?? 6;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public byte GetDrawColor(int color) {
-			return _ram[RamAddress.Palette0 + color % 16];
+			return _ram[RamAddress.Palette0 + (color & 0x0f)];
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public int GetScreenColor(int color) {
-			return _ram[RamAddress.Palette1 + color % 16];
+			return _ram[RamAddress.Palette1 + (color & 0x0f)];
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetTransparent(int col) {
-			col %= 16;
+			col &= 0x0f;
 
 			_ram[RamAddress.Palette0 + col] &= 0x0f;
 			_ram[RamAddress.Palette0 + col] |= 0x10;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool IsTransparent(int col) {
 			return (_ram[RamAddress.Palette0 + col] & 0x10) != 0;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ResetTransparent(int col) {
-			_ram[RamAddress.Palette0 + col % 16] &= 0x0f;
+			_ram[RamAddress.Palette0 + (col & 0x0f)] &= 0x0f;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetDrawPalette(int c0, int c1) {
-			_ram[RamAddress.Palette0 + c0 % 16] = (byte)(c1 % 16);
+			_ram[RamAddress.Palette0 + (c0 & 0x0f)] = (byte)(c1 & 0x0f);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetScreenPalette(int c0, int c1) {
-			_ram[RamAddress.Palette1 + c0 % 16] = (byte)(c1 % 16);
+			_ram[RamAddress.Palette1 + (c0 & 0x0f)] = (byte)(c1 & 0x0f);
 		}
 
 		public void Camera(int? x = null, int? y = null) {

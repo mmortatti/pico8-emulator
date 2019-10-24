@@ -70,6 +70,22 @@ namespace Pico8Emulator.unit.graphics {
 				Emulator.Memory.ram[RamAddress.Screen + i] = (byte)c;
 			}
 		}
+		
+		private static string InvertCasing(string s) {
+			char[] c = s.ToCharArray();
+			char[] cUpper = s.ToUpper().ToCharArray();
+			char[] cLower = s.ToLower().ToCharArray();
+
+			for (int i = 0; i < c.Length; i++) {
+				if (c[i] == cUpper[i]) {
+					c[i] = cLower[i];
+				} else {
+					c[i] = cUpper[i];
+				}
+			}
+
+			return new string(c);
+		}
 
 		public void Print(object s, int? x = null, int? y = null, byte? col = null) {
 			if (x.HasValue) {
@@ -96,11 +112,7 @@ namespace Pico8Emulator.unit.graphics {
 
 			var c = Emulator.Memory.drawState.DrawColor;
 			var xOrig = x.Value;
-			var prtStr = s.ToString().ToUpper();
-
-			if (prtStr.Contains("U__")) {
-				prtStr = LuaPatcher.ReplaceCodesWithEmojis(prtStr);
-			}
+			var prtStr = InvertCasing(s.ToString());
 
 			foreach (var l in prtStr) {
 				if (l == '\n') {

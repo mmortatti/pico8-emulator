@@ -220,7 +220,9 @@ namespace Pico8Emulator.unit.mem {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetDrawPalette(int c0, int c1) {
+			var t = IsTransparent(c0);
 			_ram[RamAddress.Palette0 + (c0 & 0x0f)] = (byte)(c1 & 0x0f);
+			Palt(c0, t);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

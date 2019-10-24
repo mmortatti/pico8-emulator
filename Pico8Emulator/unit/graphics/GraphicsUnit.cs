@@ -144,10 +144,9 @@ namespace Pico8Emulator.unit.graphics {
 					}
 
 					// If layer has not been specified, draw regardless
-					// Fixme: map flags not working
-					// if (!layer.HasValue || ((byte)Emulator.Memory.Fget(spr) & layer.Value) != 0) {
+					if (!layer.HasValue || layer.Value == 0 || ((byte)Emulator.Memory.Fget(spr) & layer.Value) != 0) {
 						Spr(spr, px + 8 * w, py + 8 * h, 1, 1);
-					// }
+					}
 				}
 			}
 		}

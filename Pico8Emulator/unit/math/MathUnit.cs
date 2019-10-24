@@ -14,6 +14,7 @@ namespace Pico8Emulator.unit.math {
 			script.AddFunction("srand", (Action<int>)Srand);
 
 			script.AddFunction("flr", (Func<double, double>)Flr);
+			script.AddFunction("sgn", (Func<double, double>)Sgn);
 			script.AddFunction("max", (Func<double, double, double>)Max);
 			script.AddFunction("min", (Func<double, double, double>)Min);
 			script.AddFunction("mid", (Func<double, double, double, double>)Mid);
@@ -46,6 +47,10 @@ namespace Pico8Emulator.unit.math {
 
 		public double Flr(double x) {
 			return Math.Floor(x);
+		}
+
+		public double Sgn(double x) {
+			return x < 0 ? -1 : 1;
 		}
 
 		public double Max(double x, double y) {

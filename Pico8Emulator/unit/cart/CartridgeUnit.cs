@@ -13,12 +13,19 @@ using System.Text.RegularExpressions;
 namespace Pico8Emulator.unit.cart {
 	public class CartridgeUnit : Unit {
 		public Cartridge loaded;
+		public bool HighFps;
+		
 		private DateTime _startTime;
 
 		public CartridgeUnit(Emulator emulator) : base(emulator) {
 		}
 
 		public override void Update() {
+			base.Update();
+			loaded?.interpreter.CallIfDefined("_update60");
+		}
+		
+		public void Update30() {
 			base.Update();
 			loaded?.interpreter.CallIfDefined("_update");
 		}
@@ -45,6 +52,7 @@ namespace Pico8Emulator.unit.cart {
 			script.AddFunction("dset", (Action<int, double>)Dset);
 			script.AddFunction("import", (Action<string, bool>)Import);
 			script.AddFunction("export", (Action<string>)Export);
+			script.AddFunction("run", (Action)Run);
 
 			script.AddFunction("time", (Func<double>)Time);
 			script.AddFunction("t", (Func<double>)Time);
@@ -97,23 +105,7 @@ namespace Pico8Emulator.unit.cart {
 				}
 			}
 
-			loaded.cartData = new int[Cartridge.CartDataSize];
-			loaded.interpreter = new MoonSharpInterpreter();
-
-			Emulator.Memory.LoadCartridgeData(loaded.rom);
-
-			Emulator.InitApi(loaded.interpreter);
-			loaded.interpreter.RunScript(loaded.code);
-
-			foreach (var u in Emulator.units) {
-				u.OnCartridgeLoad();
-			}
-
-			Emulator.Graphics.Flip();
-
-			_startTime = DateTime.Now;
-			loaded.interpreter.CallIfDefined("_init");
-
+			Run();
 			return true;
 		}
 
@@ -468,6 +460,26 @@ namespace Pico8Emulator.unit.cart {
 			var cart = loaded; // filename == null ? loadedGame.cartridge : new Cartridge(filename, true);
 			Buffer.BlockCopy(Emulator.Memory.ram, source_addr, cart.rom, dest_addr, len);
 			SaveP8();
+		}
+
+		public void Run() {
+			loaded.cartData = new int[Cartridge.CartDataSize];
+			loaded.interpreter = new MoonSharpInterpreter();
+
+			Emulator.Memory.LoadCartridgeData(loaded.rom);
+
+			Emulator.InitApi(loaded.interpreter);
+			loaded.interpreter.RunScript(loaded.code);
+
+			foreach (var u in Emulator.units) {
+				u.OnCartridgeLoad();
+			}
+
+			Emulator.Graphics.Flip();
+
+			_startTime = DateTime.Now;
+			HighFps = loaded.interpreter.IsDefined("_update60");
+			loaded.interpreter.CallIfDefined("_init");
 		}
 
 		public double Time() {

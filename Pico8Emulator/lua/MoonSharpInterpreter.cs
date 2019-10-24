@@ -15,7 +15,7 @@ namespace Pico8Emulator.lua {
 				script.Call(name);
 			}
 			catch (Exception e) {
-				HandleError(e);
+				HandleError(e, name);
 			}
 		}
 
@@ -25,7 +25,7 @@ namespace Pico8Emulator.lua {
 					script.Call(script.Globals[name]);
 				}
 				catch (Exception e) {
-					HandleError(e);
+					HandleError(e, name);
 				}
 
 				return true;
@@ -40,19 +40,19 @@ namespace Pico8Emulator.lua {
 				script.DoString(str);
 			}
 			catch (Exception e) {
-				HandleError(e);
+				HandleError(e, "runscript()");
 			}
 		}
 
-		private void HandleError(Exception e) {
+		private void HandleError(Exception e, string where) {
 			// Uncomment for debugging. Commented out to save my ssd
 			// File.WriteAllText("log.txt", latestScript);
 
 			if (e is MoonSharp.Interpreter.SyntaxErrorException se) {
-				Log.Error(se.DecoratedMessage);
+				Log.Error($"{@where}: {se.DecoratedMessage}");
 			}
 			else if (e is MoonSharp.Interpreter.InterpreterException ie) {
-				Log.Error(ie.DecoratedMessage);
+				Log.Error($"{@where}: {ie.DecoratedMessage}");
 			}
 		}
 

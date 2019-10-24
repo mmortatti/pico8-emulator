@@ -45,6 +45,8 @@ namespace Pico8Emulator.unit.graphics {
 
 			script.AddFunction("print", (Action<string, int?, int?, byte?>)Print);
 			script.AddFunction("map", (Action<int?, int?, int?, int?, int?, int?, byte?>)Map);
+			// Old name of map
+			script.AddFunction("mapdraw", (Action<int?, int?, int?, int?, int?, int?, byte?>)Map);
 
 			script.AddFunction("line", (Action<int, int, int?, int?, byte?>)Line);
 			script.AddFunction("rect", (Action<int, int, int, int, byte?>)Rect);

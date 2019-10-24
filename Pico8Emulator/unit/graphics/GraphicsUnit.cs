@@ -40,7 +40,7 @@ namespace Pico8Emulator.unit.graphics {
 			script.AddFunction("flip", (Action)Flip);
 			script.AddFunction("cls", (Action<byte?>)Cls);
 
-			script.AddFunction("spr", (Action<int, int, int, int?, int?, bool, bool>)Spr);
+			script.AddFunction("spr", (Action<int, int?, int?, int?, int?, bool, bool>)Spr);
 			script.AddFunction("sspr", (Action<int, int, int, int, int, int, int?, int?, bool, bool>)Sspr);
 
 			script.AddFunction("print", (Action<string, int?, int?, byte?>)Print);
@@ -144,9 +144,10 @@ namespace Pico8Emulator.unit.graphics {
 					}
 
 					// If layer has not been specified, draw regardless
-					if (!layer.HasValue || ((byte)Emulator.Memory.Fget(spr, null) & layer.Value) != 0) {
-						Spr(spr, px + 8 * w, py + 8 * h, 1, 1, false, false);
-					}
+					// Fixme: map flags not working
+					// if (!layer.HasValue || ((byte)Emulator.Memory.Fget(spr) & layer.Value) != 0) {
+						Spr(spr, px + 8 * w, py + 8 * h, 1, 1);
+					// }
 				}
 			}
 		}
@@ -155,10 +156,13 @@ namespace Pico8Emulator.unit.graphics {
 			Emulator.GraphicsBackend.Flip();
 		}
 
-		public void Spr(int n, int x, int y, int? w = null, int? h = null, bool flipX = false, bool flipY = false) {
+		public void Spr(int n, int? xx = null, int? yy = null, int? w = null, int? h = null, bool flipX = false, bool flipY = false) {
 			if (n < 0 || n > 255) {
 				return;
 			}
+
+			var x = xx ?? 0;
+			var y = yy ?? 0;
 
 			x -= Emulator.Memory.drawState.CameraX;
 			y -= Emulator.Memory.drawState.CameraY;

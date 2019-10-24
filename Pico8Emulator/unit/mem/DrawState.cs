@@ -35,6 +35,8 @@ namespace Pico8Emulator.unit.mem {
 			script.AddFunction("pal", (Action<int?, int?, int>)Pal);
 			script.AddFunction("palt", (Action<int?, bool>)Palt);
 			script.AddFunction("clip", (Action<int?, int?, int?, int?>)Clip);
+
+			Palt();
 		}
 
 		public int CursorX {
@@ -256,7 +258,8 @@ namespace Pico8Emulator.unit.mem {
 					SetDrawPalette(i, i);
 					SetScreenPalette(i, i);
 				}
-
+				
+				Palt();
 				return;
 			}
 

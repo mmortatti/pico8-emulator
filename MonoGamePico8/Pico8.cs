@@ -41,7 +41,7 @@ namespace MonoGamePico8 {
 			_graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
 			_emulator = new Emulator(_graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
 
-			if (!_emulator.CartridgeLoader.Load("testcarts/jelpi.p8")) {
+			if (!_emulator.CartridgeLoader.Load("testcarts/ma_puzzle.p8")) {
 				Exit();
 			}
 		}

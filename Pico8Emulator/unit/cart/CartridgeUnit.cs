@@ -103,11 +103,14 @@ namespace Pico8Emulator.unit.cart {
 			Emulator.Memory.LoadCartridgeData(loaded.rom);
 
 			Emulator.InitApi(loaded.interpreter);
-			loaded.interpreter.RunScript(loaded.code);
 
+			// Happens before running script because it can call
+			// API stuff outside _draw, _update and _init.
 			foreach (var u in Emulator.units) {
 				u.OnCartridgeLoad();
 			}
+
+			loaded.interpreter.RunScript(loaded.code);
 
 			Emulator.Graphics.Flip();
 

@@ -40,11 +40,13 @@ namespace Pico8Emulator.unit.graphics {
 			script.AddFunction("flip", (Action)Flip);
 			script.AddFunction("cls", (Action<byte?>)Cls);
 
-			script.AddFunction("spr", (Action<int, int, int, int?, int?, bool, bool>)Spr);
+			script.AddFunction("spr", (Action<int, int?, int?, int?, int?, bool, bool>)Spr);
 			script.AddFunction("sspr", (Action<int, int, int, int, int, int, int?, int?, bool, bool>)Sspr);
 
 			script.AddFunction("print", (Action<string, int?, int?, byte?>)Print);
 			script.AddFunction("map", (Action<int?, int?, int?, int?, int?, int?, byte?>)Map);
+			// Old name of map
+			script.AddFunction("mapdraw", (Action<int?, int?, int?, int?, int?, int?, byte?>)Map);
 
 			script.AddFunction("line", (Action<int, int, int?, int?, byte?>)Line);
 			script.AddFunction("rect", (Action<int, int, int, int, byte?>)Rect);
@@ -67,6 +69,22 @@ namespace Pico8Emulator.unit.graphics {
 			for (var i = 0; i < 0x2000; i++) {
 				Emulator.Memory.ram[RamAddress.Screen + i] = (byte)c;
 			}
+		}
+		
+		private static string InvertCasing(string s) {
+			char[] c = s.ToCharArray();
+			char[] cUpper = s.ToUpper().ToCharArray();
+			char[] cLower = s.ToLower().ToCharArray();
+
+			for (int i = 0; i < c.Length; i++) {
+				if (c[i] == cUpper[i]) {
+					c[i] = cLower[i];
+				} else {
+					c[i] = cUpper[i];
+				}
+			}
+
+			return new string(c);
 		}
 
 		public void Print(object s, int? x = null, int? y = null, byte? col = null) {
@@ -94,11 +112,7 @@ namespace Pico8Emulator.unit.graphics {
 
 			var c = Emulator.Memory.drawState.DrawColor;
 			var xOrig = x.Value;
-			var prtStr = s.ToString().ToUpper();
-
-			if (prtStr.Contains("U__")) {
-				prtStr = LuaPatcher.ReplaceCodesWithEmojis(prtStr);
-			}
+			var prtStr = InvertCasing(s.ToString());
 
 			foreach (var l in prtStr) {
 				if (l == '\n') {
@@ -142,8 +156,8 @@ namespace Pico8Emulator.unit.graphics {
 					}
 
 					// If layer has not been specified, draw regardless
-					if (!layer.HasValue || ((byte)Emulator.Memory.Fget(spr, null) & layer.Value) != 0) {
-						Spr(spr, px + 8 * w, py + 8 * h, 1, 1, false, false);
+					if (!layer.HasValue || layer.Value == 0 || ((byte)Emulator.Memory.Fget(spr) & layer.Value) != 0) {
+						Spr(spr, px + 8 * w, py + 8 * h, 1, 1);
 					}
 				}
 			}
@@ -153,10 +167,13 @@ namespace Pico8Emulator.unit.graphics {
 			Emulator.GraphicsBackend.Flip();
 		}
 
-		public void Spr(int n, int x, int y, int? w = null, int? h = null, bool flipX = false, bool flipY = false) {
+		public void Spr(int n, int? xx = null, int? yy = null, int? w = null, int? h = null, bool flipX = false, bool flipY = false) {
 			if (n < 0 || n > 255) {
 				return;
 			}
+
+			var x = xx ?? 0;
+			var y = yy ?? 0;
 
 			x -= Emulator.Memory.drawState.CameraX;
 			y -= Emulator.Memory.drawState.CameraY;

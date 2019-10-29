@@ -52,7 +52,11 @@ namespace Pico8Emulator {
 			}
 		}
 
-		public void Update() {
+		public void Update30() {
+			CartridgeLoader.Update30();
+		}
+
+		public void Update60() {
 			foreach (var unit in units) {
 				unit.Update();
 			}
@@ -68,6 +72,7 @@ namespace Pico8Emulator {
 			}
 
 			script.AddFunction("printh", (Action<object>)Printh);
+			script.AddFunction("stat", (Func<object>)Stat);
 			script.AddFunction("menuitem", (Action<int, string, object>)Menuitem);
 
 			script.RunScript(LuaPatcher.PatchCode(Api.All));
@@ -80,5 +85,9 @@ namespace Pico8Emulator {
 		public void Printh(object s) {
 			Console.WriteLine($"{s:####.####}");
 		}
+
+		public object Stat() {
+			return 0; // TODO: implement
+		} 
 	}
 }

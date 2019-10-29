@@ -35,6 +35,8 @@ namespace Pico8Emulator.unit.mem {
 			script.AddFunction("pal", (Action<int?, int?, int>)Pal);
 			script.AddFunction("palt", (Action<int?, bool>)Palt);
 			script.AddFunction("clip", (Action<int?, int?, int?, int?>)Clip);
+
+			Palt();
 		}
 
 		public int CursorX {
@@ -218,7 +220,9 @@ namespace Pico8Emulator.unit.mem {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void SetDrawPalette(int c0, int c1) {
+			var t = IsTransparent(c0);
 			_ram[RamAddress.Palette0 + (c0 & 0x0f)] = (byte)(c1 & 0x0f);
+			Palt(c0, t);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -256,7 +260,8 @@ namespace Pico8Emulator.unit.mem {
 					SetDrawPalette(i, i);
 					SetScreenPalette(i, i);
 				}
-
+				
+				Palt();
 				return;
 			}
 

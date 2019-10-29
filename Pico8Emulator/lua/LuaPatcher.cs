@@ -11,29 +11,17 @@ namespace Pico8Emulator.lua {
 			"ˇ", "▒", "♪", "😐", "∧"
 		};
 
-		private static string[] replacement = {
-			"DOT", "DOTS", "RIGHT", "TIME", "LINES",
-			"UP", "EYE", "O", "DIAMOND", "RECT", "STAR",
-			"DOWN", "SNOWFLAKE", "CIRCLE", "HEART",
-			"MAN", "HOUSE", "LEFT", "VLINES", "CROSS",
-			"CAT", "ARROWS", "PAT", "NOTE", "SAD", "WAVE"
-		};
-
 		private static char[] printableEmojis = {
-			(char) 144, (char) 132, (char) 145, (char) 147, (char) 152,
+			/*(char) 144, (char) 132, (char) 145, (char) 147, (char) 152,
 			(char) 148, (char) 136, (char) 142, (char) 143, (char) 128, (char) 146,
 			(char) 131, (char) 133, (char) 134, (char) 135,
 			(char) 137, (char) 138, (char) 139, (char) 153, (char) 151,
-			(char) 130, (char) 149, (char) 129, (char) 141, (char) 140, (char) 150
+			(char) 130, (char) 149, (char) 129, (char) 141, (char) 140, (char) 150*/
+			
+			'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
+			'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
+			'Z', 'X', 'C', 'V', 'B', 'B', 'N', 'M'
 		};
-
-		public static string ReplaceCodesWithEmojis(string str) {
-			for (var i = 0; i < emojis.Length; i++) {
-				str = str.Replace($"U__{replacement[i]}", $"{printableEmojis[i]}");
-			}
-
-			return str;
-		}
 
 		public static string PatchCode(string picoCode) {
 			// "if a != b" => "if a ~= b"
@@ -46,13 +34,13 @@ namespace Pico8Emulator.lua {
 			picoCode = Regex.Replace(picoCode, @"\-\-\s*\[\[([^\]\]]*)\]\]", "", RegexOptions.Multiline);
 			// Removes all single line comments
 			picoCode = Regex.Replace(picoCode, @"\-\-.*", "");
-
+			
 			// Replace all emojis (like heart) with text code
 			for (var i = 0; i < emojis.Length; i++) {
 				// Some emojis are 2+ chars
-				picoCode = picoCode.Replace(emojis[i], $"U__{replacement[i]}");
+				picoCode = picoCode.Replace(emojis[i], $"_{printableEmojis[i]}");
 				// Just to make sure we catch all of them, or lua will not like this
-				picoCode = picoCode.Replace($"{emojis[i][0]}", $"U__{replacement[i]}");
+				picoCode = picoCode.Replace($"{emojis[i][0]}", $"_{printableEmojis[i]}");
 			}
 
 			// Matches and replaces binary style numbers like "0b1010.101" to hex format.

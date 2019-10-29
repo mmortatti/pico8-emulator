@@ -40,6 +40,10 @@ function del(t,v)
  end
 end
 
+function count(a)
+ return #a
+end
+
 function foreach(t,f)
  for e in all(t) do
   f(e)

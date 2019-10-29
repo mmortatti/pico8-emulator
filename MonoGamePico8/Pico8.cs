@@ -8,14 +8,15 @@ using System.Diagnostics;
 
 namespace MonoGamePico8 {
 	public class Pico8 : Game {
-		private const float UpdateTime = 1 / 30f;
+		private const float UpdateTime30 = 1 / 30f;
+		private const float UpdateTime60 = 1 / 60f;
 		
 		private Emulator _emulator;
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _batch;
 		private FrameCounter _counter;
 		private MonoGameGraphicsBackend _graphicsBackend;
-		private float _deltaUpdate, _deltaDraw;
+		private float _deltaUpdate30, _deltaUpdate60, _deltaDraw;
 		
 		public Pico8() {
 			_graphics = new GraphicsDeviceManager(this);
@@ -40,7 +41,7 @@ namespace MonoGamePico8 {
 			_graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
 			_emulator = new Emulator(_graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
 
-			if (!_emulator.CartridgeLoader.Load("testcarts/draw_test.p8")) {
+			if (!_emulator.CartridgeLoader.Load("testcarts/ma_puzzle.p8")) {
 				Exit();
 			}
 		}
@@ -49,11 +50,18 @@ namespace MonoGamePico8 {
 			base.Update(gameTime);
 			var dt = (float) gameTime.ElapsedGameTime.TotalSeconds;
 
-			_deltaUpdate += dt;
+			_deltaUpdate30 += dt;
 
-			while (_deltaUpdate >= UpdateTime) {
-				_deltaUpdate -= UpdateTime;
-				_emulator.Update();
+			while (_deltaUpdate30 >= UpdateTime30) {
+				_deltaUpdate30 -= UpdateTime30;
+				_emulator.Update30();
+			}
+			
+			_deltaUpdate60 += dt;
+
+			while (_deltaUpdate60 >= UpdateTime60) {
+				_deltaUpdate60 -= UpdateTime60;
+				_emulator.Update60();
 			}
 			
 			_counter.Update(dt);
@@ -69,11 +77,12 @@ namespace MonoGamePico8 {
 			base.Draw(gameTime);
 
 			var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
+			var u = _emulator.CartridgeLoader.HighFps ? UpdateTime60 : UpdateTime30;
+			
 			_deltaDraw += dt;
 
-			while (_deltaDraw >= UpdateTime) {
-				_deltaDraw -= UpdateTime;
+			while (_deltaDraw >= u) {
+				_deltaDraw -= u;
 				_emulator.Graphics.drawCalls = 0;
 				_emulator.Draw();
 			}

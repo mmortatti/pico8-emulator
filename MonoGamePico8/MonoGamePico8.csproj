@@ -58,6 +58,9 @@
     <None Include="testcarts\btn_test.p8">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="testcarts\jelpi.p8">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="testcarts\upcrawlnativerez.p8">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

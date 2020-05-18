@@ -87,6 +87,8 @@ namespace MonoGamePico8 {
 				_emulator.Draw();
 			}
 
+			_emulator.Graphics.Flip();
+
 			GraphicsDevice.Clear(Color.Black);
 			
 			_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);

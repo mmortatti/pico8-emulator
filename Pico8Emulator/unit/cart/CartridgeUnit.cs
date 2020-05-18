@@ -38,9 +38,7 @@ namespace Pico8Emulator.unit.cart {
 				return;
 			}
 
-			if (loaded.interpreter.CallIfDefined("_draw")) {
-				Emulator.Graphics.Flip();
-			}
+			loaded.interpreter.CallIfDefined("_draw");
 		}
 
 		public override void DefineApi(LuaInterpreter script) {

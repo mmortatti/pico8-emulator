@@ -166,6 +166,7 @@ namespace Pico8Emulator.unit.mem {
 			ram[index + addr] = v;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public byte GetPixel(int x, int y, int offset = RamAddress.Screen) {
 			int index = (y * 128 + x) / 2;
 

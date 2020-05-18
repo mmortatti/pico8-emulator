@@ -125,6 +125,10 @@ namespace Pico8Emulator.unit.graphics {
 				if (Font.dictionary.ContainsKey(l)) {
 					byte[,] digit = Font.dictionary[l];
 
+					//
+					// TODO: Clip x and y values.
+					//
+
 					for (int i = 0; i < digit.GetLength(0); i += 1) {
 						for (int j = 0; j < digit.GetLength(1); j += 1) {
 							if (digit[i, j] == 1) {
@@ -295,6 +299,14 @@ namespace Pico8Emulator.unit.graphics {
 
 			Emulator.Memory.drawState.DrawColor = (byte)(col.Value & 0x0f);
 
+			if (x < Emulator.Memory.drawState.ClipLeft ||
+				x > Emulator.Memory.drawState.ClipRight ||
+				y < Emulator.Memory.drawState.ClipTop ||
+				y > Emulator.Memory.drawState.ClipBottom)
+			{
+				return;
+			}
+
 			int c = col.Value;
 
 			byte color;
@@ -338,8 +350,25 @@ namespace Pico8Emulator.unit.graphics {
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void Spset(int x, int y, byte col) {
 			// If the pixel is transparent, don't draw anything.
-			if (!Emulator.Memory.drawState.IsTransparent(col)) {
-				Emulator.Memory.WritePixel(x, y, Emulator.Memory.drawState.GetDrawColor(col & 0x0f));
+			if ((Emulator.Memory.ram[RamAddress.Palette0 + col] & 0x10) == 0) {
+				col = Emulator.Memory.ram[RamAddress.Palette0 + (col & 0x0f)];
+
+				if (x >= Emulator.Memory.drawState.ClipLeft &&
+					x <= Emulator.Memory.drawState.ClipRight &&
+					y >= Emulator.Memory.drawState.ClipTop &&
+					y <= Emulator.Memory.drawState.ClipBottom)
+				{
+					int index = (((y << 7) + x) >> 1) + 0x6000;
+
+					if ((x & 1) == 0)
+					{
+						Emulator.Memory.ram[index] = (byte)((byte)(Emulator.Memory.ram[index] & 0xf0) | (col & 0x0f));
+					}
+					else
+					{
+						Emulator.Memory.ram[index] = (byte)((byte)(Emulator.Memory.ram[index] & 0x0f) | ((col & 0x0f) << 4));
+					}
+				}
 			}
 		}
 
@@ -432,6 +461,14 @@ namespace Pico8Emulator.unit.graphics {
 					int xx = drawList[i];
 					int yy = drawList[i + 1];
 
+					if (xx < Emulator.Memory.drawState.ClipLeft ||
+						xx > Emulator.Memory.drawState.ClipRight ||
+						yy < Emulator.Memory.drawState.ClipTop ||
+						yy > Emulator.Memory.drawState.ClipBottom)
+					{
+						continue;
+					}
+
 					byte color;
 					var k = ((yy & 0b11) << 2) + (xx & 0b11);
 
@@ -508,19 +545,17 @@ namespace Pico8Emulator.unit.graphics {
 				Util.Swap(ref y0, ref y1);
 			}
 
+			if (x1 < Emulator.Memory.drawState.ClipLeft ||
+				x0 > Emulator.Memory.drawState.ClipRight ||
+				y1 > Emulator.Memory.drawState.ClipBottom ||
+				y0 < Emulator.Memory.drawState.ClipTop)
+			{
+				return;
+			}
+
 			if (x0 < Emulator.Memory.drawState.ClipLeft)
 			{
 				x0 = Emulator.Memory.drawState.ClipLeft;
-			}
-
-			if (x1 < Emulator.Memory.drawState.ClipLeft)
-			{
-				x1 = Emulator.Memory.drawState.ClipLeft;
-			}
-
-			if (x0 > Emulator.Memory.drawState.ClipRight)
-			{
-				x0 = Emulator.Memory.drawState.ClipRight;
 			}
 
 			if (x1 > Emulator.Memory.drawState.ClipRight)
@@ -531,16 +566,6 @@ namespace Pico8Emulator.unit.graphics {
 			if (y0 < Emulator.Memory.drawState.ClipTop)
 			{
 				y0 = Emulator.Memory.drawState.ClipTop;
-			}
-
-			if (y1 < Emulator.Memory.drawState.ClipTop)
-			{
-				y1 = Emulator.Memory.drawState.ClipTop;
-			}
-
-			if (y0 > Emulator.Memory.drawState.ClipBottom)
-			{
-				y0 = Emulator.Memory.drawState.ClipBottom;
 			}
 
 			if (y1 > Emulator.Memory.drawState.ClipBottom)

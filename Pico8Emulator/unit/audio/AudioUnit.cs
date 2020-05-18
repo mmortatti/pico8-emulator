@@ -101,6 +101,10 @@ namespace Pico8Emulator.unit.audio {
 			{
 				_musicPlayer.Start(n);
 			}
+			else
+			{
+				_musicPlayer.Stop();
+			}
 		}
 
 		public void FillBuffer() {

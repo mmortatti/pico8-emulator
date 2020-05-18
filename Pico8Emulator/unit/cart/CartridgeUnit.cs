@@ -18,6 +18,7 @@ namespace Pico8Emulator.unit.cart {
 		private DateTime _startTime;
 
 		public CartridgeUnit(Emulator emulator) : base(emulator) {
+			Directory.CreateDirectory("cartdata");
 		}
 
 		public override void Update() {

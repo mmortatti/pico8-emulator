@@ -97,7 +97,10 @@ namespace Pico8Emulator.unit.audio {
 		}
 
 		public void Music(int n, int? fade_len = null, int? channel_mask = null) {
-			_musicPlayer.Start(n);
+			if (n >= 0)
+			{
+				_musicPlayer.Start(n);
+			}
 		}
 
 		public void FillBuffer() {

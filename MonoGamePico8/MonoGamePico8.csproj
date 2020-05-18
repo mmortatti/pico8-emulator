@@ -61,6 +61,9 @@
     <None Include="testcarts\jelpi.p8">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="testcarts\milt.p8">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="testcarts\upcrawlnativerez.p8">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

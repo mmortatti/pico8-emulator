@@ -8,7 +8,7 @@ function _draw()
 	camera(-10, -10)
 	
 	for i=0,400 do
-		circfill(64, 64, 32)
+		rectfill(32, 32, 96, 96)
 		print(pget(64, 64), 0, 0)
 	end
 	

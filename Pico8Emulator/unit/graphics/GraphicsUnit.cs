@@ -125,12 +125,50 @@ namespace Pico8Emulator.unit.graphics {
 				if (Font.dictionary.ContainsKey(l)) {
 					byte[,] digit = Font.dictionary[l];
 
+					int width = digit.GetLength(1);
+					int height = digit.GetLength(0);
+
+					int iStart = 0, jStart = 0;
+
 					//
-					// TODO: Clip x and y values.
+					// Clip x and y values to the screen.
 					//
 
-					for (int i = 0; i < digit.GetLength(0); i += 1) {
-						for (int j = 0; j < digit.GetLength(1); j += 1) {
+					if (x + width < Emulator.Memory.drawState.ClipLeft ||
+						x > Emulator.Memory.drawState.ClipRight ||
+						y + height < Emulator.Memory.drawState.ClipTop ||
+						y > Emulator.Memory.drawState.ClipBottom)
+					{
+						x += digit.GetLength(1) + 1;
+						continue;
+					}
+
+					if (x < Emulator.Memory.drawState.ClipLeft)
+					{
+						jStart = Emulator.Memory.drawState.ClipLeft - x.Value;
+					}
+
+					if (x + width > Emulator.Memory.drawState.ClipRight)
+					{
+						width = width - (x.Value + width - 1 - Emulator.Memory.drawState.ClipRight);
+					}
+
+					if (y < Emulator.Memory.drawState.ClipTop)
+					{
+						iStart = Emulator.Memory.drawState.ClipTop - y.Value;
+					}
+
+					if (y + height > Emulator.Memory.drawState.ClipBottom)
+					{
+						height = height - (y.Value + height - 1 - Emulator.Memory.drawState.ClipBottom);
+					}
+
+					//
+					// Write pixels.
+					//
+
+					for (int i = iStart; i < height; i += 1) {
+						for (int j = jStart; j < width; j += 1) {
 							if (digit[i, j] == 1) {
 								int xx = x.Value + j;
 								int yy = y.Value + i;

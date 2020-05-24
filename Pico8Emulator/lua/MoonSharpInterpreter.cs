@@ -3,8 +3,16 @@ using System;
 
 namespace Pico8Emulator.lua {
 	public class MoonSharpInterpreter : LuaInterpreter {
-		private Script script = new Script();
+		private Script script;
 		private string latestScript;
+
+		public MoonSharpInterpreter()
+		{
+			script = new Script();
+
+			script.Options.TailCallOptimizationThreshold = 0;
+			System.Runtime.GCSettings.LargeObjectHeapCompactionMode = System.Runtime.GCLargeObjectHeapCompactionMode.CompactOnce;
+		}
 
 		public void AddFunction(string name, object func) {
 			script.Globals[name] = func;
@@ -22,12 +30,6 @@ namespace Pico8Emulator.lua {
 		public bool CallIfDefined(string name) {
 			if (IsDefined(name)) {
 				script.Call(script.Globals[name]);
-				//try {
-					
-				//}
-				//catch (Exception e) {
-				//	HandleError(e, name);
-				//}
 
 				return true;
 			}

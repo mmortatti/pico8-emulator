@@ -3,6 +3,7 @@ using Pico8Emulator.unit.mem;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Pico8Emulator.unit.graphics {
 	public class GraphicsUnit : Unit {
@@ -238,6 +239,15 @@ namespace Pico8Emulator.unit.graphics {
 
 		public void Flip() {
 			Emulator.GraphicsBackend.Flip();
+
+			//
+			// Sleep for the rest of the 30 fps time window.
+			//
+
+			Emulator.cartLoopTimer.Stop();
+			var sleepTime = (int)((1f / 30f) * 1000 - Emulator.cartLoopTimer.ElapsedMilliseconds);
+			Thread.Sleep(sleepTime < 0 ? 0 : sleepTime);
+			Emulator.cartLoopTimer.Restart();
 		}
 
 		public void Spr(byte n, int? xx = null, int? yy = null, int? w = null, int? h = null, bool flipX = false, bool flipY = false) {

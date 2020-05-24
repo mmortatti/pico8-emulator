@@ -4,5 +4,6 @@ namespace Pico8Emulator.backend {
 
 		public abstract void CreateSurface();
 		public abstract void Flip();
+		public abstract void Draw();
 	}
 }

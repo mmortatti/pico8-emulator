@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pico8Emulator;
@@ -15,13 +16,27 @@ namespace MonoGamePico8.backend {
 		private Color[] screenColorData = new Color[GraphicsUnit.ScreenSize];
 		private Color[] palette;
 
-		public MonoGameGraphicsBackend(GraphicsDevice graphicsDevice) {
+		private SpriteBatch spriteBatch;
+
+		private static Mutex mut = new Mutex();
+
+		public MonoGameGraphicsBackend(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch) {
 			graphics = graphicsDevice;
+			this.spriteBatch = spriteBatch;
 			palette = new Color[Palette.Size];
 
 			for (var i = 0; i < Palette.Size; i++) {
 				palette[i] = new Color(Palette.standardPalette[i, 0], Palette.standardPalette[i, 1], Palette.standardPalette[i, 2]);
 			}
+		}
+
+		public override void Draw()
+		{
+			mut.WaitOne();
+			Surface.SetData(screenColorData);
+			mut.ReleaseMutex();
+
+			spriteBatch.Draw(Surface, new Rectangle(0, 0, 512, 512), Color.White);
 		}
 		
 		public override void CreateSurface() {
@@ -32,14 +47,14 @@ namespace MonoGamePico8.backend {
 			var ram = Emulator.Memory.ram;
 			var drawState = Emulator.Memory.drawState;
 
+			mut.WaitOne();
 			for (var i = 0; i < 8192; i++) {
 				var val = ram[i + RamAddress.Screen];
 
 				screenColorData[i * 2] = palette[drawState.GetScreenColor(val & 0x0f)];
 				screenColorData[i * 2 + 1] = palette[drawState.GetScreenColor(val >> 4)];
 			}
-			
-			Surface.SetData(screenColorData);
+			mut.ReleaseMutex();
 		}
 		
 		private byte ColorToPalette(Color col) {

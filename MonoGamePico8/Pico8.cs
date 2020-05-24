@@ -22,28 +22,29 @@ namespace MonoGamePico8 {
 			_graphics = new GraphicsDeviceManager(this);
 			_counter = new FrameCounter();
 
-			IsFixedTimeStep = false;
+			this.IsFixedTimeStep = false;//false;
+			//this.TargetElapsedTime = TimeSpan.FromSeconds(1d / 30d); //60);
 		}
 
 		protected override void Initialize() {
-			base.Initialize();
-			
 			_batch = new SpriteBatch(GraphicsDevice);
 			
 			_graphics.PreferredBackBufferWidth = 512;
 			_graphics.PreferredBackBufferHeight = 512;
 			_graphics.ApplyChanges();
+
+			base.Initialize();
 		}
 
 		protected override void LoadContent() {
-			base.LoadContent();
-			
-			_graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
+			_graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice, _batch);
 			_emulator = new Emulator(_graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
 
-			if (!_emulator.CartridgeLoader.Load("testcarts/jelpi.p8")) {
+			if (!_emulator.CartridgeLoader.Load("testcarts/milt.p8")) {
 				Exit();
 			}
+
+			base.LoadContent();
 		}
 
 		protected override void Update(GameTime gameTime) {
@@ -54,14 +55,14 @@ namespace MonoGamePico8 {
 
 			while (_deltaUpdate30 >= UpdateTime30) {
 				_deltaUpdate30 -= UpdateTime30;
-				_emulator.Update30();
+				//_emulator.Update30();
 			}
 			
 			_deltaUpdate60 += dt;
 
 			while (_deltaUpdate60 >= UpdateTime60) {
 				_deltaUpdate60 -= UpdateTime60;
-				_emulator.Update60();
+				//_emulator.Update60();
 			}
 			
 			_counter.Update(dt);
@@ -81,18 +82,18 @@ namespace MonoGamePico8 {
 			
 			_deltaDraw += dt;
 
+			//GraphicsDevice.Clear(Color.Black);
+
+			_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
+
 			while (_deltaDraw >= u) {
 				_deltaDraw -= u;
 				_emulator.Graphics.drawCalls = 0;
-				_emulator.Draw();
+				//_emulator.Draw();
 			}
 
-			_emulator.Graphics.Flip();
+			_emulator.GraphicsBackend.Draw();
 
-			GraphicsDevice.Clear(Color.Black);
-			
-			_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
-			_batch.Draw(_graphicsBackend.Surface, new Rectangle(0, 0, 512, 512), Color.White);
 			_batch.End();
 		}
 	}

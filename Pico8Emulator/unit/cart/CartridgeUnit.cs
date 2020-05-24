@@ -9,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Pico8Emulator.unit.cart {
 	public class CartridgeUnit : Unit {
@@ -38,7 +39,11 @@ namespace Pico8Emulator.unit.cart {
 				return;
 			}
 
-			loaded.interpreter.CallIfDefined("_draw");
+			//
+			// Resume draw thread in case it stopped on Flip().
+			//
+
+			loaded?.interpreter.CallIfDefined("_draw");
 		}
 
 		public override void DefineApi(LuaInterpreter script) {
@@ -474,13 +479,24 @@ namespace Pico8Emulator.unit.cart {
 				u.OnCartridgeLoad();
 			}
 
-			loaded.interpreter.RunScript(loaded.code);
+			Emulator.HasCodeLoaded = false;
 
-			Emulator.Graphics.Flip();
+			Emulator.gameThread = new Thread(() => {
+				Emulator.cartLoopTimer.Start();
+				_startTime = DateTime.Now;
+				loaded.interpreter.RunScript(loaded.code);
+				Emulator.HasCodeLoaded = true;
 
-			_startTime = DateTime.Now;
-			HighFps = loaded.interpreter.IsDefined("_update60");
-			loaded.interpreter.CallIfDefined("_init");
+				HighFps = loaded.interpreter.IsDefined("_update60");
+				loaded.interpreter.CallIfDefined("_init");
+
+				Emulator.GameLoop();
+			});
+
+			Emulator.gameThread.IsBackground = false;
+			Emulator.gameThread.Priority = ThreadPriority.Highest;
+
+			Emulator.gameThread.Start();
 		}
 
 		public double Time() {

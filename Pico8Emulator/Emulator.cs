@@ -7,8 +7,10 @@ using Pico8Emulator.unit.input;
 using Pico8Emulator.unit.math;
 using Pico8Emulator.unit.mem;
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using GraphicsUnit = Pico8Emulator.unit.graphics.GraphicsUnit;
+using System.Diagnostics;
 
 namespace Pico8Emulator {
 	public class Emulator {
@@ -24,6 +26,18 @@ namespace Pico8Emulator {
 		public readonly GraphicsBackend GraphicsBackend;
 		public readonly AudioBackend AudioBackend;
 		public readonly InputBackend InputBackend;
+
+		public bool HasCodeLoaded;
+
+		public Thread gameThread;
+
+		public EventWaitHandle flipWait = new ManualResetEvent(true);
+		public EventWaitHandle engineWait = new ManualResetEvent(true);
+		public object waitLock = new object();
+
+		public Stopwatch cartLoopTimer = new Stopwatch();
+
+		public int GameLoopCalls { get; private set; } = 0;
 
 		public Emulator(GraphicsBackend graphics, AudioBackend audio, InputBackend input) {
 			GraphicsBackend = graphics;
@@ -43,6 +57,19 @@ namespace Pico8Emulator {
 
 			foreach (var unit in units) {
 				unit.Init();
+			}
+		}
+
+		public void GameLoop()
+		{
+			while(true)
+			{
+				GameLoopCalls++;
+				Update60();
+				Update30();
+				Update60();
+				Draw();
+				Graphics.Flip();
 			}
 		}
 

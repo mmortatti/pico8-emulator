@@ -16,13 +16,10 @@ namespace MonoGamePico8.backend {
 		private Color[] screenColorData = new Color[GraphicsUnit.ScreenSize];
 		private Color[] palette;
 
-		private SpriteBatch spriteBatch;
-
 		private static Mutex mut = new Mutex();
 
-		public MonoGameGraphicsBackend(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch) {
+		public MonoGameGraphicsBackend(GraphicsDevice graphicsDevice) {
 			graphics = graphicsDevice;
-			this.spriteBatch = spriteBatch;
 			palette = new Color[Palette.Size];
 
 			for (var i = 0; i < Palette.Size; i++) {
@@ -35,8 +32,6 @@ namespace MonoGamePico8.backend {
 			mut.WaitOne();
 			Surface.SetData(screenColorData);
 			mut.ReleaseMutex();
-
-			spriteBatch.Draw(Surface, new Rectangle(0, 0, 512, 512), Color.White);
 		}
 		
 		public override void CreateSurface() {

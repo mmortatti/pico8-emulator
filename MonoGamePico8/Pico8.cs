@@ -37,7 +37,7 @@ namespace MonoGamePico8 {
 		}
 
 		protected override void LoadContent() {
-			_graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice, _batch);
+			_graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
 			_emulator = new Emulator(_graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
 
 			if (!_emulator.CartridgeLoader.Load("testcarts/milt.p8")) {
@@ -93,6 +93,7 @@ namespace MonoGamePico8 {
 			}
 
 			_emulator.GraphicsBackend.Draw();
+			_batch.Draw(_graphicsBackend.Surface, new Rectangle(0, 0, 512, 512), Color.White);
 
 			_batch.End();
 		}

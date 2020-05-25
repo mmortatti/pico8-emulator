@@ -40,9 +40,11 @@ namespace MonoGamePico8 {
 			_graphicsBackend = new MonoGameGraphicsBackend(GraphicsDevice);
 			_emulator = new Emulator(_graphicsBackend, new MonoGameAudioBackend(), new MonoGameInputBackend());
 
-			if (!_emulator.CartridgeLoader.Load("testcarts/milt.p8")) {
+			if (!_emulator.LoadCartridge("testcarts/nullptr.p8")) {
 				Exit();
 			}
+
+			_emulator.Run();
 
 			base.LoadContent();
 		}
@@ -50,26 +52,13 @@ namespace MonoGamePico8 {
 		protected override void Update(GameTime gameTime) {
 			base.Update(gameTime);
 			var dt = (float) gameTime.ElapsedGameTime.TotalSeconds;
-
-			_deltaUpdate30 += dt;
-
-			while (_deltaUpdate30 >= UpdateTime30) {
-				_deltaUpdate30 -= UpdateTime30;
-				//_emulator.Update30();
-			}
-			
-			_deltaUpdate60 += dt;
-
-			while (_deltaUpdate60 >= UpdateTime60) {
-				_deltaUpdate60 -= UpdateTime60;
-				//_emulator.Update60();
-			}
 			
 			_counter.Update(dt);
 			Window.Title = $"{_counter.AverageFramesPerSecond} fps {_emulator.Graphics.drawCalls} calls";
 
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
 					Keyboard.GetState().IsKeyDown(Keys.Escape)) {
+				_emulator.TriggerExitGame();
 				Exit();
 			}
 		}

@@ -24,6 +24,11 @@ namespace Pico8Emulator.unit.cart {
 
 		public override void Update() {
 			base.Update();
+		}
+
+		public void Update60()
+		{
+			base.Update();
 			loaded?.interpreter.CallIfDefined("_update60");
 		}
 		
@@ -62,6 +67,11 @@ namespace Pico8Emulator.unit.cart {
 			script.AddFunction("t", (Func<double>)Time);
 		}
 
+		public void StopCurrent()
+		{
+
+		}
+
 		public bool Load(string name) {
 			Log.Info($"Loading cart {name}");
 
@@ -83,7 +93,26 @@ namespace Pico8Emulator.unit.cart {
 				if (File.Exists(possibleName)) {
 					Log.Info($"Found cart {possibleName}");
 
-					return ReadCart(possibleName, possibleName.EndsWith(".png"));
+					bool result = ReadCart(possibleName, possibleName.EndsWith(".png"));
+
+					//
+					// Init all units and parse code. This won't run the cart
+					// since the user is expected to call Run() for that.
+					//
+
+					loaded.cartData = new int[Cartridge.CartDataSize];
+					loaded.interpreter = new MoonSharpInterpreter();
+
+					Emulator.Memory.LoadCartridgeData(loaded.rom);
+
+					Emulator.InitApi(loaded.interpreter);
+
+					foreach (var u in Emulator.units)
+					{
+						u.OnCartridgeLoad();
+					}
+
+					return result;
 				}
 			}
 
@@ -108,8 +137,6 @@ namespace Pico8Emulator.unit.cart {
 					return false;
 				}
 			}
-
-			Run();
 
 			return true;
 		}
@@ -468,35 +495,14 @@ namespace Pico8Emulator.unit.cart {
 		}
 
 		public void Run() {
-			loaded.cartData = new int[Cartridge.CartDataSize];
-			loaded.interpreter = new MoonSharpInterpreter();
+			Emulator.cartLoopTimer.Start();
+			_startTime = DateTime.Now;
+			loaded.interpreter.RunScript(loaded.code);
 
-			Emulator.Memory.LoadCartridgeData(loaded.rom);
+			HighFps = loaded.interpreter.IsDefined("_update60");
+			loaded.interpreter.CallIfDefined("_init");
 
-			Emulator.InitApi(loaded.interpreter);
-
-			foreach (var u in Emulator.units) {
-				u.OnCartridgeLoad();
-			}
-
-			Emulator.HasCodeLoaded = false;
-
-			Emulator.gameThread = new Thread(() => {
-				Emulator.cartLoopTimer.Start();
-				_startTime = DateTime.Now;
-				loaded.interpreter.RunScript(loaded.code);
-				Emulator.HasCodeLoaded = true;
-
-				HighFps = loaded.interpreter.IsDefined("_update60");
-				loaded.interpreter.CallIfDefined("_init");
-
-				Emulator.GameLoop();
-			});
-
-			Emulator.gameThread.IsBackground = false;
-			Emulator.gameThread.Priority = ThreadPriority.Highest;
-
-			Emulator.gameThread.Start();
+			Emulator.GameLoop();
 		}
 
 		public double Time() {

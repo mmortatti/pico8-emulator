@@ -27,17 +27,14 @@ namespace Pico8Emulator {
 		public readonly AudioBackend AudioBackend;
 		public readonly InputBackend InputBackend;
 
-		public bool HasCodeLoaded;
-
 		public Thread gameThread;
-
-		public EventWaitHandle flipWait = new ManualResetEvent(true);
-		public EventWaitHandle engineWait = new ManualResetEvent(true);
-		public object waitLock = new object();
-
 		public Stopwatch cartLoopTimer = new Stopwatch();
 
-		public int GameLoopCalls { get; private set; } = 0;
+		public double UpdateTime;
+
+		public long GameLoopCalls { get; private set; } = 0;
+
+		private bool exitGame = false;
 
 		public Emulator(GraphicsBackend graphics, AudioBackend audio, InputBackend input) {
 			GraphicsBackend = graphics;
@@ -60,16 +57,78 @@ namespace Pico8Emulator {
 			}
 		}
 
+		public void TriggerExitGame()
+		{
+			exitGame = true;
+		}
+
+		public void WaitForGameToFinish()
+		{
+			gameThread?.Join();
+		}
+
+		public bool LoadCartridge(string path)
+		{
+			TriggerExitGame();
+			WaitForGameToFinish();
+
+			return CartridgeLoader.Load(path);
+		}
+
+		public void Run()
+		{
+			TriggerExitGame();
+
+			gameThread = new Thread(() => {
+				CartridgeLoader.Run();
+			});
+
+			gameThread.IsBackground = false;
+			gameThread.Priority = ThreadPriority.Highest;
+
+			gameThread.Start();
+		}
+
 		public void GameLoop()
 		{
-			while(true)
+			exitGame = false;
+
+			Action Update;
+			if (CartridgeLoader.HighFps)
 			{
+				UpdateTime = 1f / 60f * 1000;
+				Update = Update60;
+			}
+			else
+			{
+				UpdateTime = 1f / 30f * 1000;
+				Update = Update30;
+			}
+
+			cartLoopTimer.Restart();
+			while (true)
+			{
+				if (exitGame)
+				{
+					break;
+				}
+
 				GameLoopCalls++;
-				Update60();
-				Update30();
-				Update60();
+
+				Update();
 				Draw();
-				Graphics.Flip();
+
+				//
+				// After draw(), wait for the correct amount of time depending on the
+				// set FPS.
+				//
+
+				GraphicsBackend.Flip();
+
+				cartLoopTimer.Stop();
+				var sleepTime = (int)(UpdateTime - cartLoopTimer.ElapsedMilliseconds);
+				Thread.Sleep(sleepTime < 0 ? 0 : sleepTime);
+				cartLoopTimer.Restart();
 			}
 		}
 
@@ -80,6 +139,11 @@ namespace Pico8Emulator {
 		}
 
 		public void Update30() {
+			foreach (var unit in units)
+			{
+				unit.Update();
+			}
+
 			CartridgeLoader.Update30();
 		}
 
@@ -87,6 +151,8 @@ namespace Pico8Emulator {
 			foreach (var unit in units) {
 				unit.Update();
 			}
+
+			CartridgeLoader.Update60();
 		}
 
 		public void Draw() {
